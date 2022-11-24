@@ -1,5 +1,5 @@
 import {db} from "./database.js"
-import {sessions, clearInactiveSessions, msToMinutes} from "./sessions.js"
+import {sessions, clearInactiveSessions, getUser} from "./sessions.js"
 import * as authentication from "./authentication.js"
 
 // http used since server and client ran on localhost.
@@ -64,9 +64,6 @@ app.get('/home', (req: express.Request, res: express.Response) => {
     
     console.log("Req.signedCookies:");
     console.log(req.signedCookies);
-
-    console.log("Req.headers.cookies:");
-    console.log(req.headers.cookies);
     
     console.log("Server session storage:")
     sessions.forEach((info, id, map) => {
@@ -75,7 +72,19 @@ app.get('/home', (req: express.Request, res: express.Response) => {
         console.log(`LastActive:   ${info.lastActivity}`);
     });
 
+    if (req.cookies && req.cookies.sessID) {
+        const curSession = sessions.get(req.cookies.sessID);
+        if (curSession) {
+            console.log(`Logged in as ${curSession.user}: valid session`);
+            curSession.lastActivity = Date.now();
+        } else {
+            console.log("Invalid sessionId");
+            res.clearCookie("sessID");
+        }
+    }
+    
     res.sendFile(homePath);
+
 });
 
 app.post('/login-attempt', parserMy, authentication.loginHandler);
