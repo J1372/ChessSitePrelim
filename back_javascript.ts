@@ -72,7 +72,7 @@ app.get('/home', (req: express.Request, res: express.Response) => {
     sessions.forEach((info, id, map) => {
         console.log(`SessID:       ${id}`);
         console.log(`User:         ${info.user}`);
-        console.log(`LastActive:   ${info.lastActivity.toLocaleString()}`);
+        console.log(`LastActive:   ${info.lastActivity}`);
     });
 
     res.sendFile(homePath);

@@ -57,7 +57,7 @@ export async function loginHandler(req: express.Request, res: express.Response) 
     if (correctPass === true) {
         const id = makeid(40);
 
-        sessions.set(id, new SessionInfo(user, new Date()));
+        sessions.set(id, new SessionInfo(user, Date.now()));
 
         res.cookie("sessID", id);
         res.cookie("time", new Date().toLocaleString());
