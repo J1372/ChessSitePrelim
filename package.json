@@ -8,6 +8,8 @@
 
     "main": "back_javascript.ts",
 
+    "type": "module",
+
     "dependencies": {
 
         "@types/bcrypt": "^5.0.0",
