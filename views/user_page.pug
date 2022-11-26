@@ -1,7 +1,5 @@
 doctype html
 
-//- Whether the current session's user is viewing their own user page.
--const myOwnPage = pageUser === sessionUser;
 
 html
     head 
@@ -12,9 +10,14 @@ html
         include ./universal_header
 
         div#mainBody
-            p #{pageUser}'s page!
-            if myOwnPage 
-                p This is your page! You are #{sessionUser}!
+            if userExists
+                p #{pageUser}'s page!
+                
+                -const myOwnPage = pageUser === sessionUser; //- Whether the current session's user is viewing their own user page.
+                if myOwnPage 
+                    p This is your page! You are #{sessionUser}!
+            else
+                p No profile found for #{pageUser}!
         
         
         include ./universal_footer

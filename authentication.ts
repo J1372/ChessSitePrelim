@@ -54,9 +54,9 @@ export async function loginHandler(req: express.Request, res: express.Response) 
 
     if (correctPass === true) {
         req.session.user = user;
-        res.send('Logged in!');
+        res.redirect('/home');
     } else {
-        res.send('Incorrect login!');
+        res.redirect('/login');
     }
 }
 

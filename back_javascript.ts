@@ -1,4 +1,4 @@
-import {db} from "./database.js"
+import {db, userExists} from "./database.js"
 import * as authentication from "./authentication.js"
 
 
@@ -84,7 +84,7 @@ app.get('/home', (req: express.Request, res: express.Response) => {
 
     console.log(`Session ID: ${session.id}`)
     console.log(`User: ${session.user}`);
-    
+
     res.render('home', { sessionUser: session.user });
 
 });
@@ -97,18 +97,22 @@ app.post('/create-account', parserMy, (req: express.Request, res: express.Respon
 
 
 app.get('/logout', parserMy, (req: express.Request, res: express.Response) => {
+    // alternatively, could do this maybe ? req.session.user = undefined;
+    
     req.session.destroy(err => {
         console.log("Logged out.");
-        res.render('home'); // todo should return a redirect to home / the page where user logged out instead.
+        res.redirect('/home'); // todo should return a redirect to home / the page where user logged out instead.
     });
 });
 
 
-app.get('/user/:user', parserMy, (req: express.Request, res: express.Response) => {
-    const getPageOf = req.params.user; // the user we are getting the profile page of.
+app.get('/user/:user', parserMy, async (req: express.Request, res: express.Response) => {
+    const user = req.params.user;
+    const getPageOf = user; // the user we are getting the profile page of.
     const sessionUser = req.session.user; // current session's user
 
-    res.render('user_page', {pageUser: getPageOf, sessionUser: sessionUser});
+    const profileExists = await userExists(user);
+    res.render('user_page', {pageUser: getPageOf, sessionUser: sessionUser, userExists: profileExists});
 
 });
 
