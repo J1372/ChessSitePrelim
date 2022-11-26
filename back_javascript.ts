@@ -1,13 +1,25 @@
 import {db} from "./database.js"
-import {sessions, clearInactiveSessions, getUser} from "./sessions.js"
 import * as authentication from "./authentication.js"
+
 
 // http used since server and client ran on localhost.
 
 import * as path from 'path';
 
+import sqlite3 from 'sqlite3';
+
 import express from 'express';
-import cookieParser from 'cookie-parser'
+import sessions from 'express-session';
+
+declare module "express-session" {
+    interface SessionData {
+      user: string;
+    }
+  }
+
+import sqliteStoreFactory from "express-session-sqlite";
+
+const sqliteStore = sqliteStoreFactory.default(sessions);
 
 const app = express();
 
@@ -25,7 +37,20 @@ const homePath = path.join(projectDir, 'frontend', 'home', 'home.html');
 const secret = "HGHFFGHTUJFY";
 
 app.use(express.static(front_path));
-app.use(cookieParser()); // maybe come before static server
+app.use(sessions({
+    secret: secret,
+    saveUninitialized: true,
+    resave: false,
+
+    store: new sqliteStore({
+        driver: sqlite3.Database,
+        path: './db/chessDB.db',
+        ttl: 1000 * 60 * 10,
+        prefix: "sql_session:",
+    })
+}));
+
+//app.use(cookieParser()); // maybe come before static server
 
 
 process.on('SIGINT', async (code) => {
@@ -66,21 +91,16 @@ app.get('/home', (req: express.Request, res: express.Response) => {
     console.log(req.signedCookies);
     
     console.log("Server session storage:")
-    sessions.forEach((info, id, map) => {
-        console.log(`SessID:       ${id}`);
-        console.log(`User:         ${info.user}`);
-        console.log(`LastActive:   ${info.lastActivity}`);
-    });
 
-    if (req.cookies && req.cookies.sessID) {
-        const curSession = sessions.get(req.cookies.sessID);
-        if (curSession) {
-            console.log(`Logged in as ${curSession.user}: valid session`);
-            curSession.lastActivity = Date.now();
-        } else {
-            console.log("Invalid sessionId");
-            res.clearCookie("sessID");
-        }
+    const session = req.session;
+    if (req.session.user) {
+        console.log(`Session ID: ${session.id}`)
+        console.log(`User: ${session.user}`);
+        console.log(`Cookie: ${session.cookie}`);
+    } else {
+        console.log(`Session ID: ${session.id}`)
+        console.log(`User: None`);
+        console.log(`Cookie: ${session.cookie}`);
     }
     
     res.sendFile(homePath);
@@ -98,6 +118,3 @@ app.post('/create-account-attempt', parserMy, authentication.createAccountHandle
 app.listen(port, () => {
     console.log(`Example app listening on port ${port}`);
 });
-
-
-setInterval(clearInactiveSessions, 0.5 *  60 * 1000); // every 30 seconds clear inactive users.

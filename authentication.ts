@@ -1,7 +1,5 @@
 import {db} from "./database.js";
 import express from 'express';
-import {sessions, SessionInfo} from "./sessions.js"
-
 import * as bcrypt from 'bcrypt';
 
 function makeid(length: number) {
@@ -55,21 +53,12 @@ export async function loginHandler(req: express.Request, res: express.Response) 
     const correctPass = await verifyLogin(user, pass);
 
     if (correctPass === true) {
-        const id = makeid(40);
-
-        sessions.set(id, new SessionInfo(user, Date.now()));
-
-        res.cookie("sessID", id);
-        res.cookie("time", new Date().toLocaleString());
-
-        res.send('Logged in!')
+        req.session.user = user;
+        res.send('Logged in!');
     } else {
-        res.send('Incorrect login!')
+        res.send('Incorrect login!');
     }
 }
-
-
-
 
 
 async function userExists(username: string) {
@@ -155,6 +144,7 @@ export async function createAccountHandler(req: express.Request, res: express.Re
         res.send('Account creation failed. Try again later.');
     } else {
         res.send({redirect: '/login'});
+        req.session.user = user;
     }
     
 }

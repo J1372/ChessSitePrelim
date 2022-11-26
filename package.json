@@ -14,6 +14,8 @@
 
         "@types/bcrypt": "^5.0.0",
 
+        "@types/express-session": "^1.17.5",
+
         "bcrypt": "^5.1.0",
 
         "chart.js": "^3.9.1",
@@ -21,6 +23,12 @@
         "cookie-parser": "^1.4.6",
 
         "express": "^4.18.2",
+
+        "express-session": "^1.17.3",
+
+        "express-session-sqlite": "^2.1.1",
+
+        "pug": "^3.0.2",
 
         "sqlite": "^4.1.2",
 

@@ -17,6 +17,8 @@ export function msToMinutes(ms: number) {
     return (ms / 1000) / 60;
 }
 
+const msToMins2 = (ms: number) => (ms / 1000) / 60;
+
 export function clearInactiveSessions() {
     console.log(`Scanning inactive sessions at time ${new Date().toLocaleString()}`);
 
@@ -27,4 +29,10 @@ export function clearInactiveSessions() {
             sessions.delete(id);
         }
     }
+}
+
+
+export function getUser(sessionId: string) {
+    const info = sessions.get(sessionId);
+    return info?.user;
 }
