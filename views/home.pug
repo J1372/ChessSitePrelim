@@ -1,0 +1,16 @@
+doctype html
+html
+    head 
+        title Chess - home
+        link(rel="stylesheet", href="/home/home.css")
+    
+    body 
+        include ./universal_header
+        
+        div(id="mainBody")
+            p Chess is played here O_O 
+
+            unless sessionUser 
+                p Why don't you log in?
+        
+        include ./universal_footer

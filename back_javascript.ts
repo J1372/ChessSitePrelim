@@ -46,11 +46,11 @@ app.use(sessions({
         driver: sqlite3.Database,
         path: './db/chessDB.db',
         ttl: 1000 * 60 * 10,
-        prefix: "sql_session:",
     })
 }));
 
-//app.use(cookieParser()); // maybe come before static server
+app.set('views', './views');
+app.set('view engine', 'pug');
 
 
 process.on('SIGINT', async (code) => {
@@ -76,7 +76,10 @@ app.get('/', (req: express.Request, res: express.Response) => {
     console.log(`New connection: ${curTime.toLocaleString()}`);
     console.log(`New connection: ${curTime.toUTCString()}`);
     
-    res.sendFile(homePath);
+    //res.sendFile(homePath);
+
+
+    res.render('home', { sessionUser: req.session.user})
 });
 
 app.get('/login', (req: express.Request, res: express.Response) => {
@@ -84,26 +87,23 @@ app.get('/login', (req: express.Request, res: express.Response) => {
 });
 
 app.get('/home', (req: express.Request, res: express.Response) => {
-    console.log("Req.cookies:");
-    console.log(req.cookies);
-    
-    console.log("Req.signedCookies:");
-    console.log(req.signedCookies);
-    
-    console.log("Server session storage:")
-
     const session = req.session;
+    console.log(`Session ID: ${session.id}`)
+
     if (req.session.user) {
-        console.log(`Session ID: ${session.id}`)
         console.log(`User: ${session.user}`);
-        console.log(`Cookie: ${session.cookie}`);
     } else {
-        console.log(`Session ID: ${session.id}`)
         console.log(`User: None`);
-        console.log(`Cookie: ${session.cookie}`);
     }
+    console.log(`Cookie: ${session.cookie}`);
+
     
-    res.sendFile(homePath);
+    //res.sendFile(homePath);
+    if (session.user) {
+        res.render('home', { sessionUser: session.user });
+    } else {
+        res.render('home');
+    }
 
 });
 
@@ -111,6 +111,23 @@ app.post('/login-attempt', parserMy, authentication.loginHandler);
 
 app.post('/create-account', parserMy, (req: express.Request, res: express.Response) => {
     res.sendFile(login_path);
+});
+
+
+app.get('/logout', parserMy, (req: express.Request, res: express.Response) => {
+    req.session.destroy(err => {
+        console.log("Logged out.");
+        res.render('home'); // todo should return a redirect to home / the page where user logged out instead.
+    });
+});
+
+
+app.get('/user/:user', parserMy, (req: express.Request, res: express.Response) => {
+    const getPageOf = req.params.user; // the user we are getting the profile page of.
+    const sessionUser = req.session.user; // current session's user
+
+    res.render('user_page', {pageUser: getPageOf, sessionUser: sessionUser});
+
 });
 
 app.post('/create-account-attempt', parserMy, authentication.createAccountHandler);

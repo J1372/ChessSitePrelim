@@ -1,0 +1,21 @@
+doctype html
+
+//- Whether the current session's user is viewing their own user page.
+-const myOwnPage = pageUser === sessionUser;
+
+html
+    head 
+        title Chess - ${pageUser}
+        link(rel="stylesheet", href="/home/home.css")
+    
+    body 
+        include ./universal_header
+
+        div#mainBody
+            p #{pageUser}'s page!
+            if myOwnPage 
+                p This is your page! You are #{sessionUser}!
+        
+        
+        include ./universal_footer
+        
