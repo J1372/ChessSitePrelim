@@ -1,4 +1,4 @@
-import {db} from "./database.js";
+import {db, userExists} from "./database.js";
 import express from 'express';
 import * as bcrypt from 'bcrypt';
 
@@ -14,7 +14,6 @@ function makeid(length: number) {
 }
 
 async function verifyLogin(username: string, password: string): Promise<boolean> {
-    
     const stmt = `SELECT password
                     FROM USER
                     WHERE name = ?`;
@@ -57,23 +56,6 @@ export async function loginHandler(req: express.Request, res: express.Response) 
         res.redirect('/home');
     } else {
         res.redirect('/login');
-    }
-}
-
-
-async function userExists(username: string) {
-    const stmt = `SELECT *
-                    FROM USER
-                    WHERE name = ?`;
-
-    const row = await db.get(stmt, [username]);
-
-    if (row) {
-        console.log(`${username} exists in the database.`);
-        return true;
-    } else {
-        console.log(`${username} does not exist in the database.`);
-        return false;
     }
 }
 
