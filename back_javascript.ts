@@ -72,13 +72,6 @@ const parserMy = express.urlencoded({extended: true});
 
 
 app.get('/', (req: express.Request, res: express.Response) => {
-    const curTime = new Date();
-    console.log(`New connection: ${curTime.toLocaleString()}`);
-    console.log(`New connection: ${curTime.toUTCString()}`);
-    
-    //res.sendFile(homePath);
-
-
     res.render('home', { sessionUser: req.session.user})
 });
 
@@ -88,22 +81,11 @@ app.get('/login', (req: express.Request, res: express.Response) => {
 
 app.get('/home', (req: express.Request, res: express.Response) => {
     const session = req.session;
+
     console.log(`Session ID: ${session.id}`)
-
-    if (req.session.user) {
-        console.log(`User: ${session.user}`);
-    } else {
-        console.log(`User: None`);
-    }
-    console.log(`Cookie: ${session.cookie}`);
-
+    console.log(`User: ${session.user}`);
     
-    //res.sendFile(homePath);
-    if (session.user) {
-        res.render('home', { sessionUser: session.user });
-    } else {
-        res.render('home');
-    }
+    res.render('home', { sessionUser: session.user });
 
 });
 
