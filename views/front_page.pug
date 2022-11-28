@@ -1,6 +1,19 @@
 doctype html
+
 html
-    head
-        title= title
-        body
-            h1= message
+    head 
+        title Chess - home
+        link(rel="stylesheet", href="/home/home.css")
+        script(src="./games_list.js") 
+    
+    body 
+        include ./universal_header
+        
+        div(id="mainBody")
+            p Chess is played here O_O 
+
+            section#openGames
+                h1 Games
+                table#openGamesTable
+        
+        include ./universal_footer

@@ -1,7 +1,6 @@
 import sqlite3 from 'sqlite3';
 import * as sqlite from 'sqlite';
 
-
 export const db = await sqlite.open({
     filename: './db/chessDB.db',
     driver: sqlite3.Database
@@ -16,4 +15,15 @@ export async function userExists(user: string) {
     const entry = await db.get(stmt, [user]);
 
     return entry !== undefined;
+}
+
+
+export async function getUserStats(user:string) {
+    const stmt = `SELECT gamesWon, gamesDrawn, gamesLost
+                  FROM user
+                  WHERE name = ?`;
+
+    const entry = await db.get(stmt, [user]);
+
+    return entry;
 }

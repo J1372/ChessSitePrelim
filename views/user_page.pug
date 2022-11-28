@@ -16,6 +16,10 @@ html
                 -const myOwnPage = pageUser === sessionUser; //- Whether the current session's user is viewing their own user page.
                 if myOwnPage 
                     p This is your page! You are #{sessionUser}!
+                
+                p Wins: #{profileWins}
+                p Draws: #{profileDraws}
+                p Losses #{profileLosses}
             else
                 p No profile found for #{pageUser}!
         

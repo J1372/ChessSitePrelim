@@ -125,8 +125,8 @@ export async function createAccountHandler(req: express.Request, res: express.Re
         // User was allowed to create the account, but insertion into db failed.
         res.send('Account creation failed. Try again later.');
     } else {
-        res.send({redirect: '/login'});
         req.session.user = user;
+        res.redirect("/home");
     }
     
 }

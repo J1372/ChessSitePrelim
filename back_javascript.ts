@@ -1,4 +1,4 @@
-import {db, userExists} from "./database.js"
+import {db, getUserStats, userExists} from "./database.js"
 import * as authentication from "./authentication.js"
 
 
@@ -111,8 +111,35 @@ app.get('/user/:user', parserMy, async (req: express.Request, res: express.Respo
     const getPageOf = user; // the user we are getting the profile page of.
     const sessionUser = req.session.user; // current session's user
 
-    const profileExists = await userExists(user);
-    res.render('user_page', {pageUser: getPageOf, sessionUser: sessionUser, userExists: profileExists});
+    //const profileExists = await userExists(user);
+    //const stats = await getUserStats(user);
+
+    Promise.all([userExists(user), getUserStats(user)]).then((promises) => {
+        const profileExists = promises[0];
+        const stats = promises[1];
+
+        if (profileExists) {
+            res.render('user_page', 
+            {
+                pageUser: getPageOf,
+                sessionUser: sessionUser,
+                userExists: profileExists,
+                profileWins: stats.gamesWon,
+                profileDraws: stats.gamesDrawn,
+                profileLosses: stats.gamesLost,
+            });
+        } else {
+            res.render('user_page', 
+            {
+                pageUser: getPageOf,
+                sessionUser: sessionUser,
+                userExists: profileExists
+            });
+        }
+
+    });
+
+    //res.render('user_page', {pageUser: getPageOf, sessionUser: sessionUser, userExists: profileExists});
 
 });
 
