@@ -71,14 +71,17 @@ export class Game {
                     this.white = new Player(otherUser, [this.timeControl.startingMins, this.timeControl.startingSecs]);
                     this.black = new Player(description.host, [this.timeControl.startingMins, this.timeControl.startingSecs]);
                 }
+                break;
             }
             case Color.White: {
                 this.white = new Player(description.host, [this.timeControl.startingMins, this.timeControl.startingSecs]);
                 this.black = new Player(otherUser, [this.timeControl.startingMins, this.timeControl.startingSecs]);
+                break;
             }
             case Color.Black: {
                 this.white = new Player(otherUser, [this.timeControl.startingMins, this.timeControl.startingSecs]);
                 this.black = new Player(description.host, [this.timeControl.startingMins, this.timeControl.startingSecs]);
+                break;
             }
         }
 
