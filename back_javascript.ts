@@ -1,6 +1,8 @@
 import {db, getUserStats, userExists} from "./database.js"
 import * as authentication from "./authentication.js"
 
+import {Game, GamePost, TimeControl, Color} from './games.js';
+
 
 // http used since server and client ran on localhost.
 
@@ -124,9 +126,9 @@ app.get('/user/:user', parserMy, async (req: express.Request, res: express.Respo
                 pageUser: getPageOf,
                 sessionUser: sessionUser,
                 userExists: profileExists,
-                profileWins: stats.gamesWon,
-                profileDraws: stats.gamesDrawn,
-                profileLosses: stats.gamesLost,
+                profileWins: stats.wins,
+                profileDraws: stats.draws,
+                profileLosses: stats.losses,
             });
         } else {
             res.render('user_page', 
@@ -143,8 +145,102 @@ app.get('/user/:user', parserMy, async (req: express.Request, res: express.Respo
 
 });
 
+
+function makeid(length: number) {
+    const base64 = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789-_';
+
+    let result = '';
+    for (let i = 0; i < length; ++i) {
+        result += base64.charAt(Math.floor(Math.random() * base64.length));
+    }
+
+    return result;
+}
+
+
+
+// Public games posted that can be joined by any user.
+const openGames = new Array<GamePost>();
+
+// no private challengeGames between two players.
+
+// Games being played now.
+const activeGames = new Array<Game>();
+
+// Map of users to games they are currently playing.
+const playingGames = new Map<string, Game>();
+
+
+
 app.post('/create-account-attempt', parserMy, authentication.createAccountHandler);
 
+app.post('/create-game', parserMy, (req: express.Request, res: express.Response) => {
+    const user = req.session.user;
+    if (user) {
+
+        // verify types!!!
+
+        const timeControl: TimeControl = {
+            startingMins: req.body.startMins,
+            startingSecs: req.body.startSecs,
+            increment: 0,
+            delay: 0,
+        }
+
+        const hostPrefer: Color | undefined = req.body.color;
+
+        let uuid = makeid(16);
+        /*
+        while (! await isUniqueGameId(uuid)) {
+            uuid = makeid(16);
+        }*/
+
+        const created = new GamePost(uuid, user, timeControl, hostPrefer);
+
+        openGames.push(created);
+        res.sendStatus(200);
+    } else {
+        res.sendStatus(403);
+    }
+
+
+});
+
+app.get('/get-open-games', parserMy,  (req: express.Request, res: express.Response) => {
+    res.send(JSON.stringify(openGames));
+});
+
+
+app.post('/join-game', parserMy, (req: express.Request, res: express.Response) => {
+    // if still looking for player, return status ok
+
+    // request has game uuid.
+
+    const uuid = '';
+    const stillActive = false; // any in opengames == uuid. race condition if two try to join.
+
+    if (stillActive) {
+        res.sendStatus(200);
+    } else {
+        res.sendStatus(403);
+    }
+
+});
+
 app.listen(port, () => {
-    console.log(`Example app listening on port ${port}`);
+    console.log(`Listening on port ${port}`);
+});
+
+
+app.post('game/:uuid', (req: express.Request, res: express.Response) => {
+
+    // handle move for session user.
+    // if valid active game, game needs to handle chess logic
+    // if game ends as a result of move, update activegames and user games.
+
+    // if  move valid, setTimeout for next user for rest of their time. clear current user timeout.
+    // on this timeout, other player timed out.
+
+
+    // move can be offer_draw, resign as well.
 });

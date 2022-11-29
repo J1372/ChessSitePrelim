@@ -17,8 +17,13 @@ export async function userExists(user: string) {
     return entry !== undefined;
 }
 
+export interface UserStats {
+    wins: number,
+    draws: number,
+    losses: number,
+}
 
-export async function getUserStats(user:string) {
+export async function getUserStats(user: string): Promise<UserStats> {
     const stmt = `SELECT gamesWon, gamesDrawn, gamesLost
                   FROM user
                   WHERE name = ?`;
