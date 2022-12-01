@@ -75,29 +75,16 @@ export class Game {
         this.timeControl = description.timeControl;
         this.started = new Date(); // could use Date.now instead
 
+        if (!description.hostPlayAs) {
+            description.hostPlayAs = Math.random() <= 0.5 ? Color.White : Color.Black;
+        }
 
-        switch (description.hostPlayAs) {
-            case undefined: {
-                const hostPlaysWhite = Math.random() <= 0.5;
-                if (hostPlaysWhite) {
-                    this.white = new Player(description.host, [this.timeControl.startingMins, this.timeControl.startingSecs]);
-                    this.black = new Player(otherUser, [this.timeControl.startingMins, this.timeControl.startingSecs]);
-                } else {
-                    this.white = new Player(otherUser, [this.timeControl.startingMins, this.timeControl.startingSecs]);
-                    this.black = new Player(description.host, [this.timeControl.startingMins, this.timeControl.startingSecs]);
-                }
-                break;
-            }
-            case Color.White: {
-                this.white = new Player(description.host, [this.timeControl.startingMins, this.timeControl.startingSecs]);
-                this.black = new Player(otherUser, [this.timeControl.startingMins, this.timeControl.startingSecs]);
-                break;
-            }
-            case Color.Black: {
-                this.white = new Player(otherUser, [this.timeControl.startingMins, this.timeControl.startingSecs]);
-                this.black = new Player(description.host, [this.timeControl.startingMins, this.timeControl.startingSecs]);
-                break;
-            }
+        if (description.hostPlayAs === Color.White) {
+            this.white = new Player(description.host, [this.timeControl.startingMins, this.timeControl.startingSecs]);
+            this.black = new Player(otherUser, [this.timeControl.startingMins, this.timeControl.startingSecs]);
+        } else {
+            this.white = new Player(otherUser, [this.timeControl.startingMins, this.timeControl.startingSecs]);
+            this.black = new Player(description.host, [this.timeControl.startingMins, this.timeControl.startingSecs]);
         }
 
         this.curTurn = Color.White;
