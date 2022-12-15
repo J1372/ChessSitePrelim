@@ -13,7 +13,7 @@ CREATE TABLE game(
 	FOREIGN KEY(black) REFERENCES user(id)
 );
 
-
+--
 create table whiteGames(
 	userId INT NOT NULL,
 	gameId UNIQUE INT NOT NULL,
