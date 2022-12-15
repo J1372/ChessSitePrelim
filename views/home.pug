@@ -4,16 +4,38 @@ html
     head 
         title Chess - home
         link(rel="stylesheet", href="/home/home.css")
+        link(rel="stylesheet", href="/home/game_table.css")
     
     body 
         include ./universal_header
+
+        div#createGameForm
+            form(action="http://localhost:8080/create-game", method="post")
+                h1 Game details 
+                label(for="minsInput") Starting Minutes
+                input#minsInput(type="number", name="startMins" value="10", min="1", required)
+
+                //- in future: if 0 mins, must have an increment or delay.
+
+                label(for="incrInput") Increment (Seconds)
+                input#incrInput(type="number", name="increment", value="0", min="0")
+
+                label(for="delayInput") Delay (seconds)
+                input#delayInput(type="number", name="delay", value="0", min="0")
+                button#createGame2 Create game
+
         
         div(id="mainBody")
             p Chess is played here O_O 
             
             section#openGames
                 h1 Games
-                ul#openGamesTable
+                table#openGamesTable
+                    thead 
+                        tr
+                            th User
+                            th Time control
+
 
 
             button#createGame(type="button") Create game
