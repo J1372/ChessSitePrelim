@@ -1,8 +1,10 @@
 import {db, getUserStats, userExists} from "./database.js"
 import * as authentication from "./authentication.js"
 
-import {Game, GamePost, TimeControl, Color} from './games.js';
-
+import { GamePost } from './gameplay/game_post.js'
+import { Game } from './gameplay/game.js'
+import { TimeControl } from './gameplay/time_control.js'
+import { Color } from './gameplay/color.js'
 
 // http used since server and client ran on localhost.
 
@@ -30,6 +32,8 @@ import { fileURLToPath } from 'url';
 const projectDir = path.dirname(fileURLToPath(import.meta.url));
 
 const port = 8080;
+
+const jsonParser = express.json();
 
 
 const front_path = path.join(projectDir, 'frontend');
@@ -174,11 +178,14 @@ const playingGames = new Map<string, Game>();
 
 app.post('/create-account-attempt', parserMy, authentication.createAccountHandler);
 
-app.post('/create-game', parserMy, (req: express.Request, res: express.Response) => {
+app.post('/create-game', jsonParser, (req: express.Request, res: express.Response) => {
     const user = req.session.user;
     if (user) {
 
         // verify types!!!
+
+        console.log(req.body);
+        console.log(req.params);
 
         const timeControl: TimeControl = {
             startingMins: req.body.startMins,
@@ -206,12 +213,12 @@ app.post('/create-game', parserMy, (req: express.Request, res: express.Response)
 
 });
 
-app.get('/get-open-games', parserMy,  (req: express.Request, res: express.Response) => {
+app.get('/get-open-games', (req: express.Request, res: express.Response) => {
     res.send(JSON.stringify(openGames));
 });
 
 
-app.post('/join-game', parserMy, (req: express.Request, res: express.Response) => {
+app.post('/join-game', jsonParser, (req: express.Request, res: express.Response) => {
     // if still looking for player, return status ok
 
     // request has game uuid.
@@ -225,14 +232,13 @@ app.post('/join-game', parserMy, (req: express.Request, res: express.Response) =
         res.sendStatus(403);
     }
 
+    // if OK, create a game.
+    // client check this in a fetch. if OK -> redirect self to game/:uuid.
+    // Else, popup 'no longer exists' and do nothing
 });
 
-app.listen(port, () => {
-    console.log(`Listening on port ${port}`);
-});
-
-
-app.post('game/:uuid', (req: express.Request, res: express.Response) => {
+app.get('/game/:uuid', (req: express.Request, res: express.Response) => {
+    // send current board page to client.
 
     // handle move for session user.
     // if valid active game, game needs to handle chess logic
@@ -243,4 +249,25 @@ app.post('game/:uuid', (req: express.Request, res: express.Response) => {
 
 
     // move can be offer_draw, resign as well.
+});
+
+app.post('/game-move', (req: express.Request, res: express.Response) => {
+    /*
+
+    Body {
+        game uuid
+        from
+        to
+
+        check if game is still active.
+        check if session is a user in game and is their turn.
+    }
+
+    no need to send response if move successful.
+    client side will do their own check. if they mess with it, it only can affect them.
+    */
+});
+
+app.listen(port, () => {
+    console.log(`Listening on port ${port}`);
 });
