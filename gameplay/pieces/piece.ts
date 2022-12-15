@@ -30,25 +30,27 @@ export interface Piece {
 
 
 export namespace Ray {
-    export const up: [number, number] = [0, 1];
-    export const down: [number, number] = [0, -1];
-    export const left: [number, number] = [-1, 0];
-    export const right: [number, number] = [1, 0];
+    export type vector = [number, number];
+
+    export const up: vector = [0, 1];
+    export const down: vector = [0, -1];
+    export const left: vector = [-1, 0];
+    export const right: vector = [1, 0];
 
 
-    export const upLeft: [number, number] = [-1, 1];
-    export const upRight: [number, number] = [1, 1];
-    export const downLeft: [number, number] = [-1, -1];
-    export const downRight: [number, number] = [1, -1];
+    export const upLeft: vector = [-1, 1];
+    export const upRight: vector = [1, 1];
+    export const downLeft: vector = [-1, -1];
+    export const downRight: vector = [1, -1];
 
-    export const diagonals: Array<[number, number]> = [upLeft, upRight, downLeft, downRight];
-    export const laterals: Array<[number, number]> = [up, right, down, left];
-
-
-    export const everyDirection: Array<[number, number]> = [up, right, down, left, upLeft, upRight, downLeft, downRight];
+    export const diagonals: Array<vector> = [upLeft, upRight, downLeft, downRight];
+    export const laterals: Array<vector> = [up, right, down, left];
 
 
-    export function getMoves(pos: Square, vector: [number, number], board: Board, forColor: Color): Array<Square> {
+    export const everyDirection: Array<vector> = [up, right, down, left, upLeft, upRight, downLeft, downRight];
+
+
+    export function getMoves(pos: Square, vector: Ray.vector, board: Board, forColor: Color): Array<Square> {
         const moves: Array<Square> = [];
 
         let curRow = pos.row + vector[1];
@@ -73,7 +75,7 @@ export namespace Ray {
         return moves;
     }
     
-    export function getMovesMultiple(pos: Square, vectors: Array<[number, number]>, board: Board, forColor: Color): Array<Square> {
+    export function getMovesMultiple(pos: Square, vectors: Array<Ray.vector>, board: Board, forColor: Color): Array<Square> {
         const moves: Array<Square> = [];
 
         // Could be more efficient.
