@@ -2,7 +2,10 @@ doctype html
 
 html
     head 
-        title Chess - Game: #{whiteUser} - #{blackUser}
+        if gameExists
+            title Chess - Game: #{whiteUser} - #{blackUser}
+        else 
+            title Chess - Game not found
         link(rel="stylesheet", href="/home/home.css")
         link(rel="stylesheet", href="/home/game_table.css")
     
@@ -12,16 +15,19 @@ html
 
         
         div(id="mainBody")
-            p Chess is played here O_O 
-            
+            if gameExists 
+                p Chess is played here O_O 
+                
 
-            canvas#board
+                canvas#board
 
 
 
-            button#drawOffer(type="button") Offer draw
-            button#resignButton(type="button") Resign
+                button#drawOffer(type="button") Offer draw
+                button#resignButton(type="button") Resign
 
-            script(type="text/javascript" src="../game.js") 
+                script(type="text/javascript" src="../game.js")
+            else
+                p Game not found.
 
         include ./universal_footer
