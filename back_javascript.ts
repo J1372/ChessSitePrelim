@@ -164,12 +164,12 @@ function makeid(length: number) {
 
 
 // Public games posted that can be joined by any user.
-const openGames = new Array<GamePost>();
+const openGames = new Map<string, GamePost>();
 
 // no private challengeGames between two players.
 
 // Games being played now.
-const activeGames = new Array<Game>();
+const activeGames = new Map<string, Game>();
 
 // Map of users to games they are currently playing.
 const playingGames = new Map<string, Game>();
@@ -244,7 +244,7 @@ app.post('/create-game', jsonParser, (req: express.Request, res: express.Respons
 
         const created = new GamePost(uuid, user, timeControl, hostPrefer);
 
-        openGames.push(created);
+        openGames.set(uuid, created);
         res.sendStatus(200);
     } else {
         res.sendStatus(403);
@@ -259,26 +259,69 @@ app.get('/get-open-games', (req: express.Request, res: express.Response) => {
 
 
 app.post('/join-game', jsonParser, (req: express.Request, res: express.Response) => {
-    // if still looking for player, return status ok
+    const uuid = req.body.uuid;
 
-    // request has game uuid.
+    if (uuid) {
+        const openGame = openGames.get(uuid);
 
-    const uuid = '';
-    const stillActive = false; // any in opengames == uuid. race condition if two try to join.
-
-    if (stillActive) {
-        res.sendStatus(200);
-    } else {
-        res.sendStatus(403);
+        if (openGame) {
+            // join player to game. move to activeGames. update game through socket to host to notify player joined. start game.
+            
+            // still looking for player, return status ok
+            // client check this in a fetch. if OK -> redirect self to game/:uuid.
+            res.sendStatus(200);
+        } else {
+            // Game not joinable.
+            res.sendStatus(403); // client should notify that the game is not joinable.
+        }
     }
-
-    // if OK, create a game.
-    // client check this in a fetch. if OK -> redirect self to game/:uuid.
-    // Else, popup 'no longer exists' and do nothing
 });
 
-app.get('/game/:uuid', (req: express.Request, res: express.Response) => {
+app.get('/game/:uuid', async (req: express.Request, res: express.Response) => {
     // send current board page to client.
+    const uuid = req.params.uuid;
+
+    const activeGame = activeGames.get(uuid);
+
+    if (activeGame) {
+        const user = req.session.user;
+
+        let userPlaying = null;
+       
+        // if session == player, allow client-side to move their pieces (which will post moves to us)
+
+        res.render('game_page', {
+            gameExists: true,
+
+        });
+
+        return;
+    }
+    
+    // no active game with uuid, check database for finished game.
+
+    const finishedGame = await db.get("SELECT white, black, result, resultDueTo, gameEnded, pgn FROM game WHERE uuid = ?", [uuid]);
+
+    if (finishedGame) {
+        const whitePromise = db.get("SELECT name FROM user WHERE id = ?", [finishedGame.white]);
+        const blackPromise = db.get("SELECT name FROM user WHERE id = ?", [finishedGame.black]);
+
+        Promise.all([whitePromise, blackPromise]).then(users => {
+
+        });
+
+        res.render('game_page', {
+            gameExists: false
+        });
+
+    }
+    else {
+        // No game being played nor game in database.
+        res.render('game_page', {
+            gameExists: false
+        });
+    }
+
 
     // handle move for session user.
     // if valid active game, game needs to handle chess logic
@@ -291,24 +334,71 @@ app.get('/game/:uuid', (req: express.Request, res: express.Response) => {
     // move can be offer_draw, resign as well.
 });
 
-app.post('/game-move', (req: express.Request, res: express.Response) => {
+app.post('/game-move', jsonParser, (req: express.Request, res: express.Response) => {
+    const game = activeGames.get(req.body.uuid);
+    const user = req.session.user;
+
+    if (!game) {
+        return;
+    }
+
+    //user === game.white.user || user === game.black.user)
+    // Only allow making a move if logged in and the user is a player in the game.
+    if (!user || !game.isPlayer(user)) {
+        return;
+    }
+
+    // There is a game with uuid, and the user is a player in the game.
+
+    // Players can resign at any time, even if it is not their turn.
+    if (req.body.resign) {
+        // handle resignation
+        return;
+    }
+
+    // Other moves: Need to verify that it is the user's turn.
+
+    if (!game.isTurn(user)) {
+        return;
+    }
+
+    // It is also the player's turn.
+    // Should be able to move if the move is valid.
+
+    // Malformed post request.
+    if (!req.body.to || !req.body.from) {
+        return;
+    }
+
+
+    const from = req.body.from;
+    const to = req.body.to;
+    if (game.canMove(from, to)) {
+        game.move(from, to);
+        // Notify other players, viewers.
+
+        // Check if game is over, notify players, viewers.
+        // if player checkmated other player or 50 move rule or 3-fold repetition, to be exact
+
+        // update timeouts, timers, etc.
+    }
+
+    // Invalid move, do nothing.
+    // In this case, client board was modified to allow sending the move despite clientside verification.
+
+    
     /*
 
     Body {
         game uuid
         from
         to
-
-        check if game is still active.
-        check if session is a user in game and is their turn.
     }
 
     no need to send response if move successful.
     client side will do their own check. if they mess with it, it only can affect them.
 
     Need to update opponent as well as clients who are viewing the game (send the move)
-
-    Need to update timers.
    
     */
 });
