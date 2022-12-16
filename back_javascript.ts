@@ -28,6 +28,7 @@ const sqliteStore = sqliteStoreFactory.default(sessions);
 const app = express();
 
 import { fileURLToPath } from 'url';
+import { Board } from "./gameplay/board.js"
 
 const projectDir = path.dirname(fileURLToPath(import.meta.url));
 
@@ -371,10 +372,18 @@ app.post('/game-move', jsonParser, (req: express.Request, res: express.Response)
     }
 
 
-    const from = req.body.from;
-    const to = req.body.to;
-    if (game.canMove(from, to)) {
-        game.move(from, to);
+    const from = req.body.from as string;
+    const to = req.body.to as string;
+
+    const fromSquare = Board.convertNotation(from);
+    const toSquare = Board.convertNotation(to);
+
+    if (!fromSquare || !toSquare) {
+        return;
+    }
+
+    if (game.canMove(fromSquare, toSquare)) {
+        game.move(fromSquare, toSquare);
         // Notify other players, viewers.
 
         // Check if game is over, notify players, viewers.

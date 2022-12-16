@@ -29,11 +29,6 @@ export class Game {
 
     curTurn: Color;
 
-    // Indexed by Color enum.
-    // 0 = White, 1 = black.
-    //kings: [Square, Square];
-    //castled: [boolean, boolean];
-
     drawOffer?: string; // user who offered a draw, if any. if other user offers draw, accepts draw.
 
     constructor(description: GamePost, otherUser: string) {
@@ -62,13 +57,38 @@ export class Game {
 
 
     getGameStatus(): GameStatus {
-
-
-
         return GameStatus.Ongoing;
     }
 
 
+    isPlayer(user: string): boolean {
+        return this.white.user === user || this.black.user === user;
+    }
+
+    isTurn(user: string): boolean {
+        if (this.white.user === user && this.curTurn === Color.White) {
+            return true;
+        }
+
+        if (this.black.user === user && this.curTurn === Color.Black) {
+            return true;
+        }
+
+        return false;
+    }
+
+    // Only checks if the piece should be able to move somewhere on the board.
+    // Does not check whether the piece is owned by the player whose turn it is.
+    canMove(from: Square, to: Square): boolean {
+        return this.board.canMove(from, to);
+    }
+
+    move(from: Square, to: Square): Piece[] {
+        const toMove = this.board.getPiece(from.row, from.col) as Piece;
+        this.board.move(from, to);
+
+        return toMove.getPromotionsOnMove(to, this.board);
+    }
 
     genPgn(): string {
         return '';

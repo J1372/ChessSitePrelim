@@ -2,21 +2,69 @@ import { Color } from "./color.js";
 import { Piece } from "./pieces/piece.js";
 import { Square } from "./square.js";
 
+// All boards are 8x8 for now.
 export class Board {
     board: Array<Piece | null>;
 
     rows: number;
     cols: number;
 
+
+    whiteControl: Array<number>;
+    blackControl: Array<number>;
+
+    // Indexed by Color enum.
+    // 0 = White, 1 = black.
+    //kings: [Square, Square];
+    //castled: [boolean, boolean];
+
+
+    static fileMap = new Map<string, number>([
+        ['a', 0],
+        ['b', 1],
+        ['c', 2],
+        ['d', 3],
+        ['e', 4],
+        ['f', 5],
+        ['a', 6],
+        ['h', 7],
+    ]);
+
+    // Converts from file-rank notation to a Square, if in bounds.
+    static convertNotation(notation: string): Square | null {
+        if (notation.length != 2) {
+            return null;
+        }
+
+        const fileNum = Board.fileMap.get(notation[0]);
+
+        if (!fileNum) {
+            return null;
+        }
+
+        const rankNum = Number(notation[1]);
+
+        if (isNaN(rankNum)) {
+            return null;
+        }
+
+        return { row: rankNum, col: fileNum };
+    }
+
     // Currently only supports the standard chess board piece setup.
     constructor(rows: number, cols: number /*config?: Array<[Square, Piece]>*/) {
         this.rows = rows;
         this.cols = cols;
-        this.board = new Array<Piece>(rows * cols);
+
+        const numSquares = rows * cols;
+        this.board = new Array<Piece>(numSquares);
+        this.whiteControl = new Array<number>(numSquares);
+        this.blackControl = new Array<number>(numSquares);
 
         // if config -> do config setup else do standard setup
 
         this.standardBoardSetup()
+
     }
 
     /**
@@ -35,6 +83,10 @@ export class Board {
         // knights, bishops, rooks, queen, and king.
     }
 
+    private squareToIndex(square: Square) {
+        return square.row * this.cols + square.col;
+    }
+
     /**
      * Gets the piece at a square on the board.
      * @param row 
@@ -44,6 +96,17 @@ export class Board {
     getPiece(row: number, col: number) {
         const index = row * this.cols + col; // 0 index
         return this.board[index];
+    }
+    
+    /**
+     * Sets the piece at a square on the board.
+     * @param square 
+     * @param piece 
+     */
+    setPiece(square: Square, piece: Piece | null) {
+        const index = this.squareToIndex(square);
+
+        this.board[index] = piece;
     }
 
     inBounds(row: number, col: number) {
@@ -79,16 +142,41 @@ export class Board {
     }
 
 
-    move(row: number, col: number, toRow: number, toCol: number) {
-        // Move and update control zones.
+    move(from: Square, to: Square) {
+        // Move the piece.
 
+
+        const toMove = this.getPiece(from.row, from.col);
+        this.setPiece(from, null);
+
+        this.setPiece(to, toMove);
+
+        // Update control zones.
         // From row, col, do a raycast in every direction.
         // If hit a piece that has a raycast that would hit this square, update its control.
+        // same for square moved to. might now be blocking ray pieces.
     }
 
-    canMove(row: number, col: number, toRow: number, toCol: number) {
+    canMove(from: Square, to: Square) {
+        if (!this.inBoundsSquare(from) || !this.inBoundsSquare(to)) {
+            return false;
+        }
 
-        // get moves, if not in moves return false.
+        const toMove = this.getPiece(from.row, from.col);
+
+        if (!toMove) {
+            return false;
+        }
+
+        const toCapture = this.getPiece(to.row, to.col);
+
+        if (toMove.color === toCapture?.color) {
+            return false;
+        }
+
+        const pieceMoves = toMove.getMoves(from, this);
+
+        return pieceMoves.includes(to);
 
         // check control afterwards, if enemy control hit king, return false.
 
