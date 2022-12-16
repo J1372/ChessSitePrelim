@@ -1,11 +1,16 @@
-import { Board } from "../board";
-import { Color } from "../color";
-import { Square } from "../square";
-import { Piece } from "./piece";
+import { Board } from "../board.js";
+import { Color } from "../color.js";
+import { Square } from "../square.js";
+import { Piece } from "./piece.js";
 
 export class Pawn implements Piece {
     readonly color: Color;
     readonly hasMoved: boolean;
+
+    constructor(color: Color) {
+        this.color = color;
+        this.hasMoved = false;
+    }
 
     getControlArea(pos: Square, board: Board): Square[] {
         const rowDirection = this.getMoveDirection();
@@ -65,7 +70,7 @@ export class Pawn implements Piece {
         return moves;
     }
 
-    getPromotionsOnMove(onMoveTo: Square, board: Board): Piece[] {
+    getPromotionsOnMove(onMoveTo: Square, board: Board): string[] {
         if (this.color == Color.White) {
             if (onMoveTo.row === board.topRow()) {
                 return []; // knight, bishop, rook, queen.

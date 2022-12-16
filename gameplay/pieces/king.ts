@@ -17,6 +17,11 @@ export class King implements Piece {
         [1, -1],
     ];
 
+    
+    constructor(color: Color) {
+        this.color = color;
+    }
+
     getMoves(pos: Square, board: Board): Square[] {
         let moves: Square[] = [];
 
@@ -32,7 +37,7 @@ export class King implements Piece {
         return moves;
     }
 
-    getPromotionsOnMove(onMoveTo: Square, board: Board): Piece[] {
+    getPromotionsOnMove(onMoveTo: Square, board: Board): string[] {
         return [];
     }
     

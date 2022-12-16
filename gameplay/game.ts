@@ -84,10 +84,26 @@ export class Game {
         return this.board.canMove(from, to);
     }
 
-    move(from: Square, to: Square): Piece[] {
+    move(from: Square, to: Square): void {
         const toMove = this.board.getPiece(from.row, from.col) as Piece;
         this.board.move(from, to);
+    }
 
+    getColor(user: string): Color {
+        if (user === this.white.user) {
+            return Color.White;
+        } else {
+            return Color.Black;
+        }
+    }
+    
+    promote(toSquare: Square, piecePromotion: Piece) {
+        this.board.setPiece(toSquare, piecePromotion);
+    }
+
+
+    getPromotions(from: Square, to: Square): string[] {
+        const toMove = this.board.getPiece(from.row, from.col) as Piece;
         return toMove.getPromotionsOnMove(to, this.board);
     }
 

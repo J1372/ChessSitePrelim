@@ -25,7 +25,7 @@ export interface Piece {
      * @param onMoveTo Square to move to on the board.
      * @param board The board the piece is on.
      */
-    getPromotionsOnMove(onMoveTo: Square, board: Board): Array<Piece>;
+    getPromotionsOnMove(onMoveTo: Square, board: Board): Array<string>;
 }
 
 

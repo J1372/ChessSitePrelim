@@ -1,9 +1,9 @@
-import { Board } from "../board";
-import { Color } from "../color";
-import { Square } from "../square";
-import { Piece } from "./piece";
+import { Board } from "../board.js";
+import { Color } from "../color.js";
+import { Square } from "../square.js";
+import { Piece } from "./piece.js";
 
-class Knight implements Piece {
+export class Knight implements Piece {
     readonly color: Color;
 
     private static offsets: Array<[number, number]> = [
@@ -24,6 +24,9 @@ class Knight implements Piece {
         [-2, -1],
     ];
 
+    constructor(color: Color) {
+        this.color = color;
+    }
 
     getControlArea(pos: Square, board: Board): Square[] {
         throw new Error("Method not implemented.");
@@ -38,7 +41,7 @@ class Knight implements Piece {
         return moves;
     }
 
-    getPromotionsOnMove(onMoveTo: Square, board: Board): Piece[] {
+    getPromotionsOnMove(onMoveTo: Square, board: Board): string[] {
         return [];
     }
 
