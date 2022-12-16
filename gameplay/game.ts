@@ -46,11 +46,11 @@ export class Game {
         }
 
         if (description.hostPlayAs === Color.White) {
-            this.white = new Player(description.host, this.timeControl.startingMins * this.timeControl.startingSecs);
-            this.black = new Player(otherUser, this.timeControl.startingMins * this.timeControl.startingSecs);
+            this.white = new Player(description.host, this.timeControl.startingMins * 60);
+            this.black = new Player(otherUser, this.timeControl.startingMins * 60);
         } else {
-            this.white = new Player(otherUser, this.timeControl.startingMins * this.timeControl.startingSecs);
-            this.black = new Player(description.host, this.timeControl.startingMins * this.timeControl.startingSecs);
+            this.white = new Player(otherUser, this.timeControl.startingMins * 60);
+            this.black = new Player(description.host, this.timeControl.startingMins * 60);
         }
 
         this.curTurn = Color.White;

@@ -221,7 +221,6 @@ app.post('/create-game', jsonParser, (req: express.Request, res: express.Respons
 
         const timeControl: TimeControl = {
             startingMins: Number(req.body.startingMins),
-            startingSecs: Number(req.body.startingSecs),
             increment: Number(req.body.increment),
             delay: Number(req.body.delay),
         }
