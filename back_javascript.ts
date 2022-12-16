@@ -178,20 +178,61 @@ const playingGames = new Map<string, Game>();
 
 app.post('/create-account-attempt', parserMy, authentication.createAccountHandler);
 
+
+function validateTimeControl(timeControl: TimeControl): string | null {
+    for (const entry of Object.entries(timeControl)) {
+        if (isNaN(entry[1])) {
+            return `${entry[0]} is not a number.`;
+        }
+    }
+
+    if (timeControl.startingMins > 120) {
+        return "Starting time was longer than 2 hours";
+    }
+
+    if (timeControl.increment > 60) {
+        return "Increment was longer than 60 seconds";
+    }
+
+    if (timeControl.delay > 60) {
+        return "Delay was longer than 60 seconds";
+    }
+    
+    if (timeControl.startingMins <= 0) {
+        return "Starting time is too low";
+    }
+
+    if (timeControl.increment < 0) {
+        return "Negative increment";
+    }
+
+    if (timeControl.delay < 0) {
+        return "Negative delay";
+    }
+
+    return null;
+}
+
 app.post('/create-game', jsonParser, (req: express.Request, res: express.Response) => {
     const user = req.session.user;
     if (user) {
 
-        // verify types!!!
-
         console.log(req.body);
-        console.log(req.params);
 
         const timeControl: TimeControl = {
-            startingMins: req.body.startMins,
-            startingSecs: req.body.startSecs,
-            increment: 0,
-            delay: 0,
+            startingMins: Number(req.body.startingMins),
+            startingSecs: Number(req.body.startingSecs),
+            increment: Number(req.body.increment),
+            delay: Number(req.body.delay),
+        }
+
+        console.log(timeControl);
+
+        const errMsg = validateTimeControl(timeControl);
+        if (errMsg) {
+            console.log(errMsg);
+            res.sendStatus(403);
+            return;
         }
 
         const hostPrefer: Color | undefined = req.body.color;
@@ -265,6 +306,11 @@ app.post('/game-move', (req: express.Request, res: express.Response) => {
 
     no need to send response if move successful.
     client side will do their own check. if they mess with it, it only can affect them.
+
+    Need to update opponent as well as clients who are viewing the game (send the move)
+
+    Need to update timers.
+   
     */
 });
 
