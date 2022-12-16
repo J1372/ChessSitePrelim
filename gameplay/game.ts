@@ -40,12 +40,13 @@ export class Game {
             description.hostPlayAs = Math.random() <= 0.5 ? Color.White : Color.Black;
         }
 
+        const startingTime = this.timeControl.startingMins * 60;
         if (description.hostPlayAs === Color.White) {
-            this.white = new Player(description.host, this.timeControl.startingMins * 60);
-            this.black = new Player(otherUser, this.timeControl.startingMins * 60);
+            this.white = new Player(description.host, startingTime);
+            this.black = new Player(otherUser, startingTime);
         } else {
-            this.white = new Player(otherUser, this.timeControl.startingMins * 60);
-            this.black = new Player(description.host, this.timeControl.startingMins * 60);
+            this.white = new Player(otherUser, startingTime);
+            this.black = new Player(description.host, startingTime);
         }
 
         this.curTurn = Color.White;
