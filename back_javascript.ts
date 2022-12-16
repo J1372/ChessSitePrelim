@@ -5,6 +5,7 @@ import { GamePost } from './gameplay/game_post.js'
 import { Game } from './gameplay/game.js'
 import { TimeControl } from './gameplay/time_control.js'
 import { Color } from './gameplay/color.js'
+import { pieceFactory } from './gameplay/pieces/piece_factory.js'
 
 // http used since server and client ran on localhost.
 
@@ -29,6 +30,7 @@ const app = express();
 
 import { fileURLToPath } from 'url';
 import { Board } from "./gameplay/board.js"
+import { Piece } from "./gameplay/pieces/piece.js"
 
 const projectDir = path.dirname(fileURLToPath(import.meta.url));
 
@@ -337,11 +339,12 @@ app.get('/game/:uuid', async (req: express.Request, res: express.Response) => {
 
 app.post('/game-move', jsonParser, (req: express.Request, res: express.Response) => {
     const game = activeGames.get(req.body.uuid);
-    const user = req.session.user;
 
     if (!game) {
         return;
     }
+
+    const user = req.session.user;
 
     //user === game.white.user || user === game.black.user)
     // Only allow making a move if logged in and the user is a player in the game.
@@ -383,7 +386,36 @@ app.post('/game-move', jsonParser, (req: express.Request, res: express.Response)
     }
 
     if (game.canMove(fromSquare, toSquare)) {
-        game.move(fromSquare, toSquare);
+        const forcedPromotions = game.getPromotions(fromSquare, toSquare);
+
+
+        // if game.mustPromote(move) then game.tryPromote(square, pieceString) and if fail then return.
+
+        if (forcedPromotions.length > 0) {
+            const userSelectedPromotion = req.body.promotion as string | null;
+
+            if (!userSelectedPromotion) {
+                return;
+            }
+
+            if (!forcedPromotions.includes(userSelectedPromotion)) {
+                return;
+            }
+
+            const promotedTo = pieceFactory(userSelectedPromotion, game.getColor(user));
+
+            if (!promotedTo) {
+                return;
+            }
+
+            game.move(fromSquare, toSquare);
+            game.promote(toSquare, promotedTo); // will double update control areas.
+        } else {
+            game.move(fromSquare, toSquare);
+        }
+
+
+
         // Notify other players, viewers.
 
         // Check if game is over, notify players, viewers.
