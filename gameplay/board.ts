@@ -1,6 +1,6 @@
-import { Color } from "./color";
-import { Piece } from "./pieces/piece";
-import { Square } from "./square";
+import { Color } from "./color.js";
+import { Piece } from "./pieces/piece.js";
+import { Square } from "./square.js";
 
 export class Board {
     board: Array<Piece | null>;

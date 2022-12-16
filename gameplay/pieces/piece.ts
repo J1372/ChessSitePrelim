@@ -1,6 +1,6 @@
-import { Board } from "../board";
-import { Color } from "../color";
-import { Square } from "../square";
+import { Board } from "../board.js";
+import { Color } from "../color.js";
+import { Square } from "../square.js";
 
 export interface Piece {
     readonly color: Color;
@@ -18,7 +18,7 @@ export interface Piece {
      * @param pos Square the piece is currently on.
      * @param board The board the piece is on.
      */
-    getControlArea(pos: Square, board: Board): Array<Square>;
+    //getControlArea(pos: Square, board: Board): Array<Square>;
 
     /**
      * Get possible piece promotions for this piece if it were to move to a square on the given board.

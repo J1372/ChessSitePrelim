@@ -1,10 +1,10 @@
-import { Board } from "../board";
-import { Color } from "../color";
-import { Square } from "../square";
-import { Piece } from "./piece";
+import { Board } from "../board.js";
+import { Color } from "../color.js";
+import { Square } from "../square.js";
+import { Piece } from "./piece.js";
 
 export class King implements Piece {
-    color: Color;
+    color: Color = Color.White;
 
     private static offsets: Array<[number, number]> = [
         [-1, 1],

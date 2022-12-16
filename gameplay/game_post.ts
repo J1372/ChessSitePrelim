@@ -1,5 +1,5 @@
-import { Color } from "./color";
-import { TimeControl } from "./time_control";
+import { Color } from "./color.js";
+import { TimeControl } from "./time_control.js";
 
 // A posting for a game that is looking for another player.
 export class GamePost {

@@ -1,9 +1,19 @@
-import { Board } from "./board";
-import { Color } from "./color";
-import { GamePost } from "./game_post";
-import { Move } from "./move";
-import { Player } from "./player";
-import { TimeControl } from "./time_control";
+import { Board } from "./board.js";
+import { Color } from "./color.js";
+import { GamePost } from "./game_post.js";
+import { Move } from "./move.js";
+import { Player } from "./player.js";
+import { TimeControl } from "./time_control.js";
+import { King } from "./pieces/king.js";
+import { Piece, Ray } from "./pieces/piece.js";
+import { Square } from "./square.js";
+
+export enum GameStatus {
+    White,
+    Black,
+    Draw,
+    Ongoing
+}
 
 // This is a game currently being played.
 export class Game {
@@ -19,6 +29,11 @@ export class Game {
 
     curTurn: Color;
 
+    // Indexed by Color enum.
+    // 0 = White, 1 = black.
+    //kings: [Square, Square];
+    //castled: [boolean, boolean];
+
     drawOffer?: string; // user who offered a draw, if any. if other user offers draw, accepts draw.
 
     constructor(description: GamePost, otherUser: string) {
@@ -31,11 +46,11 @@ export class Game {
         }
 
         if (description.hostPlayAs === Color.White) {
-            this.white = new Player(description.host, [this.timeControl.startingMins, this.timeControl.startingSecs]);
-            this.black = new Player(otherUser, [this.timeControl.startingMins, this.timeControl.startingSecs]);
+            this.white = new Player(description.host, this.timeControl.startingMins * this.timeControl.startingSecs);
+            this.black = new Player(otherUser, this.timeControl.startingMins * this.timeControl.startingSecs);
         } else {
-            this.white = new Player(otherUser, [this.timeControl.startingMins, this.timeControl.startingSecs]);
-            this.black = new Player(description.host, [this.timeControl.startingMins, this.timeControl.startingSecs]);
+            this.white = new Player(otherUser, this.timeControl.startingMins * this.timeControl.startingSecs);
+            this.black = new Player(description.host, this.timeControl.startingMins * this.timeControl.startingSecs);
         }
 
         this.curTurn = Color.White;
@@ -44,6 +59,16 @@ export class Game {
         this.moves = new Array<Move>();
 
     }
+
+
+    getGameStatus(): GameStatus {
+
+
+
+        return GameStatus.Ongoing;
+    }
+
+
 
     genPgn(): string {
         return '';
