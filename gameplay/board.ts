@@ -1,4 +1,5 @@
 import { Color } from "./color.js";
+import { King } from "./pieces/king.js";
 import { Piece } from "./pieces/piece.js";
 import { Square } from "./square.js";
 
@@ -15,8 +16,11 @@ export class Board {
 
     // Indexed by Color enum.
     // 0 = White, 1 = black.
-    //kings: [Square, Square];
-    //castled: [boolean, boolean];
+    kings: [Piece, Piece];
+    castled: [boolean, boolean];
+
+    curTurn: Color;
+    inCheck: boolean;
 
 
     static fileMap = new Map<string, number>([
@@ -61,6 +65,13 @@ export class Board {
         this.whiteControl = new Array<number>(numSquares);
         this.blackControl = new Array<number>(numSquares);
 
+        this.kings = [new King(Color.White), new King(Color.Black)];
+        this.castled = [false, false];
+
+        this.curTurn = Color.White;
+        this.inCheck = false;
+
+
         // if config -> do config setup else do standard setup
 
         this.standardBoardSetup()
@@ -79,6 +90,8 @@ export class Board {
 
         pawnRow(1, Color.White, this);
         pawnRow(6, Color.White, this);
+
+        //this.kings = [{row: 0, col: 4}, {row: 7, col: 4}];
 
         // knights, bishops, rooks, queen, and king.
     }
@@ -148,7 +161,6 @@ export class Board {
 
         const toMove = this.getPiece(from.row, from.col);
         this.setPiece(from, null);
-
         this.setPiece(to, toMove);
 
         // Update control zones.
@@ -175,6 +187,10 @@ export class Board {
         }
 
         const pieceMoves = toMove.getMoves(from, this);
+
+        if (toMove == this.kings[this.curTurn]) {
+
+        }
 
         return pieceMoves.includes(to);
 

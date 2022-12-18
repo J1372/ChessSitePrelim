@@ -27,7 +27,6 @@ export class Game {
     started: Date;
     timeControl: TimeControl;
 
-    curTurn: Color;
 
     drawOffer?: string; // user who offered a draw, if any. if other user offers draw, accepts draw.
 
@@ -49,8 +48,6 @@ export class Game {
             this.black = new Player(description.host, startingTime);
         }
 
-        this.curTurn = Color.White;
-
         this.board = new Board(8, 8);
         this.moves = new Array<Move>();
 
@@ -67,11 +64,11 @@ export class Game {
     }
 
     isTurn(user: string): boolean {
-        if (this.white.user === user && this.curTurn === Color.White) {
+        if (this.white.user === user && this.board.curTurn === Color.White) {
             return true;
         }
 
-        if (this.black.user === user && this.curTurn === Color.Black) {
+        if (this.black.user === user && this.board.curTurn === Color.Black) {
             return true;
         }
 
@@ -98,7 +95,14 @@ export class Game {
     }
     
     promote(toSquare: Square, piecePromotion: Piece) {
+        const oldPiece = this.board.getPiece(toSquare.row, toSquare.col);
+
         this.board.setPiece(toSquare, piecePromotion);
+        if (piecePromotion.color == Color.White) {
+            // update white control arrs
+        } else {
+            // update black control arrs
+        }
     }
 
 
