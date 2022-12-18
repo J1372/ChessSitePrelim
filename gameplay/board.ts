@@ -3,6 +3,11 @@ import { King } from "./pieces/king.js";
 import { Piece } from "./pieces/piece.js";
 import { Square } from "./square.js";
 
+export enum CastleDir {
+    Kingside,
+    Queenside,
+}
+
 // All boards are 8x8 for now.
 export class Board {
     board: Array<Piece | null>;
@@ -188,14 +193,32 @@ export class Board {
 
         const pieceMoves = toMove.getMoves(from, this);
 
+        // == or ===?
         if (toMove == this.kings[this.curTurn]) {
-
+            // Cgeck if can castle. This can be done in toMove.getMoves if we add qCastleColumn and kCastleColumn
         }
 
         return pieceMoves.includes(to);
 
         // check control afterwards, if enemy control hit king, return false.
 
+    }
+
+    canCastle(color: Color, castleDir: CastleDir): boolean {
+        if (this.castled[color]) {
+            return false; // already castled earlier.
+        }
+
+        // return true if no pieces between king and the castle square.
+        // and king would not be in check if moved there 
+        //    / no enemy control between king and castle square (check chess rules)
+
+        // castling disabled on side if rook has moved AT ALL as well.
+        return false; 
+    }
+
+    getCastleSquare(color: Color, castleDir: CastleDir): Square {
+        
     }
 
 }
