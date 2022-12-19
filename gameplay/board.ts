@@ -149,15 +149,15 @@ export class Board {
     }
 
 
-    controlledBy(row: number, col: number, color: Color) {
+    /*controlledBy(row: number, col: number, color: Color) {
         
-    }
+    }*/
 
 
     // Init white and black controlled squares list.
-    initControlZones() {
+    /*initControlZones() {
         
-    }
+    }*/
 
 
     move(from: Square, to: Square) {
@@ -172,6 +172,8 @@ export class Board {
         // From row, col, do a raycast in every direction.
         // If hit a piece that has a raycast that would hit this square, update its control.
         // same for square moved to. might now be blocking ray pieces.
+
+        // if toMove === king and to === a castle square, castle and update castling. 
     }
 
     canMove(from: Square, to: Square) {
@@ -204,6 +206,7 @@ export class Board {
 
     }
 
+    /*
     canCastle(color: Color, castleDir: CastleDir): boolean {
         if (this.castled[color]) {
             return false; // already castled earlier.
@@ -220,5 +223,6 @@ export class Board {
     getCastleSquare(color: Color, castleDir: CastleDir): Square {
         
     }
+    */
 
 }
