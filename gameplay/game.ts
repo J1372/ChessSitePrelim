@@ -98,7 +98,7 @@ export class Game {
         const oldPiece = this.board.getPiece(toSquare.row, toSquare.col);
 
         this.board.setPiece(toSquare, piecePromotion);
-        if (piecePromotion.color == Color.White) {
+        if (piecePromotion.color === Color.White) {
             // update white control arrs
         } else {
             // update black control arrs
