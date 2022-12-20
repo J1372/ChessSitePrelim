@@ -295,36 +295,34 @@ app.post('/join-game', jsonParser, (req: express.Request, res: express.Response)
 
 app.get('/game/:uuid', async (req: express.Request, res: express.Response) => {
     // send current board page to client.
+    const user = req.session.user;
 
-    const activeGame = activeGames.get(req.params.uuid);
-
-    if (activeGame) {
-        res.json(activeGame);
-    } else {
-        res.sendStatus(404);
-    }
-
-    /*const uuid = req.params.uuid;
-
+    const uuid = req.params.uuid;
     const activeGame = activeGames.get(uuid);
 
     if (activeGame) {
-        const user = req.session.user;
-
         let userPlaying = null;
        
         // if session == player, allow client-side to move their pieces (which will post moves to us)
 
         res.render('game_page', {
+            sessionUser: user,
+            whitePlayer: activeGame.white.user,
+            blackPlayer: activeGame.black.user,
             gameExists: true,
-
+            gameJson: JSON.stringify(activeGame),
         });
-
-        return;
+    } else {
+        res.render('game_page', {
+            sessionUser: user,
+            gameExists: false,
+        });
     }
     
     // no active game with uuid, check database for finished game.
 
+
+    /*
     const finishedGame = await db.get("SELECT white, black, result, resultDueTo, gameEnded, pgn FROM game WHERE uuid = ?", [uuid]);
 
     if (finishedGame) {
