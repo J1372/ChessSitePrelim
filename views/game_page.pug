@@ -1,9 +1,11 @@
 doctype html
 
+- const isPlayer = sessionUser == whitePlayer || sessionUser == blackPlayer
+
 html
     head 
         if gameExists
-            title Chess - Game: #{whiteUser} - #{blackUser}
+            title Chess - Game: #{whitePlayer} - #{blackPlayer}
         else 
             title Chess - Game not found
         link(rel="stylesheet", href="/home/home.css")
@@ -19,14 +21,16 @@ html
                 p Chess is played here O_O 
                 
 
-                canvas#board
+                p #{gameJson}
+                //- canvas#board
 
 
 
-                button#drawOffer(type="button") Offer draw
-                button#resignButton(type="button") Resign
+                if isPlayer
+                    button#drawOffer(type="button") Offer draw
+                    button#resignButton(type="button") Resign
 
-                script(type="text/javascript" src="../game.js")
+                //- script(type="text/javascript" src="../game.js")
             else
                 p Game not found.
 
