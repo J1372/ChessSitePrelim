@@ -2,6 +2,7 @@ import { Color } from "./color.js";
 import { King } from "./pieces/king.js";
 import { Piece } from "./pieces/piece.js";
 import { Square } from "./square.js";
+import { Pawn } from "./pieces/pawn.js";
 
 export enum CastleDir {
     Kingside,
@@ -16,8 +17,8 @@ export class Board {
     cols: number;
 
 
-    whiteControl: Array<number>;
-    blackControl: Array<number>;
+    //whiteControl: Array<number>;
+    //blackControl: Array<number>;
 
     // Indexed by Color enum.
     // 0 = White, 1 = black.
@@ -67,8 +68,8 @@ export class Board {
 
         const numSquares = rows * cols;
         this.board = new Array<Piece>(numSquares);
-        this.whiteControl = new Array<number>(numSquares);
-        this.blackControl = new Array<number>(numSquares);
+        //this.whiteControl = new Array<number>(numSquares);
+        //this.blackControl = new Array<number>(numSquares);
 
         this.kings = [new King(Color.White), new King(Color.Black)];
         this.castled = [false, false];
@@ -86,15 +87,17 @@ export class Board {
     /**
      * Sets the board up with the standard chess setup.
      */
-    standardBoardSetup() {
+    private standardBoardSetup() {
         function pawnRow(row: number, color: Color, board: Board) {
             for (let i = 0; i < board.cols; ++i) {
-                board.board[i] = null;
+                const square = {row: row, col: i};
+
+                board.setPiece(square, new Pawn(color));
             }
         }
 
         pawnRow(1, Color.White, this);
-        pawnRow(6, Color.White, this);
+        pawnRow(6, Color.Black, this);
 
         //this.kings = [{row: 0, col: 4}, {row: 7, col: 4}];
 
@@ -195,8 +198,7 @@ export class Board {
 
         const pieceMoves = toMove.getMoves(from, this);
 
-        // == or ===?
-        if (toMove == this.kings[this.curTurn]) {
+        if (toMove === this.kings[this.curTurn]) {
             // Cgeck if can castle. This can be done in toMove.getMoves if we add qCastleColumn and kCastleColumn
         }
 
