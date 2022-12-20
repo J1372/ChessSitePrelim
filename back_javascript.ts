@@ -257,32 +257,47 @@ app.post('/create-game', jsonParser, (req: express.Request, res: express.Respons
 });
 
 app.get('/get-open-games', (req: express.Request, res: express.Response) => {
-    res.send(JSON.stringify(openGames));
+    res.send(JSON.stringify(Array.from(openGames.values())));
 });
 
 
 app.post('/join-game', jsonParser, (req: express.Request, res: express.Response) => {
     const uuid = req.body.uuid;
 
-    if (uuid) {
-        const openGame = openGames.get(uuid);
+    if (!uuid) {
+        res.sendStatus(404);
+        return;
+    }
 
-        if (openGame) {
-            // join player to game. move to activeGames. update game through socket to host to notify player joined. start game.
-            
-            // still looking for player, return status ok
-            // client check this in a fetch. if OK -> redirect self to game/:uuid.
-            res.sendStatus(200);
-        } else {
-            // Game not joinable.
-            res.sendStatus(403); // client should notify that the game is not joinable.
-        }
+    const gamePost = openGames.get(uuid);
+
+    if (gamePost && req.session.user) {
+        // join player to game. move to activeGames. update game through socket to host to notify player joined. start game.
+        
+        // still looking for player, return status ok
+        // client check this in a fetch. if OK -> redirect self to game/:uuid.
+        openGames.delete(uuid);
+        const newGame = new Game(gamePost, req.session.user);
+        activeGames.set(uuid, newGame);
+        res.sendStatus(200);
+    } else {
+        // Game not joinable, or user not signed in.
+        res.sendStatus(403); // client should notify that the game is not joinable.
     }
 });
 
 app.get('/game/:uuid', async (req: express.Request, res: express.Response) => {
     // send current board page to client.
-    const uuid = req.params.uuid;
+
+    const activeGame = activeGames.get(req.params.uuid);
+
+    if (activeGame) {
+        res.json(activeGame);
+    } else {
+        res.sendStatus(404);
+    }
+
+    /*const uuid = req.params.uuid;
 
     const activeGame = activeGames.get(uuid);
 
@@ -323,7 +338,7 @@ app.get('/game/:uuid', async (req: express.Request, res: express.Response) => {
         res.render('game_page', {
             gameExists: false
         });
-    }
+    }*/
 
 
     // handle move for session user.
