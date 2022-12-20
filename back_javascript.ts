@@ -270,14 +270,21 @@ app.post('/join-game', jsonParser, (req: express.Request, res: express.Response)
     }
 
     const gamePost = openGames.get(uuid);
+    const userJoining = req.session.user;
 
-    if (gamePost && req.session.user) {
+    if (gamePost && userJoining) {
+        if (userJoining === gamePost.host) {
+            // Host trying to join their own game.
+            res.sendStatus(403);
+            return;
+        }
+
         // join player to game. move to activeGames. update game through socket to host to notify player joined. start game.
         
         // still looking for player, return status ok
         // client check this in a fetch. if OK -> redirect self to game/:uuid.
         openGames.delete(uuid);
-        const newGame = new Game(gamePost, req.session.user);
+        const newGame = new Game(gamePost, userJoining);
         activeGames.set(uuid, newGame);
         res.sendStatus(200);
     } else {
