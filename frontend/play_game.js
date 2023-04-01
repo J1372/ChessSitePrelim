@@ -1,7 +1,7 @@
 //const gameDownload = await fetch("http://localhost:8080/get-game/uuid")
 
-import {game, canvasBoard, ctx, renderBoardBackground, renderBoardForeground} from './view_game.js'
-import {Board} from '/board.js'
+import {game, canvasBoard, ctx, renderBoardBackground, renderBoardForeground} from './view_game.js';
+import {Board} from '/board.js';
 /*class GameClient {
     game: Game;
 
@@ -11,8 +11,6 @@ console.log(game)
 
 let selected = null;
 
-const lastSlash = window.location.href.lastIndexOf('/');
-const uuid = window.location.href.substring(lastSlash + 1);
 const user = document.getElementById('to-user-page').innerText;
 
 // handles user's click on the board.
@@ -43,7 +41,7 @@ function handleClick(event) {
             // send move, then game.move();
             console.log(Board.convertToNotation(selected));
             console.log(Board.convertToNotation(clicked));
-            game.move(selected, clicked);
+            //game.move(selected, clicked);
             renderBoardBackground();
             renderBoardForeground(game.board);
 
@@ -80,7 +78,7 @@ async function sendMove(move) {
     // disable canvas interaction.
     // send ajax post 
 
-    fetch("http://localhost:8080/game-move/" + uuid,
+    fetch("http://localhost:8080/game-move/" + game.uuid,
     {
         headers: {
             "Accept": "application/json",

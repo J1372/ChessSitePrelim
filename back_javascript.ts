@@ -186,6 +186,8 @@ const activeGames = new Map<string, Game>();
 // Map of users to games they are currently playing.
 const playingGames = new Map<string, Game>();
 
+// SSE game observers
+const gameObservers = new Map<string, Array<Observer>>();
 
 
 app.post('/create-account-attempt', parserMy, authentication.createAccountHandler);
@@ -295,6 +297,7 @@ app.post('/join-game', jsonParser, (req: express.Request, res: express.Response)
         openGames.delete(uuid);
         const newGame = Game.fromPost(gamePost, userJoining);
         activeGames.set(uuid, newGame);
+        gameObservers.set(uuid, []); // could merge obserevrs with activeGames.
         res.sendStatus(200); // or res.redirect here.
     } else {
         // Game not joinable, or user not signed in.
@@ -314,6 +317,7 @@ app.get('/game/:uuid', async (req: express.Request, res: express.Response) => {
        
         // if session == player, allow client-side to move their pieces (which will post moves to us)
 
+
         res.render('game_page', {
             sessionUser: user,
             whitePlayer: activeGame.white.user,
@@ -321,6 +325,8 @@ app.get('/game/:uuid', async (req: express.Request, res: express.Response) => {
             gameExists: true,
             gameJson: JSON.stringify(activeGame),
         });
+
+
     } else {
         res.render('game_page', {
             sessionUser: user,
@@ -366,6 +372,10 @@ app.get('/game/:uuid', async (req: express.Request, res: express.Response) => {
     // move can be offer_draw, resign as well.
 });
 
+app.get('/game/:uuid/subscribe', async (req: express.Request, res: express.Response) => {
+    addGameObserver(req, res, req.params.uuid);
+});
+
 function tryMove(req: express.Request): boolean {
     const game = activeGames.get(req.params.uuid);
     console.log('hi 1');
@@ -408,7 +418,6 @@ function tryMove(req: express.Request): boolean {
 
     console.log('hi 5');
 
-
     const from = req.body.from as string;
     const to = req.body.to as string;
 
@@ -418,9 +427,6 @@ function tryMove(req: express.Request): boolean {
     console.log(from);
     console.log(to);
     
-    console.log(fromSquare);
-    console.log(toSquare);
-
     // Move notation invalid for board size.
     if (!fromSquare || !toSquare) {
         return false;
@@ -462,15 +468,16 @@ function tryMove(req: express.Request): boolean {
             game.move(fromSquare, toSquare);
         }
 
-
         // Currently just checks if player won by this move.
         // Does not check more obscure rules (50 move rule, 3-fold repetition.
-        /*if (game.hasWon(curTurn)) {
+        /*if (game.hasWon(user)) {
             // send event that cur player won.
         } else {
             // send move event to players, visitors.
             // update timeouts, timers, etc.
         }*/
+
+        notifyObservers(game.uuid, { from: from, to: to });
 
         return true;
         
@@ -506,6 +513,65 @@ app.post('/game-move/:uuid', jsonParser, (req: express.Request, res: express.Res
     }
 });
 
+interface Observer {
+    id: string;
+    res: express.Response;
+}
+
+
+function addGameObserver(req: express.Request, res: express.Response, uuid: string) {
+    const headers = {
+        'Content-Type': 'text/event-stream',
+        'Connection': 'keep-alive',
+        'Cache-Control': 'no-cache'
+    };
+
+    res.writeHead(200, headers);
+
+    const observer = { id: makeUnsecureUUID(16), res: res };
+    gameObservers.get(uuid)?.push(observer);
+
+    req.on('close', () => {
+        // could use index in array as an id and swap-pop
+        console.log(`${observer.id} closed sse connection.`);
+
+        const currObservers = gameObservers.get(uuid);
+        if (currObservers) {
+            gameObservers.set(uuid, currObservers.filter(o => o.id !== observer.id));
+        }
+
+        // todo when game is finished, remember to delete gameObservers.uuid list.
+        // in some other func, not here.
+
+    })
+}
+
+function notifyObservers(uuid: string, move: any) {
+    const observerList = gameObservers.get(uuid);
+
+    if (!observerList) {
+        return;
+    }
+
+    const message = 'event: move\ndata: ' + JSON.stringify(move) + '\n\n';
+    observerList.forEach(o => o.res.write(message));
+
+}
+
+
+
+
+
+
 app.listen(port, () => {
     console.log(`Listening on port ${port}`);
 });
+
+
+
+
+
+
+
+
+

@@ -1,10 +1,13 @@
-import { Game } from "/game.js"
+import { Game } from "/game.js";
+import {Board} from '/board.js';
 
 const gameJson = JSON.parse(document.getElementById('gameJson').innerText);
 console.log('Json:');
 console.log(gameJson);
 
 const game = Game.deserialize(gameJson);
+const uuid = game.uuid;
+
 console.log('Game:');
 console.log(game);
 
@@ -52,18 +55,39 @@ renderBoardBackground();
 renderBoardForeground(game.board);
 
 function onGameEvent(event) {
+    console.log(event);
 
+    const move = JSON.parse(event.data);
+    const from = Board.convertFromNotation(move.from);
+    const to = Board.convertFromNotation(move.to);
+
+    game.move(from, to);
+    renderBoardBackground();
+    renderBoardForeground(game.board);
 }
 
 function updateClock() {
-    
+
 }
 
-/*
-'http://localhost:8080/game/' + uuid;
-const opponentListener = new EventSource("", {withCredentials: true});
-opponentListener.addEventListener("move", onOpponentMove);
-*/
+
+const sseURL = 'http://localhost:8080/game/' + uuid + '/subscribe';
+const moveListener = new EventSource(sseURL/*, {withCredentials: true}*/);
+moveListener.addEventListener("move", onGameEvent);
+moveListener.onerror = () => moveListener.close();
+
+// alternatively, look at the pagehide event
+window.addEventListener('visibilitychange', event => {
+    console.log(window.visibilityState);
+    if (window.visibilityState === 'hidden') {
+        // close the event source.
+        moveListener.close();
+    } else {
+        // reopen the event source.
+    }
+});
+
+
 // could also separate move event from timeout event.
 
 export { // just for now exporrting funcs as well
