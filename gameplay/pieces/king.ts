@@ -23,23 +23,35 @@ export class King implements Piece {
     constructor(color: Color) {
         this.color = color;
     }
-    
-    notifyMove(): void {}
-
-
-    getMoves(pos: Square, board: Board): Square[] {
+    getControlArea(pos: Square, board: Board): Square[] {
         let moves: Square[] = [];
 
         King.offsets.forEach(offset => {
             const potentialMove: Square = {row: pos.row + offset[1], col: pos.col + offset[0]};
 
-            // Must check that king can not be captured after move as well.
-            if (board.inBoundsSquare(potentialMove) && !board.occupiedBy(potentialMove.row, potentialMove.col, this.color)) {
+            if (board.inBoundsSquare(potentialMove)) {
                 moves.push(potentialMove);
             }
         });
         
         return moves;
+    }
+    
+    notifyMove(): void {}
+
+
+    getMoves(pos: Square, board: Board): Square[] {
+        const controls = this.getControlArea(pos, board);
+        
+        // remove squares where same color.
+        const diffColor = controls.filter(square => !board.occupiedBy(square.row, square.col, this.color));
+        console.log(diffColor);
+
+        // remove squares that put self in check.
+        const validMoves = diffColor.filter(square => !board.putsInCheck(pos, square, this.color));
+        console.log(diffColor);
+
+        return validMoves;
     }
 
     getPromotionsOnMove(onMoveTo: Square, board: Board): string[] {

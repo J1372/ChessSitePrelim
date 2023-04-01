@@ -2,12 +2,23 @@ import { Board } from "../board.js";
 import { Color } from "../color.js";
 import { Square } from "../square.js";
 
+
+// could have piece be a class so that we can implement a default getMoves.
+// pawn is currently the only unique getMoves.
+// is this a bad use case, inheriting just for code reuse?
+// dont think so, each piece has a common interface, and differences that aren't data.
 export interface Piece {
     readonly color: Color;
     readonly pieceName: string;
 
     /**
      * Get a list of squares that the piece can move to.
+     * most pieces, this is just a more constrained getControlArea
+     * pawn is an exception.
+     * additional constraints:
+     *      to square must not be same color.
+     *      move must not place piece in check.
+     * 
      * @param pos Square the piece is currently on.
      * @param board The board the piece is on.
      */
@@ -19,7 +30,7 @@ export interface Piece {
      * @param pos Square the piece is currently on.
      * @param board The board the piece is on.
      */
-    //getControlArea(pos: Square, board: Board): Array<Square>;
+    getControlArea(pos: Square, board: Board): Array<Square>;
 
     /**
      * Get possible piece promotions for this piece if it were to move to a square on the given board.
@@ -53,40 +64,38 @@ export namespace Ray {
     export const everyDirection: Array<vector> = [up, right, down, left, upLeft, upRight, downLeft, downRight];
 
 
-    export function getMoves(pos: Square, vector: Ray.vector, board: Board, forColor: Color): Array<Square> {
-        const moves: Array<Square> = [];
+    export function getControl(pos: Square, vector: Ray.vector, board: Board): Array<Square> {
+        const controls: Array<Square> = [];
 
         let curRow = pos.row + vector[1];
         let curCol = pos.col + vector[0];
 
-        while (board.inBounds(curRow, curCol) && !board.isOccupied(curRow, curCol)) {
-            moves.push({row: curRow, col: curCol});
-            
+        while (board.inBounds(curRow, curCol)) {
+            controls.push({row: curRow, col: curCol});
+
+            if (board.isOccupied(curRow, curCol)) {
+                // stop early because hit a piece.
+                return controls;
+            }
+
             curRow += vector[1];
             curCol += vector[0];
         }
 
-        if (board.inBounds(curRow, curCol)) {
-            // Stopped because collided with a piece.
+        // went to edge of board
 
-            // If that piece is a different color from the provided color, add that capture as a move.
-            if (board.occupiedBy(curRow, curCol, Color.opposite(forColor))) {
-                moves.push({row: curRow, col: curCol});
-            }
-        }
-
-        return moves;
+        return controls;
     }
     
-    export function getMovesMultiple(pos: Square, vectors: Array<Ray.vector>, board: Board, forColor: Color): Array<Square> {
-        const moves: Array<Square> = [];
+    export function getControlMultiple(pos: Square, vectors: Array<Ray.vector>, board: Board): Array<Square> {
+        const controls: Array<Square> = [];
 
         // Could be more efficient.
         vectors.forEach(vector => {
-            const directionMoves = getMoves(pos, vector, board, forColor);
-            moves.push(...directionMoves);
+            const directionMoves = getControl(pos, vector, board);
+            controls.push(...directionMoves);
         });
 
-        return moves;
+        return controls;
     }
 }

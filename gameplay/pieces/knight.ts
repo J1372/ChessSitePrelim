@@ -32,37 +32,31 @@ export class Knight implements Piece {
     notifyMove(): void {}
 
     getControlArea(pos: Square, board: Board): Square[] {
-        throw new Error("Method not implemented.");
-    }
-
-    getMoves(pos: Square, board: Board): Square[] {
         const squares = Knight.offsets.map(offset => { return { row: pos.row + offset[1], col: pos.col + offset[0] } });
         console.log(squares);
         const inBounds = squares.filter(square => board.inBoundsSquare(square));
         console.log(inBounds);
-        const validMoves = inBounds.filter(square => !board.occupiedBy(square.row, square.col, this.color));
-        console.log(validMoves);
 
+
+        return inBounds;
+    }
+
+    getMoves(pos: Square, board: Board): Square[] {
+        const controls = this.getControlArea(pos, board);
+        
+        // remove squares where same color.
+        const diffColor = controls.filter(square => !board.occupiedBy(square.row, square.col, this.color));
+        console.log(diffColor);
+
+        // remove squares that put self in check.
+        const validMoves = diffColor.filter(square => !board.putsInCheck(pos, square, this.color));
+        console.log(diffColor);
 
         return validMoves;
     }
 
     getPromotionsOnMove(onMoveTo: Square, board: Board): string[] {
         return [];
-    }
-
-    private getInBoundsSquares(pos: Square, offsets: Array<[number, number]>, board: Board): Square[] {
-        let moves: Square[] = [];
-
-        offsets.forEach(offset => {
-            const potentialMove: Square = {row: pos.row + offset[1], col: pos.col + offset[0]};
-
-            if (board.inBoundsSquare(potentialMove)) {
-                moves.push(potentialMove);
-            }
-        });
-        
-        return moves;
     }
     
 }

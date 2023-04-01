@@ -62,6 +62,7 @@ export class Pawn implements Piece {
         // Can move (diagonally by 1 if enemy piece present).
         const enemyColor = Color.opposite(this.color);
 
+        // get controlarea, push to moves if occupiedby enemy
         const leftSide = pos.col - 1;
         if (board.inBounds(nextRow, leftSide) && board.occupiedBy(nextRow, leftSide, enemyColor)) {
             moves.push({row: nextRow, col: leftSide});

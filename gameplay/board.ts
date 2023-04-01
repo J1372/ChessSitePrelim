@@ -207,18 +207,6 @@ export class Board {
         return piece?.color === color;
     }
 
-
-    /*controlledBy(row: number, col: number, color: Color) {
-        
-    }*/
-
-
-    // Init white and black controlled squares list.
-    /*initControlZones() {
-        
-    }*/
-
-
     move(from: Square, to: Square) {
         // Move the piece.
         const toMove = this.getPiece(from.row, from.col);
@@ -226,6 +214,8 @@ export class Board {
         this.setPiece(to, toMove);
 
         this.curTurn = Color.opposite(this.curTurn);
+
+        // is other guy in check? checkmate? update status
 
         // Update control zones.
         // From row, col, do a raycast in every direction.
@@ -258,21 +248,64 @@ export class Board {
         }
         console.log('canMove 3')
 
-        console.log(this.board);
+        // can optimize, check if 'to' is in piece moves before checking if it putsInCheck.
+        // we don't need to do a inCheckMove for all its moves, just for 'to' if it is in piece moves
+        const moves = toMove.getMoves(from, this);
 
-        const pieceMoves = toMove.getMoves(from, this);
-
+        /*
         if (toMove === this.kings[this.curTurn]) {
             // Cgeck if can castle. This can be done in toMove.getMoves if we add qCastleColumn and kCastleColumn
-        }
+        }*/
 
         console.log(from);
         console.log(to);
 
-        console.log(pieceMoves);
-        return pieceMoves.some(move => move.row == to.row && move.col == to.col);
-        // check control afterwards, if enemy control hit king, return false.
+        // filter out moves that leave you in check. move to pi
 
+        console.log(moves);
+
+        return moves.some(move => move.row == to.row && move.col == to.col);
+    }
+
+    // rename inCheckAfterMove
+    putsInCheck(from: Square, to: Square, color: Color) {
+        // move
+        const fromCopy = this.getPiece(from.row, from.col);
+        const toCopy = this.getPiece(to.row, to.col);
+
+        this.setPiece(from, null);
+        this.setPiece(to, fromCopy);
+
+        // get enemy control.
+
+        const enemy = Color.opposite(color);
+        const enemyControl = this.getControlSquares(enemy);
+
+        const wouldBeInCheck = enemyControl.some(square => this.getPiece(square.row, square.col) === this.kings[color]);
+
+        // reset move
+
+        this.setPiece(to, toCopy);
+        this.setPiece(from, fromCopy);
+
+        return wouldBeInCheck;
+    }
+
+    getControlSquares(color: Color): Array<Square> {
+        const controlled: Square[] = [];
+
+        for (let i = 0; i < this.rows; i++) {
+            for (let j = 0; j < this.cols; j++) {
+                const piece = this.getPiece(i, j);
+
+                if (piece?.color === color) {
+                    const controls = piece.getControlArea({row: i, col: j}, this);
+                    controls.map(square => controlled.push(square));
+                }
+            }
+        }
+
+        return controlled;
     }
 
     /*

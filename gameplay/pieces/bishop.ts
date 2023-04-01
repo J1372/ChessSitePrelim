@@ -11,12 +11,27 @@ export class Bishop implements Piece {
         this.color = color;
     }
     
+    getControlArea(pos: Square, board: Board): Square[] {
+        return Ray.getControlMultiple(pos, Ray.diagonals, board);
+    }
+    
     notifyMove(): void {}
 
     
     getMoves(pos: Square, board: Board): Square[] {
-        return Ray.getMovesMultiple(pos, Ray.diagonals, board, this.color);
+        const controls = this.getControlArea(pos, board);
+        
+        // remove squares where same color.
+        const diffColor = controls.filter(square => !board.occupiedBy(square.row, square.col, this.color));
+        console.log(diffColor);
+
+        // remove squares that put self in check.
+        const validMoves = diffColor.filter(square => !board.putsInCheck(pos, square, this.color));
+        console.log(diffColor);
+
+        return validMoves;
     }
+
     getPromotionsOnMove(onMoveTo: Square, board: Board): string[] {
         return [];
     }
