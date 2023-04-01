@@ -1,6 +1,6 @@
 //const gameDownload = await fetch("http://localhost:8080/get-game/uuid")
 
-import {game, canvasBoard, ctx, renderBoardBackground, renderBoardForeground} from './view_game.js';
+import {game, canvasBoard, ctx, renderSquare, renderPiece, renderBoardBackground, renderBoardForeground} from './view_game.js';
 import {Board} from '/board.js';
 /*class GameClient {
     game: Game;
@@ -13,12 +13,23 @@ let selected = null;
 
 const user = document.getElementById('to-user-page').innerText;
 
+const player = game.getPlayer(user);
+
+function selectSquare(toSelect, piece) {
+    selected = toSelect;
+    const moves = piece.getMoves(selected, game.board);
+    console.log(moves);
+    
+    renderSquare(selected, 'green');
+    renderPiece(selected, piece);
+    renderMoves(moves);
+}
+
 // handles user's click on the board.
 function handleClick(event) {
     /*if (!game.isTurn(me)) {
         return;
     }*/
-
 
     // translate click coords to square.
     const squareSize = canvasBoard.width / game.board.cols;
@@ -30,34 +41,45 @@ function handleClick(event) {
         col: file
     };
 
-
     const clickedPiece = game.board.getPiece(clicked.row, clicked.col);
 
-    console.log(clicked);
-    console.log(clickedPiece);
-    
     if (selected) {
         if (game.canMove(user, selected, clicked)) {
-            // send move, then game.move();
-            console.log(Board.convertToNotation(selected));
-            console.log(Board.convertToNotation(clicked));
-            //game.move(selected, clicked);
-            renderBoardBackground();
-            renderBoardForeground(game.board);
 
             sendMove({from: Board.convertToNotation(selected), to: Board.convertToNotation(clicked)});
+            selected = null;
+        } else if (game.owns(player, clicked)) {
+            renderBoardBackground();
+            renderBoardForeground(game.board);
+            selectSquare(clicked, clickedPiece);
+        } else {
+            renderBoardBackground();
+            renderBoardForeground(game.board);
+            selected = null;
         }
 
-        selected = null;
     } else {
-        if (clickedPiece) { // is my piece
+        if (game.owns(player, clicked) && game.isTurn(player)) { // is my piece
             // set selected. display possible moves.
-            selected = clicked;
-            const moves = clickedPiece.getMoves(clicked, game.board);
-            console.log(moves);
+            selectSquare(clicked, clickedPiece);
         }
     }
 
+}
+
+
+function renderMoves(moves) {
+    const squareSize = canvasBoard.width / 8;
+    const radius = squareSize / 4;
+
+    for (const square of moves) {
+        const center = { x: square.col * squareSize + squareSize/2, y: square.row * squareSize + squareSize/2 };
+
+        ctx.fillStyle = 'green';
+        ctx.beginPath();
+        ctx.arc(center.x, center.y, radius, 0, 2* Math.PI, false);
+        ctx.fill();
+    }
 }
 
 canvasBoard.addEventListener('click', handleClick);

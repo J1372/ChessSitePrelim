@@ -15,35 +15,41 @@ const canvasBoard = document.getElementById('board');
 canvasBoard.height = canvasBoard.width;
 const ctx = canvasBoard.getContext('2d');
 
-function renderBoardBackground() {
+function renderSquare(square, color) {
     const size = canvasBoard.width / 8;
+    const start = { x: square.col * size, y: square.row * size };
+    ctx.fillStyle = color;
+    ctx.fillRect(start.x, start.y, size, size);
+}
+
+function renderBoardBackground() {
     for (let i = 0; i < 8; i++) {
         for (let j = 0; j < 8; j++) {
             if ((i + j) % 2 == 0) {
-                ctx.fillStyle = 'grey';
+                renderSquare({ col: j, row: i }, 'grey');
             }
             else {
-                ctx.fillStyle = 'darkgrey';
+                renderSquare({ col: j, row: i }, 'darkgrey');
             }
-            const start = { x: j * size, y: i * size };
-            ctx.fillRect(start.x, start.y, size, size);
         }
     }
 }
 
-function renderBoardForeground(board) {
+function renderPiece(square, piece) {
+    const size = canvasBoard.width / 8;
+    const start = { x: square.col * size + size / 3, y: square.row * size + size / 2};
+
     ctx.fillStyle = 'red';
     ctx.font = "16px Arial";
-    const size = canvasBoard.width / 8;
+    ctx.fillText(piece.pieceName + piece.color, start.x, start.y);
+}
 
+function renderBoardForeground(board) {
     for (let i = 0; i < board.rows; i++) {
         for (let j = 0; j < board.rows; j++) {
             const piece = board.getPiece(i, j);
-            
-            const start = { x: j * size + size / 3, y: i * size + size / 2};
-
             if (piece) {
-                ctx.fillText(piece.pieceName + piece.color, start.x, start.y);
+                renderPiece({ row: i, col: j }, piece);
             }
         }
     }
@@ -91,5 +97,5 @@ window.addEventListener('visibilitychange', event => {
 // could also separate move event from timeout event.
 
 export { // just for now exporrting funcs as well
-    game, canvasBoard, ctx, renderBoardBackground, renderBoardForeground
+    game, canvasBoard, ctx, renderSquare, renderPiece, renderBoardBackground, renderBoardForeground
 }
