@@ -2,17 +2,6 @@ import {db, userExists} from "./database.js";
 import express from 'express';
 import * as bcrypt from 'bcrypt';
 
-function makeid(length: number) {
-    const characters = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789';
-
-    let result = '';
-    for (let i = 0; i < length; ++i) {
-        result += characters.charAt(Math.floor(Math.random() * characters.length));
-    }
-
-    return result;
-}
-
 async function verifyLogin(username: string, password: string): Promise<boolean> {
     const stmt = `SELECT password
                     FROM USER
@@ -48,6 +37,11 @@ export async function loginHandler(req: express.Request, res: express.Response) 
 
     const user = req.body['username'];
     const pass = req.body['password'];
+
+    if (!user || !pass) {
+        res.send(403);
+        return;
+    }
 
     const correctPass = await verifyLogin(user, pass);
 
@@ -99,8 +93,13 @@ async function canCreateAccount(user: string, pass: string) {
 export async function createAccountHandler(req: express.Request, res: express.Response) {
     console.log(req.body);
 
-    const user: string = req.body['username'];
-    const pass: string = req.body['password'];
+    const user: string | undefined = req.body['username'];
+    const pass: string | undefined = req.body['password'];
+
+    if (!user || !pass) {
+        res.send(403);
+        return;
+    }
 
     const verifyError = await canCreateAccount(user, pass);
 

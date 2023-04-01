@@ -46,6 +46,7 @@ const homePath = path.join(projectDir, 'frontend', 'home', 'home.html');
 const secret = "HGHFFGHTUJFY";
 
 app.use(express.static(front_path));
+app.use(express.static(path.join(projectDir, 'gameplay')));
 app.use(sessions({
     secret: secret,
     saveUninitialized: true,
@@ -108,7 +109,7 @@ app.post('/create-account', parserMy, (req: express.Request, res: express.Respon
 app.get('/logout', parserMy, (req: express.Request, res: express.Response) => {
     // alternatively, could do this maybe ? req.session.user = undefined;
     
-    req.session.destroy(err => {
+    req.session.destroy(_ => {
         console.log("Logged out.");
         res.redirect('/home'); // todo should return a redirect to home / the page where user logged out instead.
     });
@@ -153,10 +154,18 @@ app.get('/user/:user', parserMy, async (req: express.Request, res: express.Respo
 });
 
 
-function makeid(length: number) {
+/**
+    Generates and returns a unique, but not crypto secure, random id.
+    So, don't use it if need security (instead, use a crypto function).
+*/
+function makeUnsecureUUID(length: number): string {
     const base64 = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789-_';
 
+    const chars = [...Array(length)].map(_ => base64.charAt(Math.floor(Math.random() * base64.length)));
+
+    return chars.join('');
     let result = '';
+
     for (let i = 0; i < length; ++i) {
         result += base64.charAt(Math.floor(Math.random() * base64.length));
     }
@@ -239,10 +248,10 @@ app.post('/create-game', jsonParser, (req: express.Request, res: express.Respons
 
         const hostPrefer: Color | undefined = req.body.color;
 
-        let uuid = makeid(16);
+        let uuid = makeUnsecureUUID(16);
         /*
         while (! await isUniqueGameId(uuid)) {
-            uuid = makeid(16);
+            uuid = makeUnsecureUUID(16);
         }*/
 
         const created = new GamePost(uuid, user, timeControl, hostPrefer);
@@ -256,7 +265,7 @@ app.post('/create-game', jsonParser, (req: express.Request, res: express.Respons
 
 });
 
-app.get('/get-open-games', (req: express.Request, res: express.Response) => {
+app.get('/get-open-games', (_, res: express.Response) => {
     res.send(JSON.stringify(Array.from(openGames.values())));
 });
 
@@ -284,9 +293,9 @@ app.post('/join-game', jsonParser, (req: express.Request, res: express.Response)
         // still looking for player, return status ok
         // client check this in a fetch. if OK -> redirect self to game/:uuid.
         openGames.delete(uuid);
-        const newGame = new Game(gamePost, userJoining);
+        const newGame = Game.fromPost(gamePost, userJoining);
         activeGames.set(uuid, newGame);
-        res.sendStatus(200);
+        res.sendStatus(200); // or res.redirect here.
     } else {
         // Game not joinable, or user not signed in.
         res.sendStatus(403); // client should notify that the game is not joinable.
@@ -357,75 +366,94 @@ app.get('/game/:uuid', async (req: express.Request, res: express.Response) => {
     // move can be offer_draw, resign as well.
 });
 
-app.post('/game-move', jsonParser, (req: express.Request, res: express.Response) => {
-    const game = activeGames.get(req.body.uuid);
+function tryMove(req: express.Request): boolean {
+    const game = activeGames.get(req.params.uuid);
+    console.log('hi 1');
 
+    // No game with uuid that is currently being played.
     if (!game) {
-        return;
+        return false;
     }
+
+    console.log('hi 2');
+
 
     const user = req.session.user;
 
-    //user === game.white.user || user === game.black.user)
     // Only allow making a move if logged in and the user is a player in the game.
     if (!user || !game.isPlayer(user)) {
-        return;
+        return false;
     }
+
+    console.log('hi 3');
 
     // There is a game with uuid, and the user is a player in the game.
 
     // Players can resign at any time, even if it is not their turn.
     if (req.body.resign) {
         // handle resignation
-        return;
+        // send events.
+        return true;
     }
 
-    // Other moves: Need to verify that it is the user's turn.
-
-    if (!game.isTurn(user)) {
-        return;
-    }
+    console.log('hi 4');
 
     // It is also the player's turn.
-    // Should be able to move if the move is valid.
+    // Should be able to move if the move is well-formed valid.
 
     // Malformed post request.
     if (!req.body.to || !req.body.from) {
-        return;
+        return false;
     }
+
+    console.log('hi 5');
 
 
     const from = req.body.from as string;
     const to = req.body.to as string;
 
-    const fromSquare = Board.convertNotation(from);
-    const toSquare = Board.convertNotation(to);
+    const fromSquare = Board.convertFromNotation(from);
+    const toSquare = Board.convertFromNotation(to);
 
+    console.log(from);
+    console.log(to);
+    
+    console.log(fromSquare);
+    console.log(toSquare);
+
+    // Move notation invalid for board size.
     if (!fromSquare || !toSquare) {
-        return;
+        return false;
     }
 
-    if (game.canMove(fromSquare, toSquare)) {
-        const forcedPromotions = game.getPromotions(fromSquare, toSquare);
+    console.log('hi 6');
 
+
+    if (game.canMove(user, fromSquare, toSquare)) {
+        const forcedPromotions = game.getPromotions(fromSquare, toSquare);
+        console.log('hi 7');
 
         // if game.mustPromote(move) then game.tryPromote(square, pieceString) and if fail then return.
 
         if (forcedPromotions.length > 0) {
             const userSelectedPromotion = req.body.promotion as string | null;
 
+            // Move requires promotion, user request does not specify a promotion.
             if (!userSelectedPromotion) {
-                return;
+                return false;
             }
 
+            // User-specified promotion is invalid.
             if (!forcedPromotions.includes(userSelectedPromotion)) {
-                return;
+                return false;
             }
 
+            // Create new piece.
             const promotedTo = pieceFactory(userSelectedPromotion, game.getColor(user));
 
+            // Factory failed to produce a Piece. Should only happen if piece string is invalid.
             if (!promotedTo) {
-                return;
+                return false;
             }
 
             game.move(fromSquare, toSquare);
@@ -435,13 +463,19 @@ app.post('/game-move', jsonParser, (req: express.Request, res: express.Response)
         }
 
 
+        // Currently just checks if player won by this move.
+        // Does not check more obscure rules (50 move rule, 3-fold repetition.
+        /*if (game.hasWon(curTurn)) {
+            // send event that cur player won.
+        } else {
+            // send move event to players, visitors.
+            // update timeouts, timers, etc.
+        }*/
 
-        // Notify other players, viewers.
-
-        // Check if game is over, notify players, viewers.
-        // if player checkmated other player or 50 move rule or 3-fold repetition, to be exact
-
-        // update timeouts, timers, etc.
+        return true;
+        
+    } else {
+        return false;
     }
 
     // Invalid move, do nothing.
@@ -462,6 +496,14 @@ app.post('/game-move', jsonParser, (req: express.Request, res: express.Response)
     Need to update opponent as well as clients who are viewing the game (send the move)
    
     */
+}
+
+app.post('/game-move/:uuid', jsonParser, (req: express.Request, res: express.Response) => {
+    if (tryMove(req)) {
+        res.sendStatus(200);
+    } else {
+        res.sendStatus(403);
+    }
 });
 
 app.listen(port, () => {

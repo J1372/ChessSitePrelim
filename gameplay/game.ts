@@ -17,40 +17,61 @@ export enum GameStatus {
 
 // This is a game currently being played.
 export class Game {
-    uuid: string; // length = 16
-    white: Player;
-    black: Player;
-    board: Board;
-    moves: Move[]; // move history.
+    uuid!: string; // length = 16
+    white!: Player;
+    black!: Player;
+    board!: Board;
+    moves!: Move[]; // move history.
 
     // Date the game actually started (both users could make moves).
-    started: Date;
-    timeControl: TimeControl;
-
+    started!: Date;
+    timeControl!: TimeControl;
 
     drawOffer?: string; // user who offered a draw, if any. if other user offers draw, accepts draw.
+    
+    static fromPost(description: GamePost, otherUser: string) {
+        const game = new Game();
 
-    constructor(description: GamePost, otherUser: string) {
-        this.uuid = description.uuid;
-        this.timeControl = description.timeControl;
-        this.started = new Date(); // could use Date.now instead
+        game.uuid = description.uuid;
+        game.timeControl = description.timeControl;
+        game.started = new Date(); // could use Date.now instead
 
         if (!description.hostPlayAs) {
             description.hostPlayAs = Math.random() <= 0.5 ? Color.White : Color.Black;
         }
 
-        const startingTime = this.timeControl.startingMins * 60;
+        const startingTime = game.timeControl.startingMins * 60;
         if (description.hostPlayAs === Color.White) {
-            this.white = new Player(description.host, startingTime);
-            this.black = new Player(otherUser, startingTime);
+            game.white = new Player(description.host, startingTime);
+            game.black = new Player(otherUser, startingTime);
         } else {
-            this.white = new Player(otherUser, startingTime);
-            this.black = new Player(description.host, startingTime);
+            game.white = new Player(otherUser, startingTime);
+            game.black = new Player(description.host, startingTime);
         }
 
-        this.board = new Board(8, 8);
-        this.moves = new Array<Move>();
+        game.board = Board.standardBoard();
+        game.moves = new Array<Move>();
 
+        return game;
+    }
+
+    static deserialize(object: any) {
+        const game = new Game();
+
+        game.uuid = object.uuid;
+        game.timeControl = object.timeControl;
+        game.started = object.started;
+        game.timeControl = object.timeControl;
+
+        game.white = new Player(object.white.user, object.white.timeRemaining);
+        game.black = new Player(object.black.user, object.black.timeRemaining);
+
+        game.board = Board.deserialize(object.board);
+        game.moves = object.moves;
+
+        game.drawOffer = object.drawOffer;
+
+        return game;
     }
 
 
@@ -63,27 +84,60 @@ export class Game {
         return this.white.user === user || this.black.user === user;
     }
 
+    /*
     isTurn(user: string): boolean {
-        if (this.white.user === user && this.board.curTurn === Color.White) {
-            return true;
+        if (this.board.curTurn === Color.White) {
+            return this.white.user === user;
+        } else {
+            return this.black.user === user;
         }
+    }*/
 
-        if (this.black.user === user && this.board.curTurn === Color.Black) {
-            return true;
+    isTurn(player: Player): boolean {
+        if (this.board.curTurn === Color.White) {
+            return this.white === player;
+        } else {
+            return this.black === player;
         }
-
-        return false;
     }
 
-    // Only checks if the piece should be able to move somewhere on the board.
-    // Does not check whether the piece is owned by the player whose turn it is.
-    canMove(from: Square, to: Square): boolean {
-        return this.board.canMove(from, to);
+    owns(player: Player, square: Square): boolean {
+        const piece = this.board.getPiece(square.row, square.col);
+
+        if (!piece) {
+            return false;
+        }
+
+        if (player === this.white) {
+            return piece.color === Color.White;
+        } else {
+            return piece.color === Color.Black;
+        }
+
+    }
+
+    getPlayer(name: string): Player {
+        if (this.white.user === name) {
+            return this.white;
+        } else {
+            return this.black;
+        }
+    }
+
+    canMove(user: string, from: Square, to: Square): boolean {
+        if (this.isPlayer(user)) {
+            const player = this.getPlayer(user);
+            return this.isTurn(player) && this.owns(player, from) && this.board.canMove(from, to);
+        } else {
+            return false;
+        }
+
     }
 
     move(from: Square, to: Square): void {
         const toMove = this.board.getPiece(from.row, from.col) as Piece;
         this.board.move(from, to);
+        toMove.notifyMove();
     }
 
     getColor(user: string): Color {

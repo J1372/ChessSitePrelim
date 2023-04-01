@@ -4,7 +4,9 @@ import { Square } from "../square.js";
 import { Piece } from "./piece.js";
 
 export class King implements Piece {
-    color: Color = Color.White;
+    readonly color: Color = Color.White;
+    readonly pieceName = 'k';
+    
 
     private static offsets: Array<[number, number]> = [
         [-1, 1],
@@ -21,6 +23,9 @@ export class King implements Piece {
     constructor(color: Color) {
         this.color = color;
     }
+    
+    notifyMove(): void {}
+
 
     getMoves(pos: Square, board: Board): Square[] {
         let moves: Square[] = [];

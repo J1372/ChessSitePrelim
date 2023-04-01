@@ -5,6 +5,7 @@ import { Piece } from "./piece.js";
 
 export class Knight implements Piece {
     readonly color: Color;
+    readonly pieceName = 'n';
 
     private static offsets: Array<[number, number]> = [
         // Top
@@ -27,6 +28,8 @@ export class Knight implements Piece {
     constructor(color: Color) {
         this.color = color;
     }
+
+    notifyMove(): void {}
 
     getControlArea(pos: Square, board: Board): Square[] {
         throw new Error("Method not implemented.");

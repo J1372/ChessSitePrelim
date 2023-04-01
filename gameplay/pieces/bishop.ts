@@ -4,11 +4,15 @@ import { Square } from "../square.js";
 import { Piece, Ray } from "./piece.js";
 
 export class Bishop implements Piece {
-    color: Color;
+    readonly color: Color;
+    readonly pieceName = 'b';
 
     constructor(color: Color) {
         this.color = color;
     }
+    
+    notifyMove(): void {}
+
     
     getMoves(pos: Square, board: Board): Square[] {
         return Ray.getMovesMultiple(pos, Ray.diagonals, board, this.color);

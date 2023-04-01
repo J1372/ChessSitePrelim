@@ -5,11 +5,16 @@ import { Piece } from "./piece.js";
 
 export class Pawn implements Piece {
     readonly color: Color;
-    readonly hasMoved: boolean;
+    readonly pieceName = 'p';
+    hasMoved: boolean;
 
     constructor(color: Color) {
         this.color = color;
         this.hasMoved = false;
+    }
+    
+    notifyMove(): void {
+        this.hasMoved = true;
     }
 
     getControlArea(pos: Square, board: Board): Square[] {

@@ -21,16 +21,21 @@ html
                 p Chess is played here O_O 
                 
 
-                p #{gameJson}
-                //- canvas#board
+                p#gameJson #{gameJson}
+                canvas#board
 
 
 
                 if isPlayer
                     button#drawOffer(type="button") Offer draw
                     button#resignButton(type="button") Resign
+                    script(type="module" src="../view_game.js")
+                    script(type="module" src="../play_game.js")
+                else
+                    script(type="module" src="../view_game.js")
+                
+                
 
-                //- script(type="text/javascript" src="../game.js")
             else
                 p Game not found.
 

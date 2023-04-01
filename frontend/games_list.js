@@ -1,5 +1,3 @@
-
-
 const myGameList = document.getElementById("openGamesTable");
 const createGameButton = document.getElementById("createGame");
 const refreshButton = document.getElementById("refreshGames");
@@ -63,11 +61,7 @@ async function updateGameList() {
 
         tableBody.appendChild(listElement);
     });
-
-
 }
-
-
 
 refreshButton.addEventListener('click', async ()=> {
     updateGameList();
@@ -78,7 +72,6 @@ createGameButton.addEventListener('click', async ()=> {
 });
 
 const createGameButton2 = document.getElementById("createGame2");
-
 
 createGameButton2.addEventListener('click', async (e)=> {
     e.preventDefault();
@@ -108,10 +101,4 @@ createGameButton2.addEventListener('click', async (e)=> {
     const resp = createdResponse.statusText;
     console.log(resp);
 
-
-
 });
-
-
-// every 30s
-//setInterval(updateGameList, 1000 * 30);

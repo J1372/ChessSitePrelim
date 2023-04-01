@@ -27,8 +27,24 @@ CREATE TABLE game(
 	FOREIGN KEY(black) REFERENCES user(id)
 );
 
+CREATE TABLE gameWhite(
+	userid INTEGER NOT NULL,
+	gameid INTEGER UNIQUE NOT NULL,
+
+	FOREIGN KEY(userid) REFERENCES user(id),
+	FOREIGN KEY(gameid) REFERENCES game(id),
+);
+
 CREATE INDEX gameWhiteIndex
-ON game(white);
+ON gameWhite(userid);
+
+CREATE TABLE gameBlack(
+	userid INTEGER NOT NULL,
+	gameid INTEGER UNIQUE NOT NULL,
+
+	FOREIGN KEY(userid) REFERENCES user(id),
+	FOREIGN KEY(gameid) REFERENCES game(id),
+);
 
 CREATE INDEX gameBlackIndex
-ON game(black);
+ON gameBlack(userid);

@@ -4,6 +4,7 @@ import { Square } from "../square.js";
 
 export interface Piece {
     readonly color: Color;
+    readonly pieceName: string;
 
     /**
      * Get a list of squares that the piece can move to.
@@ -26,6 +27,8 @@ export interface Piece {
      * @param board The board the piece is on.
      */
     getPromotionsOnMove(onMoveTo: Square, board: Board): Array<string>;
+
+    notifyMove(): void;
 }
 
 

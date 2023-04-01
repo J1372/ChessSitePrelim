@@ -7,7 +7,7 @@ export const db = await sqlite.open({
 });
 
 
-export async function userExists(user: string) {
+export async function userExists(user: string): Promise<boolean> {
     const stmt = `SELECT name
                   FROM user
                   WHERE name = ?`;
@@ -24,7 +24,7 @@ export interface UserStats {
 }
 
 export async function getUserStats(user: string): Promise<UserStats> {
-    const stmt = `SELECT gamesWon, gamesDrawn, gamesLost
+    const stmt = `SELECT wins, draws, losses
                   FROM user
                   WHERE name = ?`;
 
