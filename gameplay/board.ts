@@ -204,7 +204,7 @@ export class Board {
 
     occupiedBy(row: number, col: number, color: Color) {
         const piece = this.getPiece(row, col);
-        return piece?.color === color;
+        return piece && piece.color === color;
     }
 
     move(from: Square, to: Square) {

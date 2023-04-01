@@ -6,7 +6,7 @@ import { Piece } from "./piece.js";
 export class Pawn implements Piece {
     readonly color: Color;
     readonly pieceName = 'p';
-    hasMoved: boolean;
+    private hasMoved: boolean;
 
     constructor(color: Color) {
         this.color = color;
@@ -59,21 +59,13 @@ export class Pawn implements Piece {
 
         }
 
-        // Can move (diagonally by 1 if enemy piece present).
         const enemyColor = Color.opposite(this.color);
+        const controls = this.getControlArea(pos, board);
+        // add control squares (diagonals) to moves if occupied by enemy.
+        const enemyDiagonals = controls.filter(square => board.occupiedBy(square.row, square.col, enemyColor));
+        enemyDiagonals.map(square => moves.push(square));
 
-        // get controlarea, push to moves if occupiedby enemy
-        const leftSide = pos.col - 1;
-        if (board.inBounds(nextRow, leftSide) && board.occupiedBy(nextRow, leftSide, enemyColor)) {
-            moves.push({row: nextRow, col: leftSide});
-        }
-
-        const rightSide = pos.col + 1;
-        if (board.inBounds(nextRow, rightSide) && board.occupiedBy(nextRow, rightSide, enemyColor)) {
-            moves.push({row: nextRow, col: rightSide});
-        }
-
-        return moves;
+        return moves.filter(square => !board.putsInCheck(pos, square, this.color));
     }
 
     getPromotionsOnMove(onMoveTo: Square, board: Board): string[] {
