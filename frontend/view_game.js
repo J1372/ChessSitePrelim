@@ -55,6 +55,10 @@ function onGameEvent(event) {
 
 }
 
+function updateClock() {
+    
+}
+
 /*
 'http://localhost:8080/game/' + uuid;
 const opponentListener = new EventSource("", {withCredentials: true});

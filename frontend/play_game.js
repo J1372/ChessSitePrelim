@@ -95,10 +95,6 @@ async function sendMove(move) {
 
 }
 
-function updateClock() {
-
-}
-
 /*
     Moves:
 
