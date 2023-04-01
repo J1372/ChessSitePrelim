@@ -36,12 +36,15 @@ export class Knight implements Piece {
     }
 
     getMoves(pos: Square, board: Board): Square[] {
-        let moves = this.getInBoundsSquares(pos, Knight.offsets, board).filter(square =>{
-            !board.occupiedBy(square.row, square.col, this.color);
-        });
+        const squares = Knight.offsets.map(offset => { return { row: pos.row + offset[1], col: pos.col + offset[0] } });
+        console.log(squares);
+        const inBounds = squares.filter(square => board.inBoundsSquare(square));
+        console.log(inBounds);
+        const validMoves = inBounds.filter(square => !board.occupiedBy(square.row, square.col, this.color));
+        console.log(validMoves);
 
 
-        return moves;
+        return validMoves;
     }
 
     getPromotionsOnMove(onMoveTo: Square, board: Board): string[] {
