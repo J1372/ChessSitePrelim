@@ -14,8 +14,17 @@ export enum CastleDir {
     Queenside,
 }
 
+interface CastleAvailability {
+    kingside: boolean;
+    queenside: boolean;
+}
+
 // All boards are 8x8 for now.
 export class Board {
+
+    static readonly kingsideCastleCol = 6;
+    static readonly queensideCastleCol = 2;
+
     board: Array<Piece | null>;
 
     rows: number;
@@ -27,7 +36,9 @@ export class Board {
     // Indexed by Color enum.
     // 0 = White, 1 = black.
     kings!: [Piece, Piece];
-    castled: [boolean, boolean] = [false, false];
+    // if castling is still available to the player.
+    // set to false whenever rooks / king moved.
+    castleAvailable: [CastleAvailability, CastleAvailability] = [{kingside: true, queenside: true}, {kingside: true, queenside: true}];
 
     curTurn: Color = Color.White;
     inCheck: boolean = false;
@@ -98,7 +109,7 @@ export class Board {
             }
         }
 
-        board.castled = from.castled;
+        board.castleAvailable = from.castleAvailable;
         board.curTurn = from.curTurn;
         board.inCheck = from.inCheck;
 
@@ -229,8 +240,55 @@ export class Board {
     move(from: Square, to: Square) {
         // Move the piece.
         const toMove = this.getPiece(from.row, from.col);
+
         this.setPiece(from, null);
         this.setPiece(to, toMove);
+
+        const castleRow = this.curTurn === Color.White ? 0 : 7;
+        const castleFlags = this.castleAvailable[this.curTurn];
+        
+        if (toMove === this.kings[this.curTurn]) {
+            if (castleFlags.kingside) {
+                const kCastleSquare = { row: castleRow, col: Board.kingsideCastleCol };
+                if (to.row === kCastleSquare.row && to.col === kCastleSquare.col) {
+                    const rookSquare = { row: kCastleSquare.row, col: 7};
+                    const rook = this.getPiece(rookSquare.row, rookSquare.col);
+
+                    this.setPiece(rookSquare, null);
+                    this.setPiece({ row: kCastleSquare.row, col: 5}, rook);
+                }
+            }
+
+            if (castleFlags.queenside) {
+                const qCastleSquare = { row: castleRow, col: Board.queensideCastleCol};
+                if (to.row === qCastleSquare.row && to.col === qCastleSquare.col) {
+                    const rookSquare = { row: qCastleSquare.row, col: 0};
+                    const rook = this.getPiece(rookSquare.row, rookSquare.col);
+
+                    this.setPiece(rookSquare, null);
+                    this.setPiece({ row: qCastleSquare.row, col: 3}, rook);
+                }
+            }
+
+            castleFlags.kingside = false;
+            castleFlags.queenside = false;
+        }
+
+        if (from.row === castleRow && from.col === 0) {
+            castleFlags.queenside = false;
+        } else if (from.row === castleRow && from.col === 7) {
+            castleFlags.kingside = false;
+        }
+
+        if (to.row === 0 && to.col === 0) {
+            this.castleAvailable[Color.White].queenside = false;
+        } else if (to.row === 0 && to.col === 7) {
+            this.castleAvailable[Color.White].kingside = false;
+        } else if (to.row === 7 && to.col === 0) {
+            this.castleAvailable[Color.Black].queenside = false;
+        } else if (to.row === 7 && to.col === 7) {
+            this.castleAvailable[Color.Black].kingside = false;
+        }
 
         this.curTurn = Color.opposite(this.curTurn);
 
@@ -243,7 +301,8 @@ export class Board {
 
         // alternatively. loop thru a list of raycasters, normalize dist vector, check if could possibly hit (if not already blocked) would hit, update.
 
-        // if toMove === king and to === a castle square, castle and update castling. 
+        // if toMove === king and to === a castle square, castle and update castling.
+
     }
 
     canMove(from: Square, to: Square) {

@@ -47,9 +47,26 @@ export class King implements Piece {
         const diffColor = controls.filter(square => !board.occupiedBy(square.row, square.col, this.color));
         console.log(diffColor);
 
+        console.log(diffColor);
+
+
+        const castleFlags = board.castleAvailable[this.color];
+        const castleRow = this.color === Color.White ? 0 : 7;
+
+        if (castleFlags.kingside) {
+            if (!board.isOccupied(castleRow, 5) && !board.isOccupied(castleRow, 6)) {
+                diffColor.push({row: castleRow, col: 6});
+            }
+        }
+
+        if (castleFlags.queenside) {
+            if (!board.isOccupied(castleRow, 1) && !board.isOccupied(castleRow, 2) && !board.isOccupied(castleRow, 3)) {
+                diffColor.push({row: castleRow, col: 2});
+            }
+        }
+
         // remove squares that put self in check.
         const validMoves = diffColor.filter(square => !board.putsInCheck(pos, square, this.color));
-        console.log(diffColor);
 
         return validMoves;
     }
