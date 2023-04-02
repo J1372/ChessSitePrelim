@@ -61,18 +61,21 @@ renderBoardBackground();
 renderBoardForeground(game.board);
 
 function onGameMove(event) {
-    console.log(event);
-
     const move = JSON.parse(event.data);
+    console.log(move);
+
     const from = Board.convertFromNotation(move.from);
     const to = Board.convertFromNotation(move.to);
 
+    const player = game.getCurPlayer();
     game.move(from, to);
     renderBoardBackground();
     renderBoardForeground(game.board);
 
-    // check for checkmate, check.
-    // remember to close sse if checkmmate !
+    if (move.ended === 'mate') {
+        console.log(player.user + ' has won');
+        sseListener.close();
+    }
 }
 
 function onGameResign(event) {

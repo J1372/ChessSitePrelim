@@ -111,7 +111,15 @@ export class Game {
 
     hasWon(color: Color) {
         return this.board.hasWon(color);
+    }
 
+    userWon(user: string) {
+        const player = this.getPlayer(user);
+        if (player === this.white) {
+            return this.board.hasWon(Color.White);
+        } else {
+            return this.board.hasWon(Color.Black);
+        }
     }
 
     owns(player: Player, square: Square): boolean {

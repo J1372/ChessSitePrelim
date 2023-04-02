@@ -129,10 +129,11 @@ function disableInteraction() {
     }
 }
 
-function onGameMove() {
-    // check has won.
-    //if (game.hasWon())
-    //disableInteraction();
+function onGameMove(event) {
+    const move = JSON.parse(event.data);
+    if (move.ended === 'mate') {
+        disableInteraction();
+    }
 }
 
 

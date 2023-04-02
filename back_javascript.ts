@@ -477,7 +477,13 @@ function tryMove(req: express.Request): boolean {
             // update timeouts, timers, etc.
         }*/
 
-        notifyObservers(game.uuid, 'move', { from: from, to: to });
+
+        if (game.userWon(user)) {
+            notifyObservers(game.uuid, 'move', { from: from, to: to, ended: 'mate' });
+            endGame(game);
+        } else {
+            notifyObservers(game.uuid, 'move', { from: from, to: to });
+        }
 
         return true;
         
