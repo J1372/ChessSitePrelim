@@ -259,7 +259,7 @@ app.post('/create-game', jsonParser, (req: express.Request, res: express.Respons
         const created = new GamePost(uuid, user, timeControl, hostPrefer);
 
         openGames.set(uuid, created);
-        res.sendStatus(200);
+        res.send(uuid);
     } else {
         res.sendStatus(403);
     }
@@ -298,6 +298,10 @@ app.post('/join-game', jsonParser, (req: express.Request, res: express.Response)
         const newGame = Game.fromPost(gamePost, userJoining);
         activeGames.set(uuid, newGame);
         gameObservers.set(uuid, []); // could merge obserevrs with activeGames.
+        const hostNotify = joinObservers.get(uuid);
+        if (hostNotify) {
+            hostNotify.res.write('data:\n\n'); // on req.end, we close res.
+        }
         res.sendStatus(200); // or res.redirect here.
     } else {
         // Game not joinable, or user not signed in.
@@ -374,6 +378,11 @@ app.get('/game/:uuid', async (req: express.Request, res: express.Response) => {
 
 app.get('/game/:uuid/subscribe', async (req: express.Request, res: express.Response) => {
     addGameObserver(req, res, req.params.uuid);
+});
+
+// Notify host when player joins their open game.
+app.get('/game/:uuid/waiting', async (req: express.Request, res: express.Response) => {
+    addJoinObserver(req, res, req.params.uuid);
 });
 
 function tryMove(req: express.Request): boolean {
@@ -556,6 +565,30 @@ interface Observer {
     res: express.Response;
 }
 
+const joinObservers = new Map<string, Observer>();
+
+
+function addJoinObserver(req: express.Request, res: express.Response, uuid: string) {
+    const headers = {
+        'Content-Type': 'text/event-stream',
+        'Connection': 'keep-alive',
+        'Cache-Control': 'no-cache'
+    };
+
+    res.writeHead(200, headers);
+
+    const observer = { id: makeUnsecureUUID(16), res: res };
+    joinObservers.set(uuid, observer);
+
+    req.on('close', () => {
+        // could use index in array as an id and swap-pop
+        console.log(`${observer.id} closed sse connection.`);
+
+        observer.res.write('data:\n\n');
+        observer.res.end();
+        joinObservers.delete(uuid);
+    })
+}
 
 function addGameObserver(req: express.Request, res: express.Response, uuid: string) {
     const headers = {

@@ -67,15 +67,21 @@ refreshButton.addEventListener('click', async ()=> {
     updateGameList();
 });
 
-createGameButton.addEventListener('click', async ()=> {
+createGameButton.addEventListener('click', ()=> {
     document.getElementById("createGameForm").style.display = "block";
 });
 
 const createGameButton2 = document.getElementById("createGame2");
 
-createGameButton2.addEventListener('click', async (e)=> {
-    e.preventDefault();
+let waitingSecondPlayerListener = null;
 
+
+createGameButton2.addEventListener('click', async (e)=> {
+    if (waitingSecondPlayerListener !== null) {
+        return; // client-side, if already waiting, don't send to server.
+    }
+
+    e.preventDefault();
 
     const minutes = document.getElementById('minsInput').value;
     const increment = document.getElementById('incrInput').value;
@@ -98,7 +104,20 @@ createGameButton2.addEventListener('click', async (e)=> {
         body: JSON.stringify(settings),
     });
 
-    const resp = createdResponse.statusText;
-    console.log(resp);
+    if (createdResponse.status !== 200) { // probably, user already has a game posted.
+        return;
+    }
 
+    const uuid = await createdResponse.text();
+
+    const toGameURL = 'http://localhost:8080/game/' + uuid;
+    const sseURL = toGameURL + '/waiting';
+    waitingSecondPlayerListener = new EventSource(sseURL);
+    waitingSecondPlayerListener.addEventListener('message', _ => { 
+        waitingSecondPlayerListener.close();
+        window.location.href = toGameURL;
+    });
+    waitingSecondPlayerListener.onerror = () => waitingSecondPlayerListener.close();
+
+    console.log('Waiting for players for game ' + uuid);
 });
