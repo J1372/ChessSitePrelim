@@ -12,3 +12,10 @@
     list-style: none;
 }
 
+#promotion-list li {
+    text-align: center;
+    background-color: aliceblue;
+    border: 2px solid black;
+
+}
+
