@@ -60,7 +60,7 @@ function renderBoardForeground(board) {
 renderBoardBackground();
 renderBoardForeground(game.board);
 
-function onGameEvent(event) {
+function onGameMove(event) {
     console.log(event);
 
     const move = JSON.parse(event.data);
@@ -70,6 +70,30 @@ function onGameEvent(event) {
     game.move(from, to);
     renderBoardBackground();
     renderBoardForeground(game.board);
+
+    // check for checkmate, check.
+    // remember to close sse if checkmmate !
+}
+
+function onGameResign(event) {
+    const data = JSON.parse(event.data);
+    console.log(data);
+    console.log(data.user + ' resigned.');
+    // in playgame : canvasBoard.removeEventListener('click');
+    moveListener.close();
+}
+
+function onGameTimeout(event) {
+    // should send user who time out.
+    // can't rely on client-side game object if is player.
+    // client may move, then timeout, display
+    // actually, server should not respond to send movem so it should be fine.
+    const data = JSON.parse(event.data);
+    console.log(data);
+    console.log(game.getCurPlayer().name + ' timed out.');
+
+    // in playgame : canvasBoard.removeEventListener('click');
+    moveListener.close();
 }
 
 function updateClock() {
@@ -79,7 +103,9 @@ function updateClock() {
 
 const sseURL = 'http://localhost:8080/game/' + uuid + '/subscribe';
 const moveListener = new EventSource(sseURL/*, {withCredentials: true}*/);
-moveListener.addEventListener("move", onGameEvent);
+moveListener.addEventListener("move", onGameMove);
+moveListener.addEventListener("resign", onGameResign);
+moveListener.addEventListener("timeout", onGameTimeout);
 moveListener.onerror = () => moveListener.close();
 
 // alternatively, look at the pagehide event

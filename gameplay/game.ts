@@ -79,6 +79,14 @@ export class Game {
         return GameStatus.Ongoing;
     }
 
+    getCurPlayer(): Player {
+        if (this.board.curTurn === Color.White) {
+            return this.white;
+        } else {
+            return this.black;
+        }
+    }
+
 
     isPlayer(user: string): boolean {
         return this.white.user === user || this.black.user === user;
