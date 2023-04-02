@@ -77,8 +77,7 @@ function onGameMove(event) {
 
 function onGameResign(event) {
     const data = JSON.parse(event.data);
-    console.log(data);
-    console.log(data.resigned.user  + ' resigned.');
+    console.log(data.resigned + ' resigned.');
     // in playgame : canvasBoard.removeEventListener('click');
     sseListener.close();
 }

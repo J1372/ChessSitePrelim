@@ -527,7 +527,7 @@ function tryResign(req: express.Request) {
 
     if (game.isPlayer(user)) {
         // set game status.
-        notifyObservers(game.uuid, 'resign', { resigned: game.getPlayer(user) });
+        notifyObservers(game.uuid, 'resign', { resigned: user });
         endGame(game);
         return true;
     } else {
