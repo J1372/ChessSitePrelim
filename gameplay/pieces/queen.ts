@@ -22,11 +22,9 @@ export class Queen implements Piece {
         
         // remove squares where same color.
         const diffColor = controls.filter(square => !board.occupiedBy(square.row, square.col, this.color));
-        console.log(diffColor);
 
         // remove squares that put self in check.
         const validMoves = diffColor.filter(square => !board.putsInCheck(pos, square, this.color));
-        console.log(diffColor);
 
         return validMoves;
     }

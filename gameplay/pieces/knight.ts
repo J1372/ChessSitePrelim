@@ -33,10 +33,7 @@ export class Knight implements Piece {
 
     getControlArea(pos: Square, board: Board): Square[] {
         const squares = Knight.offsets.map(offset => { return { row: pos.row + offset[1], col: pos.col + offset[0] } });
-        console.log(squares);
         const inBounds = squares.filter(square => board.inBoundsSquare(square));
-        console.log(inBounds);
-
 
         return inBounds;
     }
@@ -46,11 +43,9 @@ export class Knight implements Piece {
         
         // remove squares where same color.
         const diffColor = controls.filter(square => !board.occupiedBy(square.row, square.col, this.color));
-        console.log(diffColor);
 
         // remove squares that put self in check.
         const validMoves = diffColor.filter(square => !board.putsInCheck(pos, square, this.color));
-        console.log(diffColor);
 
         return validMoves;
     }

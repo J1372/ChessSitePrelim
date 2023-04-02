@@ -312,19 +312,15 @@ export class Board {
 
         const toMove = this.getPiece(from.row, from.col);
 
-        console.log('canMove 1')
-
         if (!toMove) {
             return false;
         }
-        console.log('canMove 2')
 
         const toCapture = this.getPiece(to.row, to.col);
 
         if (toMove.color === toCapture?.color) {
             return false;
         }
-        console.log('canMove 3')
 
         // can optimize, check if 'to' is in piece moves before checking if it putsInCheck.
         // we don't need to do a inCheckMove for all its moves, just for 'to' if it is in piece moves
@@ -335,12 +331,7 @@ export class Board {
             // Cgeck if can castle. This can be done in toMove.getMoves if we add qCastleColumn and kCastleColumn
         }*/
 
-        console.log(from);
-        console.log(to);
-
         // filter out moves that leave you in check. move to pi
-
-        console.log(moves);
 
         return moves.some(move => move.row == to.row && move.col == to.col);
     }

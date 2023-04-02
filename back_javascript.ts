@@ -231,15 +231,11 @@ app.post('/create-game', jsonParser, (req: express.Request, res: express.Respons
     const user = req.session.user;
     if (user) {
 
-        console.log(req.body);
-
         const timeControl: TimeControl = {
             startingMins: Number(req.body.startingMins),
             increment: Number(req.body.increment),
             delay: Number(req.body.delay),
         }
-
-        console.log(timeControl);
 
         const errMsg = validateTimeControl(timeControl);
         if (errMsg) {
@@ -387,15 +383,11 @@ app.get('/game/:uuid/waiting', async (req: express.Request, res: express.Respons
 
 function tryMove(req: express.Request): boolean {
     const game = activeGames.get(req.params.uuid);
-    console.log('hi 1');
 
     // No game with uuid that is currently being played.
     if (!game) {
         return false;
     }
-
-    console.log('hi 2');
-
 
     const user = req.session.user;
 
@@ -403,8 +395,6 @@ function tryMove(req: express.Request): boolean {
     if (!user || !game.isPlayer(user)) {
         return false;
     }
-
-    console.log('hi 3');
 
     // There is a game with uuid, and the user is a player in the game.
 
@@ -415,8 +405,6 @@ function tryMove(req: express.Request): boolean {
         return true;
     }
 
-    console.log('hi 4');
-
     // It is also the player's turn.
     // Should be able to move if the move is well-formed valid.
 
@@ -425,28 +413,19 @@ function tryMove(req: express.Request): boolean {
         return false;
     }
 
-    console.log('hi 5');
-
     const from = req.body.from as string;
     const to = req.body.to as string;
 
     const fromSquare = Board.convertFromNotation(from);
     const toSquare = Board.convertFromNotation(to);
 
-    console.log(from);
-    console.log(to);
-    
     // Move notation invalid for board size.
     if (!fromSquare || !toSquare) {
         return false;
     }
 
-    console.log('hi 6');
-
-
     if (game.canMove(user, fromSquare, toSquare)) {
         const forcedPromotions = game.getPromotions(fromSquare, toSquare);
-        console.log('hi 7');
 
         // if game.mustPromote(move) then game.tryPromote(square, pieceString) and if fail then return.
 
@@ -627,9 +606,6 @@ function notifyObservers(uuid: string, event: string, data: any) {
     const message = 'event: ' + event + '\ndata: ' + JSON.stringify(data) + '\n\n';
     observerList.forEach(o => o.res.write(message));
 }
-
-
-
 
 
 
