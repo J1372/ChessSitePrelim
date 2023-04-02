@@ -477,7 +477,7 @@ function tryMove(req: express.Request): boolean {
             // update timeouts, timers, etc.
         }*/
 
-        notifyObservers(game.uuid, { from: from, to: to });
+        notifyObservers(game.uuid, 'move', { from: from, to: to });
 
         return true;
         
@@ -507,6 +507,47 @@ function tryMove(req: express.Request): boolean {
 
 app.post('/game-move/:uuid', jsonParser, (req: express.Request, res: express.Response) => {
     if (tryMove(req)) {
+        res.sendStatus(200);
+    } else {
+        res.sendStatus(403);
+    }
+});
+
+function tryResign(req: express.Request) {
+    const user = req.session.user;
+    if (!user) {
+        return false;
+    }
+
+    const game = activeGames.get(req.params.uuid);
+
+    if (!game) {
+        return false;
+    }
+
+    if (game.isPlayer(user)) {
+        // set game status.
+        notifyObservers(game.uuid, 'resign', { resigned: game.getPlayer(user) });
+        endGame(game);
+        return true;
+    } else {
+        return false;
+    }
+}
+
+function endGame(game: Game) {
+    activeGames.delete(game.uuid);
+    const observers = gameObservers.get(game.uuid);
+
+    // maybe also send a 'end' event.
+    observers?.forEach(o => o.res.end());
+    gameObservers.delete(game.uuid);
+
+    // await store to db.
+}
+
+app.post('/game-resign/:uuid', (req: express.Request, res: express.Response) => {
+    if (tryResign(req)) {
         res.sendStatus(200);
     } else {
         res.sendStatus(403);
@@ -546,16 +587,15 @@ function addGameObserver(req: express.Request, res: express.Response, uuid: stri
     })
 }
 
-function notifyObservers(uuid: string, move: any) {
+function notifyObservers(uuid: string, event: string, data: any) {
     const observerList = gameObservers.get(uuid);
 
     if (!observerList) {
         return;
     }
 
-    const message = 'event: move\ndata: ' + JSON.stringify(move) + '\n\n';
+    const message = 'event: ' + event + '\ndata: ' + JSON.stringify(data) + '\n\n';
     observerList.forEach(o => o.res.write(message));
-
 }
 
 

@@ -78,9 +78,9 @@ function onGameMove(event) {
 function onGameResign(event) {
     const data = JSON.parse(event.data);
     console.log(data);
-    console.log(data.user + ' resigned.');
+    console.log(data.resigned.user  + ' resigned.');
     // in playgame : canvasBoard.removeEventListener('click');
-    moveListener.close();
+    sseListener.close();
 }
 
 function onGameTimeout(event) {
@@ -93,7 +93,7 @@ function onGameTimeout(event) {
     console.log(game.getCurPlayer().name + ' timed out.');
 
     // in playgame : canvasBoard.removeEventListener('click');
-    moveListener.close();
+    sseListener.close();
 }
 
 function updateClock() {
@@ -102,18 +102,18 @@ function updateClock() {
 
 
 const sseURL = 'http://localhost:8080/game/' + uuid + '/subscribe';
-const moveListener = new EventSource(sseURL/*, {withCredentials: true}*/);
-moveListener.addEventListener("move", onGameMove);
-moveListener.addEventListener("resign", onGameResign);
-moveListener.addEventListener("timeout", onGameTimeout);
-moveListener.onerror = () => moveListener.close();
+const sseListener = new EventSource(sseURL/*, {withCredentials: true}*/);
+sseListener.addEventListener("move", onGameMove);
+sseListener.addEventListener("resign", onGameResign);
+sseListener.addEventListener("timeout", onGameTimeout);
+sseListener.onerror = () => moveListener.close();
 
 // alternatively, look at the pagehide event
 window.addEventListener('visibilitychange', event => {
     console.log(window.visibilityState);
     if (window.visibilityState === 'hidden') {
         // close the event source.
-        moveListener.close();
+        sseListener.close();
     } else {
         // reopen the event source.
     }
@@ -123,5 +123,5 @@ window.addEventListener('visibilitychange', event => {
 // could also separate move event from timeout event.
 
 export { // just for now exporrting funcs as well
-    game, canvasBoard, ctx, renderSquare, renderPiece, renderBoardBackground, renderBoardForeground
+    game, canvasBoard, ctx, renderSquare, renderPiece, renderBoardBackground, renderBoardForeground, sseListener
 }

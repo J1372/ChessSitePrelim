@@ -1,19 +1,13 @@
-//const gameDownload = await fetch("http://localhost:8080/get-game/uuid")
-
-import {game, canvasBoard, ctx, renderSquare, renderPiece, renderBoardBackground, renderBoardForeground} from './view_game.js';
+import {game, canvasBoard, ctx, renderSquare, renderPiece, renderBoardBackground, renderBoardForeground, sseListener} from './view_game.js';
 import {Board} from '/board.js';
-/*class GameClient {
-    game: Game;
-
-}*/
-console.log('from play_game.js!')
-console.log(game)
 
 let selected = null;
 
 const user = document.getElementById('to-user-page').innerText;
 
 const player = game.getPlayer(user);
+
+const resignButton = document.getElementById('resign-button');
 
 function selectSquare(toSelect, piece) {
     selected = toSelect;
@@ -115,37 +109,33 @@ async function sendMove(move) {
 
 }
 
-/*
-    Moves:
+resignButton.addEventListener('click', () => {
+    fetch("http://localhost:8080/game-resign/" + game.uuid,
+    {
+        method: "post",
+    });
+})
 
-    d: draw offer / accept draw
-    r: resign
-    t: timeout
 
-    {fromSquare}-{toSquare}: normal move
-*/
-function onOpponentMove(event) {
-    // enable canvas interaction if game still ongoing.
 
+function disableInteraction() {
+    resignButton.remove();
+    canvasBoard.removeEventListener('click', handleClick);
+
+    if (selected) {
+        selected = null;
+        renderBoardBackground();
+        renderBoardForeground(game.board);
+    }
 }
 
-//'http://localhost:8080/game/' + uuid;
-//const opponentListener = new EventSource("", {withCredentials: true});
-//opponentListener.addEventListener("move", onOpponentMove);
+function onGameMove() {
+    // check has won.
+    //if (game.hasWon())
+    //disableInteraction();
+}
 
-// could also separate move event from timeout event.
 
-
-/*
-    Moves:
-
-    d: draw offer / accept draw
-    r: resign
-    t: timeout
-
-    {fromSquare}-{toSquare}: normal move
-
-function onOpponentMove(event: MessageEvent<Move>) {
-    // enable canvas interaction if game still ongoing.
-
-}*/
+sseListener.addEventListener("move", onGameMove);
+sseListener.addEventListener("resign", disableInteraction);
+sseListener.addEventListener("timeout", disableInteraction);
