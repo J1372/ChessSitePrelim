@@ -38,14 +38,17 @@ function handleClick(event) {
     const clickedPiece = game.board.getPiece(clicked.row, clicked.col);
 
     if (selected) {
-        if (game.canMove(user, selected, clicked)) {
-
-            sendMove({from: Board.convertToNotation(selected), to: Board.convertToNotation(clicked)});
+        if (clicked.row === selected.row && clicked.col === selected.col) {
+            renderBoardBackground();
+            renderBoardForeground(game.board);
             selected = null;
         } else if (game.owns(player, clicked)) {
             renderBoardBackground();
             renderBoardForeground(game.board);
             selectSquare(clicked, clickedPiece);
+        } else if (game.canMove(user, selected, clicked)) {
+            sendMove({from: Board.convertToNotation(selected), to: Board.convertToNotation(clicked)});
+            selected = null;
         } else {
             renderBoardBackground();
             renderBoardForeground(game.board);
