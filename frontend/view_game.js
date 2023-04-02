@@ -1,5 +1,6 @@
 import { Game } from "/game.js";
 import {Board} from '/board.js';
+import { pieceFactory } from '/pieces/piece_factory.js';
 
 const gameJson = JSON.parse(document.getElementById('gameJson').innerText);
 console.log('Json:');
@@ -67,15 +68,28 @@ function onGameMove(event) {
     const from = Board.convertFromNotation(move.from);
     const to = Board.convertFromNotation(move.to);
 
+    const color = game.board.curTurn;
     const player = game.getCurPlayer();
     game.move(from, to);
+
+    if (move.promotion) {
+        const piece = pieceFactory(move.promotion, color);
+        game.promote(to, piece);
+    }
+
+    if (move.ended === 'mate') {
+        if (color === Color.White) {
+            console.log(player.user + ' (White) has won');
+        } else {
+            console.log(player.user + ' (Black) has won');
+        }
+        
+        sseListener.close();
+    }
+    
     renderBoardBackground();
     renderBoardForeground(game.board);
 
-    if (move.ended === 'mate') {
-        console.log(player.user + ' has won');
-        sseListener.close();
-    }
 }
 
 function onGameResign(event) {

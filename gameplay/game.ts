@@ -183,7 +183,10 @@ export class Game {
 
 
     getPromotions(from: Square, to: Square): string[] {
-        const toMove = this.board.getPiece(from.row, from.col) as Piece;
+        const toMove = this.board.getPiece(from.row, from.col);
+        if (!toMove) {
+            return [];
+        }
         return toMove.getPromotionsOnMove(to, this.board);
     }
 

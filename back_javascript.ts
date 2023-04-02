@@ -468,21 +468,12 @@ function tryMove(req: express.Request): boolean {
             game.move(fromSquare, toSquare);
         }
 
-        // Currently just checks if player won by this move.
-        // Does not check more obscure rules (50 move rule, 3-fold repetition.
-        /*if (game.hasWon(user)) {
-            // send event that cur player won.
-        } else {
-            // send move event to players, visitors.
-            // update timeouts, timers, etc.
-        }*/
-
 
         if (game.userWon(user)) {
-            notifyObservers(game.uuid, 'move', { from: from, to: to, ended: 'mate' });
+            notifyObservers(game.uuid, 'move', { from: from, to: to, promotion: req.body.promotion, ended: 'mate' });
             endGame(game);
         } else {
-            notifyObservers(game.uuid, 'move', { from: from, to: to });
+            notifyObservers(game.uuid, 'move', { from: from, to: to, promotion: req.body.promotion });
         }
 
         return true;
