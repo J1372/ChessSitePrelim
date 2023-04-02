@@ -68,7 +68,9 @@ refreshButton.addEventListener('click', async ()=> {
 });
 
 createGameButton.addEventListener('click', ()=> {
-    document.getElementById("createGameForm").style.display = "block";
+    if (waitingSecondPlayerListener === null) {
+        document.getElementById("createGameForm").style.display = "block";
+    }
 });
 
 const createGameButton2 = document.getElementById("createGame2");
@@ -120,4 +122,11 @@ createGameButton2.addEventListener('click', async (e)=> {
     waitingSecondPlayerListener.onerror = () => waitingSecondPlayerListener.close();
 
     console.log('Waiting for players for game ' + uuid);
+
+    document.getElementById("createGameForm").style.display = 'none';
+
+    updateGameList();
 });
+
+
+updateGameList();
