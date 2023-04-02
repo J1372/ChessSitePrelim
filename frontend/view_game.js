@@ -1,6 +1,7 @@
 import { Game } from "/game.js";
 import {Board} from '/board.js';
 import { pieceFactory } from '/pieces/piece_factory.js';
+import { Color } from '/color.js';
 
 const gameJson = JSON.parse(document.getElementById('gameJson').innerText);
 console.log('Json:');
@@ -83,7 +84,7 @@ function onGameMove(event) {
         } else {
             console.log(player.user + ' (Black) has won');
         }
-        
+
         sseListener.close();
     }
     
@@ -122,7 +123,7 @@ const sseListener = new EventSource(sseURL/*, {withCredentials: true}*/);
 sseListener.addEventListener("move", onGameMove);
 sseListener.addEventListener("resign", onGameResign);
 sseListener.addEventListener("timeout", onGameTimeout);
-sseListener.onerror = () => moveListener.close();
+sseListener.onerror = () => sseListener.close();
 
 // alternatively, look at the pagehide event
 window.addEventListener('visibilitychange', event => {
