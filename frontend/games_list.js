@@ -41,19 +41,13 @@ async function updateGameList() {
         const listElement = document.createElement('tr');
 
         const hostCol = document.createElement('td');
-        const timeCol = document.createElement('td');
         const postedCol = document.createElement('td');
-        const uuidCol = document.createElement('td');
 
         hostCol.appendChild(document.createTextNode(element.host));
-        timeCol.appendChild(document.createTextNode(element.timeControl));
         postedCol.appendChild(document.createTextNode(element.posted));
-        uuidCol.appendChild(document.createTextNode(element.uuid));
         
         listElement.appendChild(hostCol);
-        listElement.appendChild(timeCol);
         listElement.appendChild(postedCol);
-        listElement.appendChild(uuidCol);
 
         listElement.addEventListener('click', async () => {
             await attemptJoinGame(listElement.lastChild.textContent);

@@ -1,8 +1,11 @@
 body {
+  margin: 0px;
+  padding: 0px;
   background-color: rgb(226, 226, 226);
 }
 
 #site-title {
+  margin: 0px;
   text-align: center;
   color: rgb(219, 219, 219);
   background-color: #000;
@@ -15,15 +18,15 @@ body {
 #main-nav {
   border: 5px solid #ccc;
   padding: 0.5em;
-  margin: 1em;
+  margin-bottom: 1em;
   text-align: right;
   background-color: rgb(243, 243, 243);
 }
 
 footer {
   border: 5px solid #ccc;
-  padding: 0.1em;
-  margin: 1em;
+  padding: 0.2em;
+  margin-top: 1em;
   text-align: center;
   background-color: rgb(243, 243, 243);
 }
@@ -95,4 +98,10 @@ button {
   /* This extra margin represent roughly the same space as the space
      between the labels and their text fields */
   margin-left: 0.5em;
+}
+
+#mainBody {
+  margin: 0 auto;
+  width: 80%;
+  text-align: center;
 }
