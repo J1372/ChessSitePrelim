@@ -3,15 +3,18 @@ import {Board} from '/board.js';
 import { pieceFactory } from '/pieces/piece_factory.js';
 import { Color } from '/color.js';
 
-const gameJson = JSON.parse(document.getElementById('gameJson').innerText);
-console.log('Json:');
-console.log(gameJson);
 
-const game = Game.deserialize(gameJson);
+function setupClientGame() {
+    const gameJsonElement = document.getElementById('gameJson');
+    const game = Game.deserialize(JSON.parse(gameJsonElement.innerText));
+
+    gameJsonElement.remove();
+    return game;
+}
+
+const game = setupClientGame();
 const uuid = game.uuid;
 
-console.log('Game:');
-console.log(game);
 
 const canvasBoard = document.getElementById('board');
 canvasBoard.height = canvasBoard.width;
