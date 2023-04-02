@@ -1,0 +1,14 @@
+#game-div {
+    position: relative;
+}
+
+#promotion-list {
+    position: absolute;
+    top: 0px;
+    left: 0px;
+    min-width: 50px;
+    min-height: 30px;
+
+    list-style: none;
+}
+

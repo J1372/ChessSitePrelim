@@ -9,7 +9,7 @@ html
         else 
             title Chess - Game not found
         link(rel="stylesheet", href="/home/home.css")
-        link(rel="stylesheet", href="/home/game_table.css")
+        link(rel="stylesheet", href="/home/game.css")
     
     body 
         include ./universal_header
@@ -22,17 +22,18 @@ html
                 
 
                 p#gameJson #{gameJson}
-                canvas#board
+                div#game-div
+                    canvas#board
 
 
 
-                if isPlayer
-                    button#draw-offer(type="button") Offer draw
-                    button#resign-button(type="button") Resign
-                    script(type="module" src="../view_game.js")
-                    script(type="module" src="../play_game.js")
-                else
-                    script(type="module" src="../view_game.js")
+                    if isPlayer
+                        ul#promotion-list
+                        button#resign-button(type="button") Resign
+                        script(type="module" src="../view_game.js")
+                        script(type="module" src="../play_game.js")
+                    else
+                        script(type="module" src="../view_game.js")
                 
                 
 

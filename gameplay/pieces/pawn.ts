@@ -69,15 +69,18 @@ export class Pawn implements Piece {
     }
 
     getPromotionsOnMove(onMoveTo: Square, board: Board): string[] {
-        if (this.color == Color.White) {
+        // knight, bishop, rook, queen.
+        const available = ['n', 'b', 'r', 'q'];
+
+        if (this.color === Color.White) {
             if (onMoveTo.row === board.topRow()) {
-                return []; // knight, bishop, rook, queen.
+                return available;
             } else {
                 return []; // nothing
             }
         } else {
             if (onMoveTo.row === 0) {
-                return []; // knight, bishop, rook, queen.
+                return available;
             } else {
                 return []; // nothing
             }

@@ -12,18 +12,55 @@ const resignButton = document.getElementById('resign-button');
 function selectSquare(toSelect, piece) {
     selected = toSelect;
     const moves = piece.getMoves(selected, game.board);
-    console.log(moves);
     
     renderSquare(selected, 'green');
     renderPiece(selected, piece);
     renderMoves(moves);
 }
 
+let moveCopy = null;
+const promotionList = document.getElementById('promotion-list');
+
+function promotionListOpen() {
+    return promotionList.children.length > 0;
+}
+
+function openPromotionList(x, y, choices) {
+    // set css for promotionList x, y
+    promotionList.style.left = x + 'px';
+    promotionList.style.top = y + 'px';
+
+    // add choices to list.
+    choices.forEach(choice => {
+        const li = document.createElement('li');
+        li.innerText = choice;
+        li.addEventListener('click', _ => {
+            sendMove({ from: Board.convertToNotation(selected), to: Board.convertToNotation(moveCopy), promotion: choice });
+            selected = null;
+        
+            closePromotionList();
+            renderBoardBackground();
+            renderBoardForeground(game.board);
+        });
+        promotionList.appendChild(li);
+    });
+}
+
+function closePromotionList() {
+    promotionList.replaceChildren();
+}
+
+
+
 // handles user's click on the board.
 function handleClick(event) {
-    /*if (!game.isTurn(me)) {
+    if (promotionListOpen()) {
+        closePromotionList();
+        renderBoardBackground();
+        renderBoardForeground(game.board);
+        selected = null;
         return;
-    }*/
+    }
 
     // translate click coords to square.
     const squareSize = canvasBoard.width / game.board.cols;
@@ -37,6 +74,7 @@ function handleClick(event) {
 
     const clickedPiece = game.board.getPiece(clicked.row, clicked.col);
 
+
     if (selected) {
         if (clicked.row === selected.row && clicked.col === selected.col) {
             renderBoardBackground();
@@ -47,8 +85,17 @@ function handleClick(event) {
             renderBoardForeground(game.board);
             selectSquare(clicked, clickedPiece);
         } else if (game.canMove(user, selected, clicked)) {
-            sendMove({from: Board.convertToNotation(selected), to: Board.convertToNotation(clicked)});
-            selected = null;
+            const forcedPromotions = game.getPromotions(selected, clicked);
+            console.log('forcedPromotions');
+            console.log(forcedPromotions);
+            if (forcedPromotions.length > 0) {
+                moveCopy = clicked;
+                openPromotionList(event.offsetX, event.offsetY, forcedPromotions);
+            } else {
+                sendMove({from: Board.convertToNotation(selected), to: Board.convertToNotation(clicked)});
+                selected = null;
+            }
+            
         } else {
             renderBoardBackground();
             renderBoardForeground(game.board);
