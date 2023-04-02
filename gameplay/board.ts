@@ -21,7 +21,6 @@ export class Board {
     rows: number;
     cols: number;
 
-
     //whiteControl: Array<number>;
     //blackControl: Array<number>;
 
@@ -178,6 +177,26 @@ export class Board {
     getPiece(row: number, col: number) {
         const index = row * this.cols + col;
         return this.board[index];
+    }
+
+    hasWon(color: Color) {
+        const enemy = Color.opposite(color);
+
+        for (let i = 0; i < this.rows; i++) {
+            for (let j = 0; j < this.cols; j++) {
+                const piece = this.getPiece(i, j);
+
+                if (piece && piece.color === enemy) {
+                    // could have a piece.canMove that would be optimized (doesn't generate every move, stops on first valid move).
+                    const moves = piece.getMoves({ row: i, col: j }, this);
+                    if (moves.length > 0) {
+                        return false;
+                    }
+                }
+            }
+        }
+
+        return true;
     }
     
     setPiece(square: Square, piece: Piece | null) {

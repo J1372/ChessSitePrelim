@@ -109,6 +109,11 @@ export class Game {
         }
     }
 
+    hasWon(color: Color) {
+        return this.board.hasWon(color);
+
+    }
+
     owns(player: Player, square: Square): boolean {
         const piece = this.board.getPiece(square.row, square.col);
 
@@ -145,6 +150,7 @@ export class Game {
     move(from: Square, to: Square): void {
         const toMove = this.board.getPiece(from.row, from.col) as Piece;
         this.board.move(from, to);
+        this.moves.push()
         toMove.notifyMove();
     }
 
