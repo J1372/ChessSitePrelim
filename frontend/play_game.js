@@ -1,4 +1,4 @@
-import {game, canvasBoard, ctx, renderSquare, renderPiece, renderBoardBackground, renderBoardForeground, sseListener, setPerspective, convertSquare} from './view_game.js';
+import {game, canvasBoard, ctx, renderSquare, renderPiece, renderBoard, sseListener, setPerspective, convertSquare} from './view_game.js';
 import {Board} from '/board.js';
 
 import { Color } from '/color.js'
@@ -6,7 +6,6 @@ import { Color } from '/color.js'
 let selected = null;
 
 const user = document.getElementById('to-user-page').innerText;
-
 const player = game.getPlayer(user);
 
 const resignButton = document.getElementById('resign-button');
@@ -18,19 +17,15 @@ if (player === game.black) {
 document.getElementById('switch-perspective').addEventListener('click', () => {
     // re-render the selected piece's moves on the board after flip.
     if (selected) {
-        const piece = game.board.getPiece(selected.row, selected.col);
-
-        const moves = piece.getMoves(selected, game.board).map(convertSquare);
-        const renderSelected = convertSquare(selected);
-        
-        renderSquare(renderSelected, 'green');
-        renderPiece(renderSelected, piece);
-        renderMoves(moves);
+        selectSquare(selected);
     }
 });
 
-function selectSquare(toSelect, piece) {
+function selectSquare(toSelect) {
     selected = toSelect;
+
+    // will not be null as we check for ownership in the click handler.
+    const piece = game.board.getPiece(selected.row, selected.col);
     const moves = piece.getMoves(selected, game.board).map(convertSquare);
     const renderSelected = convertSquare(selected);
     
@@ -60,8 +55,7 @@ function openPromotionList(x, y, choices) {
             selected = null;
         
             closePromotionList();
-            renderBoardBackground();
-            renderBoardForeground(game.board);
+            renderBoard();
         });
         promotionList.appendChild(li);
     });
@@ -71,14 +65,11 @@ function closePromotionList() {
     promotionList.replaceChildren();
 }
 
-
-
 // handles user's click on the board.
 function handleClick(event) {
     if (promotionListOpen()) {
         closePromotionList();
-        renderBoardBackground();
-        renderBoardForeground(game.board);
+        renderBoard();
         selected = null;
         return;
     }
@@ -94,22 +85,16 @@ function handleClick(event) {
     };
 
     const clicked = convertSquare(clickedGraphical);
-    const clickedPiece = game.board.getPiece(clicked.row, clicked.col);
-
 
     if (selected) {
         if (clicked.row === selected.row && clicked.col === selected.col) {
-            renderBoardBackground();
-            renderBoardForeground(game.board);
+            renderBoard();
             selected = null;
         } else if (game.owns(player, clicked)) {
-            renderBoardBackground();
-            renderBoardForeground(game.board);
-            selectSquare(clicked, clickedPiece);
+            renderBoard();
+            selectSquare(clicked);
         } else if (game.canMove(user, selected, clicked)) {
             const forcedPromotions = game.getPromotions(selected, clicked);
-            console.log('forcedPromotions');
-            console.log(forcedPromotions);
             if (forcedPromotions.length > 0) {
                 moveCopy = clicked;
                 openPromotionList(event.offsetX, event.offsetY, forcedPromotions);
@@ -119,15 +104,14 @@ function handleClick(event) {
             }
             
         } else {
-            renderBoardBackground();
-            renderBoardForeground(game.board);
+            renderBoard();
             selected = null;
         }
 
     } else {
         if (game.owns(player, clicked) && game.isTurn(player)) { // is my piece
             // set selected. display possible moves.
-            selectSquare(clicked, clickedPiece);
+            selectSquare(clicked);
         }
     }
 
@@ -196,8 +180,7 @@ function disableInteraction() {
 
     if (selected) {
         selected = null;
-        renderBoardBackground();
-        renderBoardForeground(game.board);
+        renderBoard();
     }
 }
 
@@ -207,7 +190,6 @@ function onGameMove(event) {
         disableInteraction();
     }
 }
-
 
 sseListener.addEventListener("move", onGameMove);
 sseListener.addEventListener("resign", disableInteraction);

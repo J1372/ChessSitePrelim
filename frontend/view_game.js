@@ -18,8 +18,7 @@ let perspective = Color.White;
 
 function setPerspective(color) {
     perspective = color;
-    renderBoardBackground();
-    renderBoardForeground(game.board);
+    renderBoard();
 }
 
 document.getElementById('switch-perspective').addEventListener('click', () => {
@@ -70,10 +69,12 @@ function renderBoardForeground(board) {
     }
 }
 
+function renderBoard() {
+    renderBoardBackground();
+    renderBoardForeground(game.board);
+}
 
-
-renderBoardBackground();
-renderBoardForeground(game.board);
+renderBoard();
 
 function convertSquare(square) {
     if (perspective === Color.White) {
@@ -109,9 +110,7 @@ function onGameMove(event) {
         sseListener.close();
     }
     
-    renderBoardBackground();
-    renderBoardForeground(game.board);
-
+    renderBoard();
 }
 
 function onGameResign(event) {
@@ -163,5 +162,5 @@ window.addEventListener('visibilitychange', event => {
 // could also separate move event from timeout event.
 
 export { // just for now exporrting funcs as well
-    game, canvasBoard, ctx, renderSquare, renderPiece, renderBoardBackground, renderBoardForeground, sseListener, setPerspective, perspective, convertSquare
+    game, canvasBoard, ctx, renderSquare, renderPiece, renderBoard, sseListener, setPerspective, perspective, convertSquare
 }
