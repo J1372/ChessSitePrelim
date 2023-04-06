@@ -369,7 +369,7 @@ export class Board {
 
                 if (piece?.color === color) {
                     const controls = piece.getControlArea({row: i, col: j}, this);
-                    controls.map(square => controlled.push(square));
+                    controls.forEach(square => controlled.push(square));
                 }
             }
         }

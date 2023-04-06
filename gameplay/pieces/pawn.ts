@@ -63,7 +63,7 @@ export class Pawn implements Piece {
         const controls = this.getControlArea(pos, board);
         // add control squares (diagonals) to moves if occupied by enemy.
         const enemyDiagonals = controls.filter(square => board.occupiedBy(square.row, square.col, enemyColor));
-        enemyDiagonals.map(square => moves.push(square));
+        enemyDiagonals.forEach(square => moves.push(square));
 
         return moves.filter(square => !board.putsInCheck(pos, square, this.color));
     }

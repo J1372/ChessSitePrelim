@@ -164,13 +164,6 @@ function makeUnsecureUUID(length: number): string {
     const chars = [...Array(length)].map(_ => base64.charAt(Math.floor(Math.random() * base64.length)));
 
     return chars.join('');
-    let result = '';
-
-    for (let i = 0; i < length; ++i) {
-        result += base64.charAt(Math.floor(Math.random() * base64.length));
-    }
-
-    return result;
 }
 
 
