@@ -50,7 +50,7 @@ async function updateGameList() {
         listElement.appendChild(postedCol);
 
         listElement.addEventListener('click', async () => {
-            await attemptJoinGame(listElement.lastChild.textContent);
+            await attemptJoinGame(element.uuid);
         });
 
         tableBody.appendChild(listElement);
