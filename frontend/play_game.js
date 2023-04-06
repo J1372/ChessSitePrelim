@@ -1,5 +1,7 @@
-import {game, canvasBoard, ctx, renderSquare, renderPiece, renderBoardBackground, renderBoardForeground, sseListener} from './view_game.js';
+import {game, canvasBoard, ctx, renderSquare, renderPiece, renderBoardBackground, renderBoardForeground, sseListener, setPerspective, convertSquare} from './view_game.js';
 import {Board} from '/board.js';
+
+import { Color } from '/color.js'
 
 let selected = null;
 
@@ -9,12 +11,17 @@ const player = game.getPlayer(user);
 
 const resignButton = document.getElementById('resign-button');
 
+if (player === game.black) {
+    setPerspective(Color.Black);
+}
+
 function selectSquare(toSelect, piece) {
     selected = toSelect;
-    const moves = piece.getMoves(selected, game.board);
+    const moves = piece.getMoves(selected, game.board).map(convertSquare);
+    const renderSelected = convertSquare(selected);
     
-    renderSquare(selected, 'green');
-    renderPiece(selected, piece);
+    renderSquare(renderSelected, 'green');
+    renderPiece(renderSelected, piece);
     renderMoves(moves);
 }
 
@@ -67,11 +74,12 @@ function handleClick(event) {
     const file = Math.floor(event.offsetX / squareSize);
     const rank = Math.floor(event.offsetY / squareSize);
 
-    const clicked = {
+    const clickedGraphical = {
         row: rank,
         col: file
     };
 
+    const clicked = convertSquare(clickedGraphical);
     const clickedPiece = game.board.getPiece(clicked.row, clicked.col);
 
 

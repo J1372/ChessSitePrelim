@@ -3,7 +3,6 @@ import {Board} from '/board.js';
 import { pieceFactory } from '/pieces/piece_factory.js';
 import { Color } from '/color.js';
 
-
 function setupClientGame() {
     const gameJsonElement = document.getElementById('gameJson');
     const game = Game.deserialize(JSON.parse(gameJsonElement.innerText));
@@ -14,6 +13,14 @@ function setupClientGame() {
 
 const game = setupClientGame();
 const uuid = game.uuid;
+
+let perspective = Color.White;
+
+function setPerspective(color) {
+    perspective = color;
+    renderBoardBackground();
+    renderBoardForeground(game.board);
+}
 
 
 const canvasBoard = document.getElementById('board');
@@ -51,10 +58,10 @@ function renderPiece(square, piece) {
 
 function renderBoardForeground(board) {
     for (let i = 0; i < board.rows; i++) {
-        for (let j = 0; j < board.rows; j++) {
+        for (let j = 0; j < board.cols; j++) {
             const piece = board.getPiece(i, j);
             if (piece) {
-                renderPiece({ row: i, col: j }, piece);
+                renderPiece(convertSquare({ row: i, col: j }), piece);
             }
         }
     }
@@ -64,6 +71,14 @@ function renderBoardForeground(board) {
 
 renderBoardBackground();
 renderBoardForeground(game.board);
+
+function convertSquare(square) {
+    if (perspective === Color.White) {
+        return { row: 7 - square.row, col: square.col};
+    } else {
+        return { row: square.row, col: 7 - square.col};
+    }
+}
 
 function onGameMove(event) {
     const move = JSON.parse(event.data);
@@ -140,8 +155,10 @@ window.addEventListener('visibilitychange', event => {
 });
 
 
+
+
 // could also separate move event from timeout event.
 
 export { // just for now exporrting funcs as well
-    game, canvasBoard, ctx, renderSquare, renderPiece, renderBoardBackground, renderBoardForeground, sseListener
+    game, canvasBoard, ctx, renderSquare, renderPiece, renderBoardBackground, renderBoardForeground, sseListener, setPerspective, perspective, convertSquare
 }
