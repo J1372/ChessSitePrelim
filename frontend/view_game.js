@@ -22,6 +22,9 @@ function setPerspective(color) {
     renderBoardForeground(game.board);
 }
 
+document.getElementById('switch-perspective').addEventListener('click', () => {
+    setPerspective(Color.opposite(perspective));
+});
 
 const canvasBoard = document.getElementById('board');
 canvasBoard.height = canvasBoard.width;

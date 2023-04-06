@@ -15,6 +15,20 @@ if (player === game.black) {
     setPerspective(Color.Black);
 }
 
+document.getElementById('switch-perspective').addEventListener('click', () => {
+    // re-render the selected piece's moves on the board after flip.
+    if (selected) {
+        const piece = game.board.getPiece(selected.row, selected.col);
+
+        const moves = piece.getMoves(selected, game.board).map(convertSquare);
+        const renderSelected = convertSquare(selected);
+        
+        renderSquare(renderSelected, 'green');
+        renderPiece(renderSelected, piece);
+        renderMoves(moves);
+    }
+});
+
 function selectSquare(toSelect, piece) {
     selected = toSelect;
     const moves = piece.getMoves(selected, game.board).map(convertSquare);

@@ -22,15 +22,13 @@ html
                 div#game-div
                     canvas#board
 
-
-
+                    button#switch-perspective(type="button") Switch perspective
+                    script(type="module" src="../view_game.js")
+                    
                     if isPlayer
                         ul#promotion-list
                         button#resign-button(type="button") Resign
-                        script(type="module" src="../view_game.js")
                         script(type="module" src="../play_game.js")
-                    else
-                        script(type="module" src="../view_game.js")
                 
                 
 
