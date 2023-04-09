@@ -134,10 +134,6 @@ function renderMoves(moves) {
 
 canvasBoard.addEventListener('click', handleClick);
 
-
-// update clock every second based on time elapsed from start.
-//setInterval(updateClock, 1000);
-
 /*
     Moves:
 
@@ -172,8 +168,6 @@ resignButton.addEventListener('click', () => {
     });
 })
 
-
-
 function disableInteraction() {
     resignButton.remove();
     canvasBoard.removeEventListener('click', handleClick);
@@ -193,4 +187,3 @@ function onGameMove(event) {
 
 sseListener.addEventListener("move", onGameMove);
 sseListener.addEventListener("resign", disableInteraction);
-sseListener.addEventListener("timeout", disableInteraction);

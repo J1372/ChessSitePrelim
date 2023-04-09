@@ -12,7 +12,6 @@ function setupClientGame() {
 }
 
 const game = setupClientGame();
-const uuid = game.uuid;
 
 let perspective = Color.White;
 
@@ -40,10 +39,10 @@ function renderBoardBackground() {
     for (let i = 0; i < 8; i++) {
         for (let j = 0; j < 8; j++) {
             if ((i + j) % 2 == 0) {
-                renderSquare({ col: j, row: i }, 'grey');
+                renderSquare({ col: j, row: i }, 'darkgrey');
             }
             else {
-                renderSquare({ col: j, row: i }, 'darkgrey');
+                renderSquare({ col: j, row: i }, 'grey');
             }
         }
     }
@@ -116,20 +115,6 @@ function onGameMove(event) {
 function onGameResign(event) {
     const data = JSON.parse(event.data);
     console.log(data.resigned + ' resigned.');
-    // in playgame : canvasBoard.removeEventListener('click');
-    sseListener.close();
-}
-
-function onGameTimeout(event) {
-    // should send user who time out.
-    // can't rely on client-side game object if is player.
-    // client may move, then timeout, display
-    // actually, server should not respond to send movem so it should be fine.
-    const data = JSON.parse(event.data);
-    console.log(data);
-    console.log(game.getCurPlayer().name + ' timed out.');
-
-    // in playgame : canvasBoard.removeEventListener('click');
     sseListener.close();
 }
 
@@ -138,11 +123,10 @@ function updateClock() {
 }
 
 
-const sseURL = 'http://localhost:8080/game/' + uuid + '/subscribe';
-const sseListener = new EventSource(sseURL/*, {withCredentials: true}*/);
+const sseURL = 'http://localhost:8080/game/' + game.uuid + '/subscribe';
+const sseListener = new EventSource(sseURL);
 sseListener.addEventListener("move", onGameMove);
 sseListener.addEventListener("resign", onGameResign);
-sseListener.addEventListener("timeout", onGameTimeout);
 sseListener.onerror = () => sseListener.close();
 
 // alternatively, look at the pagehide event
@@ -157,10 +141,6 @@ window.addEventListener('visibilitychange', event => {
 });
 
 
-
-
-// could also separate move event from timeout event.
-
-export { // just for now exporrting funcs as well
+export {
     game, canvasBoard, ctx, renderSquare, renderPiece, renderBoard, sseListener, setPerspective, perspective, convertSquare
 }
