@@ -50,11 +50,21 @@ function renderBoardBackground() {
 
 function renderPiece(square, piece) {
     const size = canvasBoard.width / 8;
-    const start = { x: square.col * size + size / 3, y: square.row * size + size / 2};
+    const start = { x: square.col * size + size / 4, y: square.row * size + (size * 0.75)};
+    
+    const pieceRep = piece.pieceName.toUpperCase();
+    ctx.font = "32px Arial";
+    ctx.lineWidth = 2;
+    if (piece.color === Color.White) {
+        ctx.fillStyle = 'white';
+        ctx.strokeStyle = 'black';
+    } else {
+        ctx.fillStyle = 'black';
+        ctx.strokeStyle = 'white';
+    }
 
-    ctx.fillStyle = 'red';
-    ctx.font = "16px Arial";
-    ctx.fillText(piece.pieceName + piece.color, start.x, start.y);
+    ctx.strokeText(pieceRep, start.x, start.y);
+    ctx.fillText(pieceRep, start.x, start.y);
 }
 
 function renderBoardForeground(board) {
