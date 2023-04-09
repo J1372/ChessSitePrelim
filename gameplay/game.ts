@@ -8,13 +8,6 @@ import { King } from "./pieces/king.js";
 import { Piece, Ray } from "./pieces/piece.js";
 import { Square } from "./square.js";
 
-export enum GameStatus {
-    White,
-    Black,
-    Draw,
-    Ongoing
-}
-
 // This is a game currently being played.
 export class Game {
     uuid!: string; // length = 16
@@ -74,11 +67,15 @@ export class Game {
         return game;
     }
 
+    playerColor(player: Player) {
+        if (player === this.white) {
+            return Color.White;
+        } else {
+            return Color.Black;
+        }
 
-    getGameStatus(): GameStatus {
-        return GameStatus.Ongoing;
     }
-
+    
     getCurPlayer(): Player {
         if (this.board.curTurn === Color.White) {
             return this.white;
@@ -92,21 +89,8 @@ export class Game {
         return this.white.user === user || this.black.user === user;
     }
 
-    /*
-    isTurn(user: string): boolean {
-        if (this.board.curTurn === Color.White) {
-            return this.white.user === user;
-        } else {
-            return this.black.user === user;
-        }
-    }*/
-
     isTurn(player: Player): boolean {
-        if (this.board.curTurn === Color.White) {
-            return this.white === player;
-        } else {
-            return this.black === player;
-        }
+        return this.playerColor(player) === this.board.curTurn;
     }
 
     hasWon(color: Color) {
@@ -115,11 +99,7 @@ export class Game {
 
     userWon(user: string) {
         const player = this.getPlayer(user);
-        if (player === this.white) {
-            return this.board.hasWon(Color.White);
-        } else {
-            return this.board.hasWon(Color.Black);
-        }
+        return this.hasWon(this.playerColor(player));
     }
 
     owns(player: Player, square: Square): boolean {
@@ -129,12 +109,7 @@ export class Game {
             return false;
         }
 
-        if (player === this.white) {
-            return piece.color === Color.White;
-        } else {
-            return piece.color === Color.Black;
-        }
-
+        return this.playerColor(player) === piece.color;
     }
 
     getPlayer(name: string): Player {
@@ -163,15 +138,11 @@ export class Game {
     }
 
     getColor(user: string): Color {
-        if (user === this.white.user) {
-            return Color.White;
-        } else {
-            return Color.Black;
-        }
+        return this.playerColor(this.getPlayer(user));
     }
     
     promote(toSquare: Square, piecePromotion: Piece) {
-        const oldPiece = this.board.getPiece(toSquare.row, toSquare.col);
+        //const oldPiece = this.board.getPiece(toSquare.row, toSquare.col);
 
         this.board.setPiece(toSquare, piecePromotion);
         if (piecePromotion.color === Color.White) {
