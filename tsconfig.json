@@ -108,6 +108,8 @@
     "authentication.ts",
     "back_javascript.ts",
     "./gameplay/board.ts",
-    "./gameplay/game.ts"
+    "./gameplay/game.ts",
+    "users.ts",
+    "games.ts"
   ]
 }
