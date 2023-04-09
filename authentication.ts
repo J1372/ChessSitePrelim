@@ -1,4 +1,4 @@
-import {db, userExists} from "./database.js";
+import * as db from "./database.js";
 import express from 'express';
 import * as bcrypt from 'bcrypt';
 
@@ -81,7 +81,7 @@ async function canCreateAccount(user: string, pass: string) {
         
     }
 
-    if (await userExists(user)) {
+    if (await db.userExists(user)) {
         return "User already exists.";
     }
 

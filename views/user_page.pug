@@ -9,6 +9,7 @@ html
         include ./universal_header
 
         div#mainBody
+            -const userExists = profileWins !== undefined;
             if userExists
                 p #{pageUser}'s page!
                 

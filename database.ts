@@ -1,11 +1,14 @@
 import sqlite3 from 'sqlite3';
 import * as sqlite from 'sqlite';
 
-export const db = await sqlite.open({
+const db = await sqlite.open({
     filename: './db/chessDB.db',
     driver: sqlite3.Database
 });
 
+export const close = db.close.bind(db);
+export const get = db.get.bind(db);
+export const run = db.run.bind(db);
 
 export async function userExists(user: string): Promise<boolean> {
     const stmt = `SELECT name
@@ -23,12 +26,10 @@ export interface UserStats {
     losses: number,
 }
 
-export async function getUserStats(user: string): Promise<UserStats> {
+export function getUserStats(user: string): Promise<UserStats | undefined> {
     const stmt = `SELECT wins, draws, losses
                   FROM user
                   WHERE name = ?`;
 
-    const entry = await db.get(stmt, [user]);
-
-    return entry;
+    return db.get(stmt, [user]);
 }

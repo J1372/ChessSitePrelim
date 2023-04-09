@@ -1,4 +1,4 @@
-import {db, getUserStats, userExists} from "./database.js"
+import * as db from "./database.js"
 import * as authentication from "./authentication.js"
 
 import { GamePost } from './gameplay/game_post.js'
@@ -121,36 +121,21 @@ app.get('/user/:user', parserMy, async (req: express.Request, res: express.Respo
     const getPageOf = user; // the user we are getting the profile page of.
     const sessionUser = req.session.user; // current session's user
 
-    //const profileExists = await userExists(user);
-    //const stats = await getUserStats(user);
+    const pageInfo = 
+    {
+        pageUser: getPageOf,
+        sessionUser: sessionUser,
+    } as any;
 
-    Promise.all([userExists(user), getUserStats(user)]).then((promises) => {
-        const profileExists = promises[0];
-        const stats = promises[1];
+    const stats = await db.getUserStats(user);
+    if (stats) {
+        pageInfo.profileWins = stats.wins;
+        pageInfo.profileWins = stats.wins;
+        pageInfo.profileDraws = stats.draws;
+        pageInfo.profileLosses = stats.losses;
+    }
 
-        if (profileExists) {
-            res.render('user_page', 
-            {
-                pageUser: getPageOf,
-                sessionUser: sessionUser,
-                userExists: profileExists,
-                profileWins: stats.wins,
-                profileDraws: stats.draws,
-                profileLosses: stats.losses,
-            });
-        } else {
-            res.render('user_page', 
-            {
-                pageUser: getPageOf,
-                sessionUser: sessionUser,
-                userExists: profileExists
-            });
-        }
-
-    });
-
-    //res.render('user_page', {pageUser: getPageOf, sessionUser: sessionUser, userExists: profileExists});
-
+    res.render('user_page', pageInfo);
 });
 
 
@@ -365,12 +350,12 @@ app.get('/game/:uuid', async (req: express.Request, res: express.Response) => {
     // move can be offer_draw, resign as well.
 });
 
-app.get('/game/:uuid/subscribe', async (req: express.Request, res: express.Response) => {
+app.get('/game/:uuid/subscribe', (req: express.Request, res: express.Response) => {
     addGameObserver(req, res, req.params.uuid);
 });
 
 // Notify host when player joins their open game.
-app.get('/game/:uuid/waiting', async (req: express.Request, res: express.Response) => {
+app.get('/game/:uuid/waiting', (req: express.Request, res: express.Response) => {
     addJoinObserver(req, res, req.params.uuid);
 });
 
