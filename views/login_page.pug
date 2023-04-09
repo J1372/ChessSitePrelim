@@ -1,0 +1,32 @@
+doctype html
+
+html
+    head 
+        title Chess - login
+        link(rel="stylesheet", href="/home/home.css")
+    body 
+        include ./universal_header
+
+        form(action="http://localhost:8080/user/login", method="post")
+            ul 
+                li 
+                    label(for="usernameInput") Username:
+                    input#usernameInput(type="text", name="username", maxlength="16", required)
+                li 
+                    label(for="passwordInput") Password:
+                    input#passwordInput(type="password", name="password", required)
+                li 
+                    button(type="submit") Login
+                    
+        form(action="http://localhost:8080/user/create-account", method="post")
+            ul
+                li 
+                    label(for="usernameInputCreate") Username <span aria-label="required">*</span>:
+                    input#usernameInputCreate(type="text", name="username", maxlength="16", required)
+                li 
+                    label(for="passwordInputCreate") Password <span aria-label="required">*</span>:
+                    input#passwordInputCreate(type="password", name="password", required)
+                li 
+                    button(type="submit") Create account
+
+        include ./universal_footer

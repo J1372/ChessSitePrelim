@@ -3,7 +3,7 @@ const createGameButton = document.getElementById("createGame");
 const refreshButton = document.getElementById("refreshGames");
 
 async function attemptJoinGame(uuid) {
-    const joinResponse = await fetch("http://localhost:8080/join-game",
+    const joinResponse = await fetch("http://localhost:8080/game/" + uuid + "/join",
     {
         headers: {
             "Accept": "application/json",
@@ -24,7 +24,7 @@ async function attemptJoinGame(uuid) {
 }
 
 async function updateGameList() {
-    const createdResponse = await fetch("http://localhost:8080/get-open-games");
+    const createdResponse = await fetch("http://localhost:8080/game/get-open-games");
 
     const resp = await createdResponse.json();
     console.log(resp);
@@ -89,7 +89,7 @@ createGameButton2.addEventListener('click', async (e)=> {
         delay: delay,
     }
 
-    const createdResponse = await fetch("http://localhost:8080/create-game", 
+    const createdResponse = await fetch("http://localhost:8080/game/create", 
     {
         headers: {
             "Accept": "application/json",

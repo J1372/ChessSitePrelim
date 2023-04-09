@@ -10,12 +10,10 @@ html
         include ./universal_header
 
         div#createGameForm
-            form(action="http://localhost:8080/create-game", method="post")
+            form(action="http://localhost:8080/game/create", method="post")
                 h1 Game details 
                 label(for="minsInput") Starting Minutes
                 input#minsInput(type="number", name="startMins" value="10", min="1", required)
-
-                //- in future: if 0 mins, must have an increment or delay.
 
                 label(for="incrInput") Increment (Seconds)
                 input#incrInput(type="number", name="increment", value="0", min="0")

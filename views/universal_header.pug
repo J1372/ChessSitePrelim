@@ -4,7 +4,7 @@ header
         a(href="http://localhost:8080/home") Home
 
         if sessionUser
-            a#to-user-page( href="http://localhost:8080/user/" + sessionUser) #{sessionUser}
-            a(href="http://localhost:8080/logout") Logout
+            a#to-user-page(href="http://localhost:8080/user/" + sessionUser) #{sessionUser}
+            a(href="http://localhost:8080/user/logout") Logout
         else
             a(href="http://localhost:8080/login") Login / Sign-up

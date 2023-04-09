@@ -71,24 +71,24 @@ app.get('/home', (req: express.Request, res: express.Response) => {
 });
 
 app.get('/login', (_, res: express.Response) => {
-    res.sendFile(login_path);
+    res.render('login_page');
 });
 
 // users
-app.post('/login-attempt', urlParser, authentication.loginHandler);
-app.get('/logout', urlParser, users.logoutHandler);
+app.post('/user/login', urlParser, authentication.loginHandler);
+app.get('/user/logout', urlParser, users.logoutHandler);
 app.get('/user/:user', urlParser, users.userPage);
-app.post('/create-account-attempt', urlParser, authentication.createAccountHandler);
+app.post('/user/create-account', urlParser, authentication.createAccountHandler);
 
 // games
-app.post('/create-game', jsonParser, games.create);
-app.get('/get-open-games', games.getOpenGames);
-app.post('/join-game', jsonParser, games.join);
+app.post('/game/create', jsonParser, games.create);
+app.get('/game/get-open-games', games.getOpenGames);
+app.post('/game/:uuid/join', jsonParser, games.join);
 app.get('/game/:uuid', games.gamePage);
 app.get('/game/:uuid/subscribe', games.subscribe);
 app.get('/game/:uuid/waiting', games.hostWaiting);
-app.post('/game-move/:uuid', jsonParser, games.move);
-app.post('/game-resign/:uuid', games.resignGame);
+app.post('/game/:uuid/move', jsonParser, games.move);
+app.post('/game/:uuid/resign', games.resignGame);
 
 app.listen(port, () => {
     console.log(`Listening on port ${port}`);
