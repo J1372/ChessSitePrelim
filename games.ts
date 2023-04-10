@@ -5,6 +5,7 @@ import { Board } from './gameplay/board.js';
 import { pieceFactory } from './gameplay/pieces/piece_factory.js';
 import { TimeControl } from './gameplay/time_control.js';
 import { Color } from './gameplay/color.js';
+import { randomUUID } from 'crypto';
 
 // Public games posted that can be joined by any user.
 const openGames = new Map<string, GamePost>();
@@ -18,20 +19,6 @@ const gameObservers = new Map<string, Array<Observer>>();
 export function getOpenGames(req: express.Request, res: express.Response) {
     res.send(JSON.stringify(Array.from(openGames.values())));
 }
-
-
-/**
-    Generates and returns a unique, but not crypto secure, random id.
-    So, don't use it if need security (instead, use a crypto function).
-*/
-function makeUnsecureUUID(length: number): string {
-    const base64 = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789-_';
-
-    const chars = [...Array(length)].map(_ => base64.charAt(Math.floor(Math.random() * base64.length)));
-
-    return chars.join('');
-}
-
 
 function endGame(game: Game) {
     activeGames.delete(game.uuid);
@@ -251,13 +238,7 @@ export function create(req: express.Request, res: express.Response) {
         }
 
         const hostPrefer: Color | undefined = req.body.color;
-
-        let uuid = makeUnsecureUUID(16);
-        /*
-        while (! await isUniqueGameId(uuid)) {
-            uuid = makeUnsecureUUID(16);
-        }*/
-
+        const uuid = randomUUID();
         const created = new GamePost(uuid, user, timeControl, hostPrefer);
 
         openGames.set(uuid, created);
@@ -300,7 +281,7 @@ function addJoinObserver(req: express.Request, res: express.Response, uuid: stri
 
     res.writeHead(200, headers);
 
-    const observer = { id: makeUnsecureUUID(16), res: res };
+    const observer = { id: randomUUID(), res: res };
     joinObservers.set(uuid, observer);
 
     req.on('close', () => {
@@ -322,7 +303,7 @@ function addGameObserver(req: express.Request, res: express.Response, uuid: stri
 
     res.writeHead(200, headers);
 
-    const observer = { id: makeUnsecureUUID(16), res: res };
+    const observer = { id: randomUUID(), res: res };
     gameObservers.get(uuid)?.push(observer);
 
     req.on('close', () => {

@@ -1,27 +1,18 @@
-import * as db from "./database.js";
 import express from 'express';
 import * as bcrypt from 'bcrypt';
+import {User} from './mongo/user.js'
 
 async function verifyLogin(username: string, password: string): Promise<boolean> {
-    const stmt = `SELECT password
-                    FROM USER
-                    WHERE name = ?`;
-
-
-    const row = await db.get(stmt, [username]);
+    const row = await User.findOne({name: username}).select('pass').exec();
 
     if (row) {
-        console.log(`Found ${username} in the database.`);
-        const hashedPass = row.password;
+        const hashedPass = row.pass;
 
         const match = await bcrypt.compare(password, hashedPass); 
-        
 
         if (match) {
-            console.log("Passwords matched.");
             return true;
         } else {
-            console.log("Passwords did not match.");
             return false;
         }
 
@@ -81,7 +72,7 @@ async function canCreateAccount(user: string, pass: string) {
         
     }
 
-    if (await db.userExists(user)) {
+    if (await User.exists({name: user}).exec()) {
         return "User already exists.";
     }
 
@@ -115,17 +106,19 @@ export async function createAccountHandler(req: express.Request, res: express.Re
     // Use bcrypt to hash password.
     const hashedPass = await bcrypt.hash(pass, 10);
 
-    // Run the SQL statement to attempt to insert a user account with the username and hashed password into db.
-    const stmt = `INSERT INTO USER (name, password) VALUES (?, ?)`;
-    const result = await db.run(stmt, [user, hashedPass]);
+    const newUser = new User({
+        name: user,
+        pass: hashedPass
+    });
 
-    // lastID is used for insert statements. If insertion was not successful, it is undefined.
-    if (result.lastID === undefined) {
-        // User was allowed to create the account, but insertion into db failed.
-        res.send('Account creation failed. Try again later.');
-    } else {
+    newUser.save()
+    .then(() => {
         req.session.user = user;
         res.redirect("/home");
-    }
+    })
+    .catch(err => {
+        console.log(err);
+        res.send('Account creation failed. Try again later.');
+    });
     
 }

@@ -1,4 +1,6 @@
-import * as db from "./database.js"
+import  mongoose from "mongoose"
+await mongoose.connect('mongodb://127.0.0.1:27017/Chess');
+
 import * as authentication from "./authentication.js"
 import * as games from './games.js';
 import * as users from './users.js'
@@ -50,7 +52,7 @@ app.set('view engine', 'pug');
 
 process.on('SIGINT', async (code) => {
     console.log("Stopping server.");
-    await db.close();
+    await mongoose.disconnect();
     console.log("Closed database.");
     process.exit();
 });

@@ -103,7 +103,6 @@
 
   "files": [
     "sessions.ts",
-    "database.ts",
     "authentication.ts",
     "authentication.ts",
     "back_javascript.ts",

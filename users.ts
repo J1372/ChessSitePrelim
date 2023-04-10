@@ -1,5 +1,5 @@
 import express from 'express';
-import * as db from './database.js'
+import {User} from './mongo/user.js'
 
 export function logoutHandler(req: express.Request, res: express.Response) {
     req.session.destroy(_ => {
@@ -17,10 +17,10 @@ export async function userPage(req: express.Request, res: express.Response) {
         pageUser: getPageOf,
         sessionUser: sessionUser,
     } as any;
+    
+    const stats = await User.findOne({name: user}).select('wins draws losses').exec();
 
-    const stats = await db.getUserStats(user);
     if (stats) {
-        pageInfo.profileWins = stats.wins;
         pageInfo.profileWins = stats.wins;
         pageInfo.profileDraws = stats.draws;
         pageInfo.profileLosses = stats.losses;
