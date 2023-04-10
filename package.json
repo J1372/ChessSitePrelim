@@ -28,6 +28,8 @@
 
         "express-session-sqlite": "^2.1.1",
 
+        "mongoose": "^7.0.3",
+
         "pug": "^3.0.2",
 
         "sqlite": "^4.1.2",
