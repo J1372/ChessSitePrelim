@@ -6,6 +6,8 @@ import { pieceFactory } from './gameplay/pieces/piece_factory.js';
 import { TimeControl } from './gameplay/time_control.js';
 import { Color } from './gameplay/color.js';
 import { randomUUID } from 'crypto';
+import { MongoGame } from './mongo/mongo_game.js'
+import { User } from './mongo/user.js';
 
 // Public games posted that can be joined by any user.
 const openGames = new Map<string, GamePost>();
@@ -107,8 +109,10 @@ function tryMove(req: express.Request): boolean {
         }
 
         if (game.userWon(user)) {
+            const ended = new Date();
             notifyObservers(game.uuid, 'move', { from: from, to: to, promotion: req.body.promotion, ended: 'mate' });
             endGame(game);
+            storeGame(game, game.getColor(user), 'M', ended);
         } else {
             notifyObservers(game.uuid, 'move', { from: from, to: to, promotion: req.body.promotion });
         }
@@ -128,7 +132,77 @@ export function move(req: express.Request, res: express.Response) {
     }
 }
 
+async function storeGame(game: Game, winner: Color, dueTo: string, ended: Date) {
+    const white = await User.findOne({name: game.white.user}).select('_id wins draws losses gameHistory otherUsersHistory').exec();
+    const black = await User.findOne({name: game.black.user}).select('_id wins draws losses gameHistory otherUsersHistory').exec();
+    
+    if (!white || !black) {
+        return;
+    }
+
+    let result = '';
+    let winnerUpdate;
+    let loserUpdate;
+    if (winner === Color.White) {
+        result = 'W';
+        winnerUpdate = white;
+        loserUpdate = black;
+    } else {
+        result = 'B';
+        winnerUpdate = black;
+        loserUpdate = white;
+    }
+
+    // Update actual user wins
+    ++winnerUpdate.wins;
+    ++loserUpdate.losses;
+
+    // Convert ids to strings (for mongodb map)
+    const winnerUpdateIdStr = winnerUpdate._id.toString();
+    const loserUpdateIdStr = loserUpdate._id.toString();
+
+    // Start history if players' first game together
+    if (!winnerUpdate.otherUsersHistory.has(loserUpdateIdStr)) {
+        winnerUpdate.otherUsersHistory.set(loserUpdateIdStr, { wins: 0, draws: 0, losses: 0 });
+        loserUpdate.otherUsersHistory.set(winnerUpdateIdStr, { wins: 0, draws: 0, losses: 0 });
+    } 
+
+    // Update players' history with each other.
+    const winnerHistory = winnerUpdate.otherUsersHistory.get(loserUpdateIdStr);
+    const loserHistory = loserUpdate.otherUsersHistory.get(winnerUpdateIdStr);
+
+    ++winnerHistory!.wins;
+    ++loserHistory!.losses;
+
+    // Create the actual game.
+    const newGame = new MongoGame({
+        uuid: game.uuid,
+        white: white._id,
+        black: black._id,
+        result: result,
+        dueTo: dueTo,
+        started: game.started,
+        ended: ended
+    });
+
+    newGame.save()
+    .then(savedGame => {
+        console.log('Saved game to db.')
+        
+        // Add game to players' histories.
+        white.gameHistory.push(savedGame._id);
+        black.gameHistory.push(savedGame._id);
+
+        Promise.all([white.save(), black.save()])
+        .then(_ => console.log('Updated player info'))
+        .catch(err => console.log(err));
+    })
+    .catch(err => console.log(err));
+
+}
+
 function tryResign(req: express.Request) {
+    const received = new Date();
     const user = req.session.user;
     if (!user) {
         return false;
@@ -144,6 +218,10 @@ function tryResign(req: express.Request) {
         // set game status.
         notifyObservers(game.uuid, 'resign', { resigned: user });
         endGame(game);
+
+        const winner = Color.opposite(game.getColor(user));
+        storeGame(game, winner, 'R', received);
+        
         return true;
     } else {
         return false;
