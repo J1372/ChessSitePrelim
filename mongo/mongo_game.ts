@@ -8,12 +8,14 @@ const GameSchema = new mongoose.Schema({
 
     white: {
         type: mongoose.Schema.Types.ObjectId,
-        ref: 'User'
+        ref: 'User',
+        required: true,
     },
     
     black: {
         type: mongoose.Schema.Types.ObjectId,
-        ref: 'User'
+        ref: 'User',
+        required: true,
     },
 
     result: {
