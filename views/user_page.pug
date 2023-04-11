@@ -3,7 +3,7 @@ doctype html
 html
     head 
         title Chess - #{pageUser}
-        link(rel="stylesheet", href="/home/home.css")
+        link(rel="stylesheet", href="/home/user.css")
     
     body 
         include ./universal_header
@@ -16,10 +16,50 @@ html
                 -const myOwnPage = pageUser === sessionUser; //- Whether the current session's user is viewing their own user page.
                 if myOwnPage 
                     p This is your page! You are #{sessionUser}!
-                
-                p Wins: #{profileWins}
-                p Draws: #{profileDraws}
-                p Losses #{profileLosses}
+                else if history !== undefined
+                    h2 Your history with #{pageUser}
+                    ul
+                        li Wins: #{history.wins}
+                        li Draws: #{history.draws}
+                        li Losses #{history.losses}
+                ul
+                    li Wins: #{profileWins}
+                    li Draws: #{profileDraws}
+                    li Losses #{profileLosses}
+
+                section#game-history 
+                    h1 Game History
+                    if games
+                        ul
+                            each game in games
+                                li.past-game
+                                    -const duration = Math.floor((game.ended - game.started) / 1000);
+                                    h3 #{game.white} vs #{game.black}
+                                    p #{game.started}
+                                    p #{duration} seconds
+                                        
+                                    if game.result === 'W'
+                                        -var winner = 'White';
+                                        -var loser = 'Black';
+                                    else 
+                                        -var winner = 'Black';
+                                        -var loser = 'White';
+
+
+                                    if game.dueTo === 'M'
+                                        -var resultText = 'Checkmate. ' + winner + ' won.';
+                                    else if game.dueTo === 'R'
+                                        -var resultText = loser + ' resigned.';
+
+                                    -const pageWon = pageUser === game.white && game.result === 'W' || pageUser === game.black && game.result === 'B';
+
+                                    if pageWon
+                                        p.past-game-victory #{resultText}
+                                    else 
+                                        p.past-game-defeat #{resultText}
+
+
+
             else
                 p No profile found for #{pageUser}!
         

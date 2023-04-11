@@ -1,0 +1,73 @@
+body {
+  margin: 0px;
+  padding: 0px;
+  background-color: rgb(226, 226, 226);
+}
+
+#site-title {
+  margin: 0px;
+  text-align: center;
+  color: rgb(219, 219, 219);
+  background-color: #000;
+}
+
+#main-nav {
+  border: 5px solid #ccc;
+  padding: 0.5em;
+  margin-bottom: 1em;
+  text-align: right;
+  background-color: rgb(243, 243, 243);
+}
+
+footer {
+  border: 5px solid #ccc;
+  padding: 0.2em;
+  margin-top: 1em;
+  text-align: center;
+  background-color: rgb(243, 243, 243);
+}
+
+#main-nav a {
+  background-color: rgb(218, 218, 218);
+  border: 0.1em solid rgb(150, 150, 150);
+
+  margin: 0.5em;
+  padding-left: 1em;
+  padding-right: 1em;
+  
+  text-decoration-line: none;
+  color: rgb(54, 76, 119);
+}
+
+
+
+#mainBody {
+  border: 5px solid #ccc;
+  position: relative;
+  
+  margin-left: 20px;
+  margin-right: 20px;
+  min-width: 500px;
+}
+
+#game-history {
+  border-top: 2px solid #ccc;
+  text-align: center;
+}
+
+.past-game {
+  border: 2px solid #ccc;
+}
+
+.past-game-victory {
+  color: green;
+}
+
+.past-game-defeat {
+  color: red;
+}
+
+
+
+
+
