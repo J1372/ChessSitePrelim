@@ -32,30 +32,7 @@ const UserSchema = new mongoose.Schema({
         default: 0,
     },
 
-    gameHistory: [{type: mongoose.Schema.Types.ObjectId, ref: 'Game'}],
-
-    otherUsersHistory: {
-        type: Map,
-        of: {
-            wins: {
-                type: Number,
-                required: true
-            },
-
-            draws: {
-                type: Number,
-                required: true
-            },
-
-            losses:  {
-                type: Number,
-                required: true
-            }
-        },
-
-        default: new Map
-    }
-    
+    gameHistory: [{type: mongoose.Schema.Types.ObjectId, ref: 'Game'}]
 
 });
 

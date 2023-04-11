@@ -8,6 +8,7 @@ import { Color } from './gameplay/color.js';
 import { randomUUID } from 'crypto';
 import { MongoGame } from './mongo/mongo_game.js'
 import { User } from './mongo/user.js';
+import { UsersGameHistory } from './mongo/users_game_history.js'
 
 // Public games posted that can be joined by any user.
 const openGames = new Map<string, GamePost>();
@@ -133,9 +134,12 @@ export function move(req: express.Request, res: express.Response) {
 }
 
 async function storeGame(game: Game, winner: Color, dueTo: string, ended: Date) {
-    const white = await User.findOne({name: game.white.user}).select('_id wins draws losses gameHistory otherUsersHistory').exec();
-    const black = await User.findOne({name: game.black.user}).select('_id wins draws losses gameHistory otherUsersHistory').exec();
+    // Get necessary info about players.
+    const selectStr = '_id wins losses gameHistory';
+    const [white, black] = await Promise.all([User.findOne({name: game.white.user}).select(selectStr).exec(),
+                                              User.findOne({name: game.black.user}).select(selectStr).exec()]);
     
+    // If game was actually played, neither should ever be null.
     if (!white || !black) {
         return;
     }
@@ -153,26 +157,41 @@ async function storeGame(game: Game, winner: Color, dueTo: string, ended: Date) 
         loserUpdate = white;
     }
 
+
     // Update actual user wins
     ++winnerUpdate.wins;
     ++loserUpdate.losses;
-
-    // Convert ids to strings (for mongodb map)
-    const winnerUpdateIdStr = winnerUpdate._id.toString();
-    const loserUpdateIdStr = loserUpdate._id.toString();
-
-    // Start history if players' first game together
-    if (!winnerUpdate.otherUsersHistory.has(loserUpdateIdStr)) {
-        winnerUpdate.otherUsersHistory.set(loserUpdateIdStr, { wins: 0, draws: 0, losses: 0 });
-        loserUpdate.otherUsersHistory.set(winnerUpdateIdStr, { wins: 0, draws: 0, losses: 0 });
-    } 
+    
 
     // Update players' history with each other.
-    const winnerHistory = winnerUpdate.otherUsersHistory.get(loserUpdateIdStr);
-    const loserHistory = loserUpdate.otherUsersHistory.get(winnerUpdateIdStr);
+    const winnerId = winnerUpdate._id;
+    const sortedIds = [white._id, black._id].sort();
+    const key = { a: sortedIds[0], b: sortedIds[1] };
+    UsersGameHistory.findById(key).select('user1Wins user2Wins').exec()
+    .then(history => {
+        // Create a new history if players have never played together before.
+        if (!history) {
+            history = new UsersGameHistory({
+                _id: key,
+                user1Wins: 0,
+                draws: 0,
+                user2Wins: 0,
+            });
+        }
+        
+        if (key.a.equals(winnerId)) {
+            ++history.user1Wins;
+        } else {
+            ++history.user2Wins;
+        }
+    
+        history.save()
+        .then(_ => console.log('Updated player histories.'))
+        .catch(err => console.log(err));
+    })
+    .catch(err => console.log(err));
 
-    ++winnerHistory!.wins;
-    ++loserHistory!.losses;
+
 
     // Create the actual game.
     const newGame = new MongoGame({
@@ -194,7 +213,7 @@ async function storeGame(game: Game, winner: Color, dueTo: string, ended: Date) 
         black.gameHistory.push(savedGame._id);
 
         Promise.all([white.save(), black.save()])
-        .then(_ => console.log('Updated player info'))
+        .then(_ => console.log('Updated player info.'))
         .catch(err => console.log(err));
     })
     .catch(err => console.log(err));
