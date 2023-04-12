@@ -22,14 +22,22 @@ html
                 div#game-div
                     canvas#board
 
-                    button#switch-perspective(type="button") Switch perspective
-                    script(type="module" src="../view_game.js")
+
                     
                     if isPlayer
                         ul#promotion-list
-                        button#resign-button(type="button") Resign
-                        script(type="module" src="../play_game.js")
-                
+                    
+                    div#game-menu
+                        script(type="module" src="../view_game.js")
+                        h1
+                            a(href='http://localhost:8080/user/' + whitePlayer) #{whitePlayer}
+                            |  vs 
+                            a(href='http://localhost:8080/user/' + blackPlayer) #{blackPlayer}
+                        
+                        button#switch-perspective(type="button") Switch perspective
+                        if isPlayer 
+                            button#resign-button(type="button") Resign
+                            script(type="module" src="../play_game.js")
                 
 
             else
