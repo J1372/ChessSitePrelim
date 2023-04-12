@@ -38,6 +38,8 @@ export async function loginHandler(req: express.Request, res: express.Response) 
 
     if (correctPass === true) {
         req.session.user = user;
+        const userInfo = await User.findOne({name: user}).select('_id').exec();
+        req.session.mongoId = userInfo!._id.toString();
         res.redirect('/home');
     } else {
         res.redirect('/login');

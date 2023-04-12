@@ -16,6 +16,7 @@ import sqliteStoreFactory from "express-session-sqlite";
 declare module "express-session" {
     interface SessionData {
       user: string;
+      mongoId: string, // cannot use ObjectId due to way sessions work.
     }
   }
 
@@ -69,7 +70,7 @@ app.get('/', (req: express.Request, res: express.Response) => {
 });
 
 app.get('/home', (req: express.Request, res: express.Response) => {
-    res.render('home', { sessionUser: req.session.user });
+        res.render('home', { sessionUser: req.session.user });
 });
 
 app.get('/login', (_, res: express.Response) => {
