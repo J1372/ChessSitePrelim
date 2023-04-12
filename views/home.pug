@@ -9,18 +9,17 @@ html
     body 
         include ./universal_header
 
-        div#createGameForm
-            form(action="http://localhost:8080/game/create", method="post")
-                h1 Game details 
-                label(for="minsInput") Starting Minutes
-                input#minsInput(type="number", name="startMins" value="10", min="1", required)
+        form#createGameForm(action="http://localhost:8080/game/create", method="post")
+            h1 Game details 
 
-                label(for="incrInput") Increment (Seconds)
-                input#incrInput(type="number", name="increment", value="0", min="0")
-
-                label(for="delayInput") Delay (seconds)
-                input#delayInput(type="number", name="delay", value="0", min="0")
-                button#createGame2 Create game
+            p Play as:
+            label(for="no-pref") No preference
+            input#no-pref(type="radio", name="hostPrefer", value="e", checked)
+            label(for="white") White
+            input#white(type="radio", name="hostPrefer", value="w")
+            label(for="black") Black
+            input#black(type="radio", name="hostPrefer", value="b")
+            button#createGame2 Create game
 
         
         div(id="mainBody")

@@ -62,24 +62,13 @@ form li + li {
   margin-top: 1em;
 }
 
-label {
-  display: inline-block;
-  width: 90px;
-  text-align: right;
-}
-
-input {
-  font: 1em sans-serif;
-
-  width: 300px;
-  box-sizing: border-box;
-
-  border: 1px solid #999;
+form input {
+  display: block;
 }
 
 
 form button {
-  margin-left: 1em;
+  display: block;
   margin-top: 0.5em;
 }
 

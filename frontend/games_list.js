@@ -79,14 +79,8 @@ createGameButton2.addEventListener('click', async (e)=> {
 
     e.preventDefault();
 
-    const minutes = document.getElementById('minsInput').value;
-    const increment = document.getElementById('incrInput').value;
-    const delay = document.getElementById('delayInput').value;
-
     const settings = {
-        startingMins: minutes,
-        increment: increment,
-        delay: delay,
+        color: document.forms.createGameForm.elements.hostPrefer.value
     }
 
     const createdResponse = await fetch("http://localhost:8080/game/create", 

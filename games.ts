@@ -165,8 +165,7 @@ async function storeGame(game: Game, winner: Color, dueTo: string, ended: Date) 
 
     // Update players' history with each other.
     const winnerId = winnerUpdate._id;
-    const sortedIds = [white._id, black._id].sort();
-    const key = { a: sortedIds[0], b: sortedIds[1] };
+    const key = UsersGameHistory.key(white._id, black._id);
     UsersGameHistory.findById(key).select('user1Wins user2Wins').exec()
     .then(history => {
         // Create a new history if players have never played together before.
@@ -322,19 +321,22 @@ export function create(req: express.Request, res: express.Response) {
     if (user) {
 
         const timeControl: TimeControl = {
-            startingMins: Number(req.body.startingMins),
-            increment: Number(req.body.increment),
-            delay: Number(req.body.delay),
+            startingMins: 0,
+            increment: 0,
+            delay: 0,
         }
 
-        const errMsg = validateTimeControl(timeControl);
-        if (errMsg) {
-            console.log(errMsg);
-            res.sendStatus(403);
-            return;
+        const hostPreferArg: string | undefined = req.body.color;
+        let hostPrefer: Color | undefined;
+        if (hostPreferArg === 'e') {
+            hostPrefer = undefined;
+        } else if (hostPreferArg === 'w') {
+            hostPrefer = Color.White;
+        } else if (hostPreferArg === 'b') {
+            hostPrefer = Color.Black;
+        } else {
+            hostPrefer = undefined;
         }
-
-        const hostPrefer: Color | undefined = req.body.color;
         const uuid = randomUUID();
         const created = new GamePost(uuid, user, timeControl, hostPrefer);
 
