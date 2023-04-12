@@ -11,21 +11,24 @@ html
         div#mainBody
             -const userExists = profileWins !== undefined;
             if userExists
-                p #{pageUser}'s page!
-                
-                -const myOwnPage = pageUser === sessionUser; //- Whether the current session's user is viewing their own user page.
-                if myOwnPage 
-                    p This is your page! You are #{sessionUser}!
-                else if history !== undefined
-                    h2 Your history with #{pageUser}
-                    ul
-                        li Wins: #{history.wins}
-                        li Draws: #{history.draws}
-                        li Losses #{history.losses}
-                ul
-                    li Wins: #{profileWins}
-                    li Draws: #{profileDraws}
-                    li Losses #{profileLosses}
+                div#user-header
+                    div#user-header-main
+                        h1 #{pageUser}
+                        -const myOwnPage = pageUser === sessionUser; //- Whether the current session's user is viewing their own user page.
+                        if myOwnPage 
+                            p This is your page! You are #{sessionUser}!
+                        ul
+                            li.past-game-victory Wins: #{profileWins}
+                            li Draws: #{profileDraws}
+                            li.past-game-defeat Losses #{profileLosses}
+
+                    if history !== undefined
+                        div#history-with-you
+                            h2 Your history with #{pageUser}
+                            ul
+                                li.past-game-victory Wins: #{history.wins}
+                                li Draws: #{history.draws}
+                                li.past-game-defeat Losses #{history.losses}
 
                 section#game-history 
                     h1 Game History
