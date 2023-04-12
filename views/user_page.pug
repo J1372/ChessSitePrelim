@@ -34,7 +34,10 @@ html
                             each game in games
                                 li.past-game
                                     -const duration = Math.floor((game.ended - game.started) / 1000);
-                                    h3 #{game.white} vs #{game.black}
+                                    h3
+                                        a(href='http://localhost:8080/user/' + game.white) #{game.white}
+                                        |  vs 
+                                        a(href='http://localhost:8080/user/' + game.black) #{game.black}
                                     p #{game.started}
                                     p #{duration} seconds
                                         
