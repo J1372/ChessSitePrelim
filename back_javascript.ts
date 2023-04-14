@@ -7,11 +7,10 @@ import * as users from './users.js'
 import * as path from 'path';
 
 import { fileURLToPath } from 'url';
-import sqlite3 from 'sqlite3';
 
 import express from 'express';
 import sessions from 'express-session';
-import sqliteStoreFactory from "express-session-sqlite";
+import MongoStore from "connect-mongo";
 
 declare module "express-session" {
     interface SessionData {
@@ -19,8 +18,6 @@ declare module "express-session" {
       mongoId: string, // cannot use ObjectId due to way sessions work.
     }
   }
-
-const sqliteStore = sqliteStoreFactory.default(sessions);
 
 const app = express();
 const projectDir = path.dirname(fileURLToPath(import.meta.url));
@@ -41,9 +38,8 @@ app.use(sessions({
     saveUninitialized: true,
     resave: false,
 
-    store: new sqliteStore({
-        driver: sqlite3.Database,
-        path: './db/chessDB.db',
+    store: MongoStore.create({
+        client: mongoose.connection.getClient(),
         ttl: 1000 * 60 * 10,
     })
 }));
@@ -70,7 +66,7 @@ app.get('/', (req: express.Request, res: express.Response) => {
 });
 
 app.get('/home', (req: express.Request, res: express.Response) => {
-        res.render('home', { sessionUser: req.session.user });
+    res.render('home', { sessionUser: req.session.user });
 });
 
 app.get('/login', (_, res: express.Response) => {
