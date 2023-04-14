@@ -10,6 +10,7 @@ html
             title Chess - Game not found
         link(rel="stylesheet", href="/home/home.css")
         link(rel="stylesheet", href="/home/game.css")
+        link(rel="stylesheet", href="/home/user_links.css")
     
     body 
         include ./universal_header
@@ -30,9 +31,9 @@ html
                     div#game-menu
                         script(type="module" src="../view_game.js")
                         h1
-                            a(href='http://localhost:8080/user/' + whitePlayer) #{whitePlayer}
+                            a.user-link(href='http://localhost:8080/user/' + whitePlayer) #{whitePlayer}
                             |  vs 
-                            a(href='http://localhost:8080/user/' + blackPlayer) #{blackPlayer}
+                            a.user-link(href='http://localhost:8080/user/' + blackPlayer) #{blackPlayer}
                         
                         button#switch-perspective(type="button") Switch perspective
                         if isPlayer 

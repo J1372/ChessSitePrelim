@@ -4,6 +4,7 @@ html
     head 
         title Chess - #{pageUser}
         link(rel="stylesheet", href="/home/user.css")
+        link(rel="stylesheet", href="/home/user_links.css")
     
     body 
         include ./universal_header
@@ -35,9 +36,9 @@ html
                                 li.past-game
                                     -const duration = Math.floor((game.ended - game.started) / 1000);
                                     h3
-                                        a(href='http://localhost:8080/user/' + game.white) #{game.white}
+                                        a.user-link(href='http://localhost:8080/user/' + game.white) #{game.white}
                                         |  vs 
-                                        a(href='http://localhost:8080/user/' + game.black) #{game.black}
+                                        a.user-link(href='http://localhost:8080/user/' + game.black) #{game.black}
                                     p #{game.started}
                                     p #{duration} seconds
                                         

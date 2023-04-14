@@ -32,8 +32,17 @@
     padding: 5px;
 }
 
+#game-menu h1 {
+    border-bottom: 2px solid black;
+    padding-bottom: 5px
+}
+
 #game-menu button {
-    margin: 5px;
+    margin-bottom: 5px;
+}
+
+#game-menu button:first-of-type {
+    margin-right: 5px;
 }
 
 #promotion-list li {
