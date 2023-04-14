@@ -1,3 +1,5 @@
+import { Color } from '/color.js'
+
 const myGameList = document.getElementById("openGamesTable");
 const createGameButton = document.getElementById("createGame");
 const refreshButton = document.getElementById("refreshGames");
@@ -42,12 +44,20 @@ async function updateGameList() {
 
         const hostCol = document.createElement('td');
         const postedCol = document.createElement('td');
+        const hostPlaysCol = document.createElement('td');
+
+        let rep = Color.toString(element.hostPlayAs);
+        if (!rep) {
+            rep = 'Either';
+        }
 
         hostCol.appendChild(document.createTextNode(element.host));
         postedCol.appendChild(document.createTextNode(element.posted));
+        hostPlaysCol.appendChild(document.createTextNode(rep));
         
         listElement.appendChild(hostCol);
         listElement.appendChild(postedCol);
+        listElement.appendChild(hostPlaysCol);
 
         listElement.addEventListener('click', async () => {
             await attemptJoinGame(element.uuid);
