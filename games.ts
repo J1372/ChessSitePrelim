@@ -186,9 +186,9 @@ async function storeGame(game: Game, winner: Color, dueTo: string, ended: Date) 
     
         history.save()
         .then(_ => console.log('Updated player histories.'))
-        .catch(err => console.log(err));
+        .catch(console.log);
     })
-    .catch(err => console.log(err));
+    .catch(console.log);
 
 
 
@@ -213,9 +213,9 @@ async function storeGame(game: Game, winner: Color, dueTo: string, ended: Date) 
 
         Promise.all([white.save(), black.save()])
         .then(_ => console.log('Updated player info.'))
-        .catch(err => console.log(err));
+        .catch(console.log);
     })
-    .catch(err => console.log(err));
+    .catch(console.log);
 
 }
 
