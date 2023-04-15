@@ -23,7 +23,7 @@ export async function userPage(req: express.Request, res: express.Response) {
     
     const pageUserInfo = await User.findOne({ name: getPageOf})
         .select('_id wins draws losses')
-        .select({ gameHistory: { $slice: 10 }}).exec();
+        .select({ gameHistory: { $slice: -10 }}).exec();
 
     if (pageUserInfo) {
         pageInfo.profileWins = pageUserInfo.wins;
