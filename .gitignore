@@ -1,4 +1,6 @@
 /node_modules
 
-*.js
+/*.js
+/gameplay/**/*.js
+/mongo/*.js
 frontend/style/out
