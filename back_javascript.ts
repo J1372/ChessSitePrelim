@@ -31,7 +31,11 @@ const login_path = path.join(projectDir, 'frontend', 'login', 'login.html');
 
 const secret = "HGHFFGHTUJFY";
 
-app.use(express.static(front_path));
+const stylePath = path.join(front_path, 'style', 'out');
+const scriptPath = path.join(front_path, 'script');
+
+app.use(express.static(stylePath));
+app.use(express.static(scriptPath));
 app.use(express.static(path.join(projectDir, 'gameplay')));
 app.use(sessions({
     secret: secret,
@@ -40,7 +44,7 @@ app.use(sessions({
 
     store: MongoStore.create({
         client: mongoose.connection.getClient(),
-        ttl: 1000 * 60 * 10,
+        ttl: 60 * 10,
     })
 }));
 

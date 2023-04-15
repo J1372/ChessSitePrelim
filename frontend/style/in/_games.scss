@@ -1,25 +1,31 @@
-table {
-    background-color: rgb(162, 162, 162);
+.game-table {
+    background-color: rgb(96, 96, 96);
     border: 1px solid black;
     min-width: 700px;
     margin: 0 auto;
     table-layout:fixed
 }
 
-th {
+.game-table th {
     background-color: black;
     color: aliceblue;
     border: 2px solid rgb(158, 216, 255);
 }
 
-td, th {
+.game-table td, .game-table th {
     max-width: 1px;
 }
 
-td {
+.game-table td {
     border: 1px solid black;
+    padding-top: 3px;
+    padding-bottom: 3px;
 }
 
-#mainBody button {
-    margin: 5px;
+.game-victory {
+    color: green;
+}
+
+.game-defeat {
+    color: red;
 }

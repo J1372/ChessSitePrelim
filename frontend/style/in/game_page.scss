@@ -1,7 +1,16 @@
+@use 'common';
+@use 'games';
+
+#mainBody {
+    margin: 0 auto;
+    width: 80%;
+    text-align: center;
+  }
+  
+
 #game-div {
     position: relative;
 }
-
 
 #board {
     display: inline-block;
@@ -30,9 +39,10 @@
     vertical-align: top;
     margin-left: 20px;
     padding: 5px;
+    background-color: rgb(218, 218, 218);
 }
 
-#game-menu h1 {
+.game-menu-header {
     border-bottom: 2px solid black;
     padding-bottom: 5px
 }
@@ -50,4 +60,3 @@
     background-color: aliceblue;
     border: 2px solid black;
 }
-

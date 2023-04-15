@@ -1,0 +1,12 @@
+@use 'common';
+@use 'games';
+
+#createGameForm {
+    display: none;
+}
+
+#mainBody {
+    margin: 0 auto;
+    width: 80%;
+    text-align: center;
+}
