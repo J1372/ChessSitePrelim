@@ -11,7 +11,7 @@ body {
   background-color: #000;
 }
 
-#main-nav {
+#site-nav {
   margin-bottom: 1em;
   text-align: right;
 }
@@ -42,6 +42,10 @@ form li + li {
 
 form input {
   display: block;
+}
+
+form ul {
+  list-style: none;
 }
 
 form button {

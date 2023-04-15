@@ -1,6 +1,4 @@
 /node_modules
-/old
-/future exploration
 
 *.js
-*.css.map
+frontend/style/out
