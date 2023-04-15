@@ -58,6 +58,7 @@ async function updateGameList() {
         listElement.appendChild(hostCol);
         listElement.appendChild(postedCol);
         listElement.appendChild(hostPlaysCol);
+        listElement.setAttribute('class', 'button');
 
         listElement.addEventListener('click', async () => {
             await attemptJoinGame(element.uuid);

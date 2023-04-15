@@ -4,6 +4,7 @@ html
     head 
         title Chess - #{pageUser}
         link(rel="stylesheet", href="/home/user.css")
+        link(rel="stylesheet", href="/home/game_result.css")
         link(rel="stylesheet", href="/home/user_links.css")
     
     body 
@@ -16,17 +17,17 @@ html
                     div#user-header-main
                         h1 #{pageUser}
                         ul
-                            li.past-game-victory Wins: #{profileWins}
+                            li.game-victory Wins: #{profileWins}
                             li Draws: #{profileDraws}
-                            li.past-game-defeat Losses #{profileLosses}
+                            li.game-defeat Losses #{profileLosses}
 
                     if history !== undefined
                         div#history-with-you
                             h2 Your history with #{pageUser}
                             ul
-                                li.past-game-victory Wins: #{history.wins}
+                                li.game-victory Wins: #{history.wins}
                                 li Draws: #{history.draws}
-                                li.past-game-defeat Losses #{history.losses}
+                                li.game-defeat Losses #{history.losses}
 
                 section#game-history 
                     h1 Game History
@@ -58,9 +59,9 @@ html
                                     -const pageWon = pageUser === game.white && game.result === 'W' || pageUser === game.black && game.result === 'B';
 
                                     if pageWon
-                                        p.past-game-victory #{resultText}
+                                        p.game-victory #{resultText}
                                     else 
-                                        p.past-game-defeat #{resultText}
+                                        p.game-defeat #{resultText}
 
 
 

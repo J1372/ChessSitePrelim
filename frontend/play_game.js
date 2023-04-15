@@ -1,4 +1,4 @@
-import {game, canvasBoard, ctx, renderSquare, renderPiece, renderBoard, sseListener, setPerspective, convertSquare} from './view_game.js';
+import {game, canvasBoard, ctx, renderSquare, renderPiece, renderBoard, sseListener, setPerspective, convertSquare, gameResult} from './view_game.js';
 import {Board} from '/board.js';
 
 import { Color } from '/color.js'
@@ -180,10 +180,26 @@ function disableInteraction() {
 
 function onGameMove(event) {
     const move = JSON.parse(event.data);
-    if (move.ended === 'mate') {
+    if (move.ended) {
         disableInteraction();
+        if (game.getCurPlayer() === player) {
+            gameResult.setAttribute('class', 'game-defeat');
+        } else {
+            gameResult.setAttribute('class', 'game-victory');
+        }
+    }
+}
+
+function onGameResign(event) {
+    disableInteraction();
+
+    const data = JSON.parse(event.data);
+    if (data.resigned === user) {
+        gameResult.setAttribute('class', 'game-defeat');
+    } else {
+        gameResult.setAttribute('class', 'game-victory');
     }
 }
 
 sseListener.addEventListener("move", onGameMove);
-sseListener.addEventListener("resign", disableInteraction);
+sseListener.addEventListener("resign", onGameResign);

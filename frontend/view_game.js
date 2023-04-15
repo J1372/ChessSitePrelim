@@ -3,6 +3,8 @@ import {Board} from '/board.js';
 import { pieceFactory } from '/pieces/piece_factory.js';
 import { Color } from '/color.js';
 
+export const gameResult = document.getElementById('game-result');
+
 function setupClientGame() {
     const gameJsonElement = document.getElementById('gameJson');
     const game = Game.deserialize(JSON.parse(gameJsonElement.innerText));
@@ -93,6 +95,7 @@ function convertSquare(square) {
     }
 }
 
+
 function onGameMove(event) {
     const move = JSON.parse(event.data);
     console.log(move);
@@ -110,12 +113,7 @@ function onGameMove(event) {
     }
 
     if (move.ended === 'mate') {
-        if (color === Color.White) {
-            console.log(player.user + ' (White) has won');
-        } else {
-            console.log(player.user + ' (Black) has won');
-        }
-
+        gameResult.innerText = 'Checkmate. ' + player.user + ' (' + Color.toString(color) +') has won.';
         sseListener.close();
     }
     
@@ -124,7 +122,8 @@ function onGameMove(event) {
 
 function onGameResign(event) {
     const data = JSON.parse(event.data);
-    console.log(data.resigned + ' resigned.');
+    const colRep = Color.toString(game.getColor(data.resigned));
+    gameResult.innerText = data.resigned + ' (' + colRep + ') resigned.';
     sseListener.close();
 }
 
