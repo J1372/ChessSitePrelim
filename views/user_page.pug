@@ -3,18 +3,16 @@ doctype html
 html
     head 
         title Chess - #{pageUser}
-        link(rel="stylesheet", href="/home/user.css")
-        link(rel="stylesheet", href="/home/game_result.css")
-        link(rel="stylesheet", href="/home/user_links.css")
-    
+        link(rel="stylesheet", href="/user_page.css")
+
     body 
         include ./universal_header
 
-        div#mainBody
+        div.profile-detailed
             -const userExists = profileWins !== undefined;
             if userExists
-                div#user-header
-                    div#user-header-main
+                div.profile-header
+                    div.profile-header-main
                         h1 #{pageUser}
                         ul
                             li.game-victory Wins: #{profileWins}
@@ -22,14 +20,14 @@ html
                             li.game-defeat Losses #{profileLosses}
 
                     if history !== undefined
-                        div#history-with-you
+                        div.history-with-you
                             h2 Your history with #{pageUser}
                             ul
                                 li.game-victory Wins: #{history.wins}
                                 li Draws: #{history.draws}
                                 li.game-defeat Losses #{history.losses}
 
-                section#game-history 
+                section.game-history 
                     h1 Game History
                     if games
                         ul
@@ -37,9 +35,9 @@ html
                                 li.past-game
                                     -const duration = Math.floor((game.ended - game.started) / 1000);
                                     h3
-                                        a.user-link(href='http://localhost:8080/user/' + game.white) #{game.white}
+                                        a.button(href='http://localhost:8080/user/' + game.white) #{game.white}
                                         |  vs 
-                                        a.user-link(href='http://localhost:8080/user/' + game.black) #{game.black}
+                                        a.button(href='http://localhost:8080/user/' + game.black) #{game.black}
                                     p #{game.started}
                                     p #{duration} seconds
                                         

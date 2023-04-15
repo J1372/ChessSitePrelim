@@ -3,8 +3,7 @@ doctype html
 html
     head 
         title Chess - home
-        link(rel="stylesheet", href="/home/home.css")
-        link(rel="stylesheet", href="/home/game_table.css")
+        link(rel="stylesheet", href="/home.css")
     
     body 
         include ./universal_header
@@ -19,13 +18,13 @@ html
             input#white(type="radio", name="hostPrefer", value="w")
             label(for="black") Black
             input#black(type="radio", name="hostPrefer", value="b")
-            button#createGame2 Create game
+            button#createGame2.button Create game
 
         
         div(id="mainBody")
             section#openGames
                 h1 Games
-                table#openGamesTable
+                table#openGamesTable.game-table
                     thead 
                         tr
                             th User
@@ -34,9 +33,9 @@ html
 
 
 
-            button#createGame(type="button") Create game
-            button#refreshGames(type="button") Refresh list
+            button#createGame.button(type="button") Create game
+            button#refreshGames.button(type="button") Refresh list
 
-            script(type="module" src="../games_list.js") 
+            script(type="module" src="/games_list.js") 
 
         include ./universal_footer

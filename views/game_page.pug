@@ -8,14 +8,10 @@ html
             title Chess - Game: #{whitePlayer} - #{blackPlayer}
         else 
             title Chess - Game not found
-        link(rel="stylesheet", href="/home/home.css")
-        link(rel="stylesheet", href="/home/game.css")
-        link(rel="stylesheet", href="/home/user_links.css")
+        link(rel="stylesheet", href="/game_page.css")
     
     body 
         include ./universal_header
-
-
         
         div(id="mainBody")
             if gameExists 
@@ -29,16 +25,18 @@ html
                         ul#promotion-list
                     
                     div#game-menu
-                        script(type="module" src="../view_game.js")
-                        h1
-                            a.user-link(href='http://localhost:8080/user/' + whitePlayer) #{whitePlayer}
+                        script(type="module" src="/view_game.js")
+                        h3.game-menu-header
+                            a.button(href='http://localhost:8080/user/' + whitePlayer) #{whitePlayer}
                             |  vs 
-                            a.user-link(href='http://localhost:8080/user/' + blackPlayer) #{blackPlayer}
+                            a.button(href='http://localhost:8080/user/' + blackPlayer) #{blackPlayer}
                         
-                        button#switch-perspective(type="button") Switch perspective
+                        p#game-result 
+
+                        button#switch-perspective.button(type="button") Switch perspective
                         if isPlayer 
-                            button#resign-button(type="button") Resign
-                            script(type="module" src="../play_game.js")
+                            button#resign-button.button(type="button") Resign
+                            script(type="module" src="/play_game.js")
                 
 
             else
