@@ -51,8 +51,17 @@ async function updateGameList() {
             rep = 'Either';
         }
 
+        const date = new Date(element.posted);
+        // get a locale date string ~ month/day hour:min
+        const localPostDate = new Intl.DateTimeFormat(undefined, {
+            month: 'numeric',
+            day:'numeric',
+            hour:'numeric',
+            minute:'numeric'
+        }).format(date);
+        
         hostCol.appendChild(document.createTextNode(element.host));
-        postedCol.appendChild(document.createTextNode(element.posted));
+        postedCol.appendChild(document.createTextNode(localPostDate));
         hostPlaysCol.appendChild(document.createTextNode(rep));
         
         listElement.appendChild(hostCol);
