@@ -41,6 +41,8 @@
 .history-with-you {
     float: right;
     text-align: center;
+    padding-left: 0.5em;
+    padding-right: 0.5em;
     background-color: #b8b8b8;
     border: 1px solid black;
     min-width: 250px;
@@ -74,4 +76,29 @@
     margin: 0 auto;
     margin-left: 20px;
     margin-right: 20px;
+}
+
+.user-table {
+    background-color: rgb(203, 203, 203);
+    border: 1px solid black;
+    min-width: 300px;
+    margin: 0 auto;
+    table-layout:fixed
+}
+
+.user-table th {
+    background-color: black;
+    color: aliceblue;
+    border: 2px solid rgb(158, 216, 255);
+}
+
+.user-table td, .user-table th {
+    max-width: 1px;
+}
+
+.user-table td {
+    border: 1px solid black;
+    padding-top: 3px;
+    padding-bottom: 3px;
+    text-align: center;
 }

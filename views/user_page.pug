@@ -14,10 +14,16 @@ html
                 div.profile-header
                     div.profile-header-main
                         h1 #{pageUser}
-                        ul
-                            li.game-victory Wins: #{profileWins}
-                            li Draws: #{profileDraws}
-                            li.game-defeat Losses #{profileLosses}
+                        table.user-table
+                            thead 
+                                tr
+                                    th Wins
+                                    th Draws
+                                    th Losses
+                                tr
+                                    td.game-victory #{profileWins}
+                                    td #{profileDraws}
+                                    td.game-defeat #{profileLosses}
 
                     if history !== undefined
                         div.history-with-you
