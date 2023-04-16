@@ -6,7 +6,7 @@
 
     "description": "Login and play chess and DB fun.",
 
-    "main": "back_javascript.ts",
+    "main": "server.ts",
 
     "type": "module",
 

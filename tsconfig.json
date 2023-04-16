@@ -103,7 +103,7 @@
 
   "files": [
     "authentication.ts",
-    "back_javascript.ts",
+    "server.ts",
     "./gameplay/board.ts",
     "./gameplay/game.ts",
     "users.ts",

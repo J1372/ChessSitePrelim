@@ -1,4 +1,4 @@
-import  mongoose from "mongoose"
+import mongoose from "mongoose"
 await mongoose.connect('mongodb://127.0.0.1:27017/Chess');
 
 import * as authentication from "./authentication.js"
@@ -20,23 +20,23 @@ declare module "express-session" {
   }
 
 const app = express();
-const projectDir = path.dirname(fileURLToPath(import.meta.url));
 const port = 8080;
 
 const jsonParser = express.json();
 const urlParser = express.urlencoded({extended: true});
 
-const front_path = path.join(projectDir, 'frontend');
-const login_path = path.join(projectDir, 'frontend', 'login', 'login.html');
-
 const secret = "HGHFFGHTUJFY";
 
-const stylePath = path.join(front_path, 'style', 'out');
+const projectDir = path.dirname(fileURLToPath(import.meta.url));
+const gameplayPath = path.join(projectDir, 'gameplay');
+
+const front_path = path.join(projectDir, 'frontend');
+const stylePath = path.join(front_path, 'style', 'bin');
 const scriptPath = path.join(front_path, 'script');
 
 app.use(express.static(stylePath));
 app.use(express.static(scriptPath));
-app.use(express.static(path.join(projectDir, 'gameplay')));
+app.use(express.static(gameplayPath));
 app.use(sessions({
     secret: secret,
     saveUninitialized: true,

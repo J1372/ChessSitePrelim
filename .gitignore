@@ -3,4 +3,4 @@
 /*.js
 /gameplay/**/*.js
 /mongo/*.js
-frontend/style/out
+frontend/style/bin
