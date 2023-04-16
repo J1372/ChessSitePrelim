@@ -29,7 +29,7 @@ export class Game {
         game.timeControl = description.timeControl;
         game.started = new Date(); // could use Date.now instead
 
-        if (!description.hostPlayAs) {
+        if (description.hostPlayAs === undefined) {
             description.hostPlayAs = Math.random() <= 0.5 ? Color.White : Color.Black;
         }
 
