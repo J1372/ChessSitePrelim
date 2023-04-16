@@ -16,19 +16,18 @@ body {
   text-align: right;
 }
 
-footer {
+#site-footer {
   margin-top: 1em;
   text-align: center;
 }
 
-footer address {
+#site-footer address {
   margin-top: 1em;
   margin-bottom: 0.5em;
-  text-align: center;
   background-color: rgb(243, 243, 243);
 }
 
-form {
+.common-form {
     margin: 0 auto;
     width: 400px;
     padding: 1em;
@@ -36,19 +35,20 @@ form {
     margin-bottom: 1em;
 }
 
-form li + li {
+.common-form li + li {
   margin-top: 1em;
 }
 
-form input {
+.common-form input {
   display: block;
 }
 
-form ul {
+.common-form .args {
+  padding-left: 0;
   list-style: none;
 }
 
-form button {
+.common-form button {
   display: block;
   margin-top: 0.5em;
 }
