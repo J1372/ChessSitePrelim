@@ -1,21 +1,21 @@
 import express from 'express';
 import * as bcrypt from 'bcrypt';
 import {User} from './mongo/user.js'
+import mongoose from 'mongoose';
+
+function logUserIn(req: express.Request, res: express.Response, username: string, id: mongoose.Types.ObjectId) {
+    req.session.user = username;
+    req.session.mongoId = id.toString();
+
+    res.redirect('/home');
+}
 
 async function verifyLogin(username: string, password: string): Promise<boolean> {
     const row = await User.findOne({name: username}).select('pass').exec();
 
     if (row) {
         const hashedPass = row.pass;
-
-        const match = await bcrypt.compare(password, hashedPass); 
-
-        if (match) {
-            return true;
-        } else {
-            return false;
-        }
-
+        return bcrypt.compare(password, hashedPass);
     } else {
         console.log(`Could not find ${username} in the database.`);
         return false;
@@ -37,10 +37,8 @@ export async function loginHandler(req: express.Request, res: express.Response) 
     const correctPass = await verifyLogin(user, pass);
 
     if (correctPass) {
-        req.session.user = user;
         const userInfo = await User.findOne({name: user}).select('_id').exec();
-        req.session.mongoId = userInfo!._id.toString();
-        res.redirect('/home');
+        logUserIn(req, res, user, userInfo!._id);
     } else {
         res.redirect('/login');
     }
@@ -115,8 +113,7 @@ export async function createAccountHandler(req: express.Request, res: express.Re
 
     newUser.save()
     .then(() => {
-        req.session.user = user;
-        res.redirect("/home");
+        logUserIn(req, res, user, newUser._id);
     })
     .catch(err => {
         console.log(err);
