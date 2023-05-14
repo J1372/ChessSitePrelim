@@ -36,8 +36,8 @@ html
                             th Host Plays
 
 
-
-            button#createGame.button(type="button") Create game
+            if sessionUser
+                button#createGame.button(type="button") Create game
             button#refreshGames.button(type="button") Refresh list
 
             script(type="module" src="/games_list.js") 

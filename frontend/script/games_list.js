@@ -81,11 +81,13 @@ refreshButton.addEventListener('click', async ()=> {
     updateGameList();
 });
 
-createGameButton.addEventListener('click', ()=> {
-    if (waitingSecondPlayerListener === null) {
-        document.getElementById("createGameForm").style.display = "block";
-    }
-});
+if (createGameButton) {
+    createGameButton.addEventListener('click', ()=> {
+        if (waitingSecondPlayerListener === null) {
+            document.getElementById("createGameForm").style.display = "block";
+        }
+    });
+}
 
 const createGameButton2 = document.getElementById("createGame2");
 
@@ -138,3 +140,5 @@ createGameButton2.addEventListener('click', async (e)=> {
 
 
 updateGameList();
+
+
