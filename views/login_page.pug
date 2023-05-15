@@ -11,20 +11,20 @@ html
             ul.args
                 li 
                     label(for="usernameInput") Username:
-                    input#usernameInput(type="text", name="username", maxlength="16", required)
+                    input#usernameInput(type="text", name="user", maxlength="16", required)
                 li 
                     label(for="passwordInput") Password:
-                    input#passwordInput(type="password", name="password", required)
+                    input#passwordInput(type="password", name="pass", required)
             button.button(type="submit") Login
                     
         form.common-form(action="http://localhost:8080/user/create-account", method="post")
             ul.args
                 li 
                     label(for="usernameInputCreate") Username <span aria-label="required">*</span>:
-                    input#usernameInputCreate(type="text", name="username", maxlength="16", required)
+                    input#usernameInputCreate(type="text", name="user", maxlength="16", required)
                 li 
                     label(for="passwordInputCreate") Password <span aria-label="required">*</span>:
-                    input#passwordInputCreate(type="password", name="password", required)
+                    input#passwordInputCreate(type="password", name="pass", required)
             button.button(type="submit") Create account
 
         include ./universal_footer

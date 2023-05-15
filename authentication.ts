@@ -2,6 +2,7 @@ import express from 'express';
 import * as bcrypt from 'bcrypt';
 import {User} from './mongo/user.js'
 import mongoose from 'mongoose';
+import { matchedData, validationResult } from 'express-validator';
 
 function logUserIn(req: express.Request, res: express.Response, username: string, id: mongoose.Types.ObjectId) {
     req.session.user = username;
@@ -24,21 +25,17 @@ async function verifyLogin(username: string, password: string): Promise<boolean>
 }
 
 export async function loginHandler(req: express.Request, res: express.Response) {
-    console.log(req.body);
-
-    const user = req.body['username'];
-    const pass = req.body['password'];
-
-    if (!user || !pass) {
-        res.send(403);
+    if (!validationResult(req).isEmpty()) {
+        res.sendStatus(403);
         return;
     }
 
-    const correctPass = await verifyLogin(user, pass);
+    const data = matchedData(req);
+    const correctPass = await verifyLogin(data.user, data.pass);
 
     if (correctPass) {
-        const userInfo = await User.findOne({name: user}).select('_id').exec();
-        logUserIn(req, res, user, userInfo!._id);
+        const userInfo = await User.findOne({name: data.user}).select('_id').exec();
+        logUserIn(req, res, data.user, userInfo!._id);
     } else {
         res.redirect('/login');
     }
@@ -82,17 +79,13 @@ async function canCreateAccount(user: string, pass: string) {
 
 
 export async function createAccountHandler(req: express.Request, res: express.Response) {
-    console.log(req.body);
-
-    const user: string | undefined = req.body['username'];
-    const pass: string | undefined = req.body['password'];
-
-    if (!user || !pass) {
-        res.send(403);
+    if (!validationResult(req).isEmpty()) {
+        res.sendStatus(403);
         return;
     }
 
-    const verifyError = await canCreateAccount(user, pass);
+    const data = matchedData(req);
+    const verifyError = await canCreateAccount(data.user, data.pass);
 
     if (verifyError !== '') {
         // The user should not be able to create an account with the given user and pass.
@@ -104,20 +97,20 @@ export async function createAccountHandler(req: express.Request, res: express.Re
     // User should be able to create an account with the given username and password.
     
     // Use bcrypt to hash password.
-    const hashedPass = await bcrypt.hash(pass, 10);
+    const hashedPass = await bcrypt.hash(data.pass, 10);
 
     const newUser = new User({
-        name: user,
+        name: data.user,
         pass: hashedPass
     });
 
     newUser.save()
     .then(() => {
-        logUserIn(req, res, user, newUser._id);
+        logUserIn(req, res, data.user, newUser._id);
     })
     .catch(err => {
         console.log(err);
-        res.send('Account creation failed. Try again later.');
+        res.status(500).send('Account creation failed. Try again later.');
     });
     
 }

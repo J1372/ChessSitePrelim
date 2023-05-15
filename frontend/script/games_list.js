@@ -5,20 +5,9 @@ const createGameButton = document.getElementById("createGame");
 const refreshButton = document.getElementById("refreshGames");
 
 async function attemptJoinGame(uuid) {
-    const joinResponse = await fetch("http://localhost:8080/game/" + uuid + "/join",
-    {
-        headers: {
-            "Accept": "application/json",
-            "Content-Type": "application/json"
-        },
+    const joinResponse = await fetch("http://localhost:8080/game/" + uuid + "/join", { method: "post" });
 
-        method: "post",
-        body: JSON.stringify({uuid: uuid}),
-    });
-
-    const successful = joinResponse.status === 200;
-
-    if (successful) {
+    if (joinResponse.ok) {
         window.location.href = 'http://localhost:8080/game/' + uuid;
     } else {
         console.log(joinResponse);
@@ -116,7 +105,7 @@ createGameButton2.addEventListener('click', async (e)=> {
         body: JSON.stringify(settings),
     });
 
-    if (createdResponse.status !== 200) { // probably, user already has a game posted.
+    if (!createdResponse.ok) { // probably, user already has a game posted.
         return;
     }
 

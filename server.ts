@@ -5,6 +5,7 @@ import * as authentication from "./authentication.js"
 import * as games from './games.js';
 import * as users from './users.js'
 import * as path from 'path';
+import * as valid from './validation.js';
 
 import { fileURLToPath } from 'url';
 
@@ -65,6 +66,8 @@ process.on('SIGINT', async (code) => {
 */
 
 
+
+
 app.get('/', (req: express.Request, res: express.Response) => {
     res.render('home', { sessionUser: req.session.user})
 });
@@ -73,25 +76,30 @@ app.get('/home', (req: express.Request, res: express.Response) => {
     res.render('home', { sessionUser: req.session.user });
 });
 
-app.get('/login', (_, res: express.Response) => {
-    res.render('login_page');
+app.get('/login', (req: express.Request, res: express.Response) => {
+    if (req.session.user) {
+        res.redirect('/home');
+    } else {
+        res.render('login_page');
+    }
 });
 
 // users
-app.post('/user/login', urlParser, authentication.loginHandler);
-app.get('/user/logout', urlParser, users.logoutHandler);
-app.get('/user/:user', urlParser, users.userPage);
-app.post('/user/create-account', urlParser, authentication.createAccountHandler);
+app.post('/user/login', urlParser, valid.loginRegBasicSchema, authentication.loginHandler);
+app.get('/user/logout', valid.loggedIn, users.logoutHandler);
+app.get('/user/:user', users.userPage);
+app.post('/user/create-account', urlParser, valid.loginRegBasicSchema, authentication.createAccountHandler);
+
 
 // games
-app.post('/game/create', jsonParser, games.create);
+app.post('/game/create', valid.loggedIn, jsonParser, valid.createGameSchema, games.create);
 app.get('/game/get-open-games', games.getOpenGames);
-app.post('/game/:uuid/join', jsonParser, games.join);
+app.post('/game/:uuid/join', valid.loggedIn, games.join);
 app.get('/game/:uuid', games.gamePage);
 app.get('/game/:uuid/subscribe', games.subscribe);
-app.get('/game/:uuid/waiting', games.hostWaiting);
-app.post('/game/:uuid/move', jsonParser, games.move);
-app.post('/game/:uuid/resign', games.resignGame);
+app.get('/game/:uuid/waiting', valid.loggedIn, games.hostWaiting);
+app.post('/game/:uuid/move', valid.loggedIn, jsonParser, valid.moveSchema, games.move);
+app.post('/game/:uuid/resign', valid.loggedIn, games.resignGame);
 
 app.listen(port, () => {
     console.log(`Listening on port ${port}`);

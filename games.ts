@@ -9,6 +9,7 @@ import { randomUUID } from 'crypto';
 import { MongoGame } from './mongo/mongo_game.js'
 import { User } from './mongo/user.js';
 import { UsersGameHistory } from './mongo/users_game_history.js'
+import { matchedData, validationResult } from 'express-validator';
 
 // Public games posted that can be joined by any user.
 const openGames = new Map<string, GamePost>();
@@ -35,6 +36,8 @@ function endGame(game: Game) {
 }
 
 function tryMove(req: express.Request): boolean {
+    const data = matchedData(req);
+
     const game = activeGames.get(req.params.uuid);
 
     // No game with uuid that is currently being played.
@@ -42,35 +45,23 @@ function tryMove(req: express.Request): boolean {
         return false;
     }
 
-    const user = req.session.user;
+    const user = req.session.user!;
 
     // Only allow making a move if logged in and the user is a player in the game.
-    if (!user || !game.isPlayer(user)) {
+    if (!game.isPlayer(user)) {
         return false;
     }
 
     // There is a game with uuid, and the user is a player in the game.
 
-    // Players can resign at any time, even if it is not their turn.
-    if (req.body.resign) {
-        // handle resignation
-        // send events.
-        return true;
-    }
-
     // It is also the player's turn.
     // Should be able to move if the move is well-formed valid.
 
-    // Malformed post request.
-    if (!req.body.to || !req.body.from) {
-        return false;
-    }
+    const from = data.from;
+    const to = data.to;
 
-    const from = req.body.from as string;
-    const to = req.body.to as string;
-
-    const fromSquare = Board.convertFromNotation(from);
-    const toSquare = Board.convertFromNotation(to);
+    const fromSquare = Board.convertFromNotation(req.body.from);
+    const toSquare = Board.convertFromNotation(req.body.to);
 
     // Move notation invalid for board size.
     if (!fromSquare || !toSquare) {
@@ -79,12 +70,11 @@ function tryMove(req: express.Request): boolean {
 
     if (game.canMove(user, fromSquare, toSquare)) {
         const forcedPromotions = game.getPromotions(fromSquare, toSquare);
+        const userSelectedPromotion = data.promotion as string | undefined;
 
         // if game.mustPromote(move) then game.tryPromote(square, pieceString) and if fail then return.
 
         if (forcedPromotions.length > 0) {
-            const userSelectedPromotion = req.body.promotion as string | null;
-
             // Move requires promotion, user request does not specify a promotion.
             if (!userSelectedPromotion) {
                 return false;
@@ -111,11 +101,11 @@ function tryMove(req: express.Request): boolean {
 
         if (game.userWon(user)) {
             const ended = new Date();
-            notifyObservers(game.uuid, 'move', { from: from, to: to, promotion: req.body.promotion, ended: 'mate' });
+            notifyObservers(game.uuid, 'move', { from: from, to: to, promotion: userSelectedPromotion, ended: 'mate' });
             endGame(game);
             storeGame(game, game.getColor(user), 'M', ended);
         } else {
-            notifyObservers(game.uuid, 'move', { from: from, to: to, promotion: req.body.promotion });
+            notifyObservers(game.uuid, 'move', { from: from, to: to, promotion: userSelectedPromotion });
         }
 
         return true;
@@ -126,7 +116,7 @@ function tryMove(req: express.Request): boolean {
 }
 
 export function move(req: express.Request, res: express.Response) {
-    if (tryMove(req)) {
+    if (validationResult(req).isEmpty() && tryMove(req)) {
         res.sendStatus(200);
     } else {
         res.sendStatus(403);
@@ -221,10 +211,7 @@ async function storeGame(game: Game, winner: Color, dueTo: string, ended: Date) 
 
 function tryResign(req: express.Request) {
     const received = new Date();
-    const user = req.session.user;
-    if (!user) {
-        return false;
-    }
+    const user = req.session.user!;
 
     const game = activeGames.get(req.params.uuid);
 
@@ -280,17 +267,12 @@ export function gamePage(req: express.Request, res: express.Response) {
 }
 
 export function join(req: express.Request, res: express.Response) {
-    const uuid = req.body.uuid;
-
-    if (!uuid) {
-        res.sendStatus(404);
-        return;
-    }
+    const uuid = req.params.uuid;
 
     const gamePost = openGames.get(uuid);
-    const userJoining = req.session.user;
+    const userJoining = req.session.user!;
 
-    if (gamePost && userJoining) {
+    if (gamePost) {
         if (userJoining === gamePost.host) {
             // Host trying to join their own game.
             res.sendStatus(403);
@@ -311,40 +293,38 @@ export function join(req: express.Request, res: express.Response) {
         }
         res.sendStatus(200); // or res.redirect here.
     } else {
-        // Game not joinable, or user not signed in.
-        res.sendStatus(403); // client should notify that the game is not joinable.
+        // Game not joinable
+        res.sendStatus(404);
     }
 }
 
 export function create(req: express.Request, res: express.Response) {
-    const user = req.session.user;
-    if (user) {
-
-        const timeControl: TimeControl = {
-            startingMins: 0,
-            increment: 0,
-            delay: 0,
-        }
-
-        const hostPreferArg: string | undefined = req.body.color;
-        let hostPrefer: Color | undefined;
-        if (hostPreferArg === 'e') {
-            hostPrefer = undefined;
-        } else if (hostPreferArg === 'w') {
-            hostPrefer = Color.White;
-        } else if (hostPreferArg === 'b') {
-            hostPrefer = Color.Black;
-        } else {
-            hostPrefer = undefined;
-        }
-        const uuid = randomUUID();
-        const created = new GamePost(uuid, user, timeControl, hostPrefer);
-
-        openGames.set(uuid, created);
-        res.send(uuid);
-    } else {
+    if (!validationResult(req).isEmpty()) {
         res.sendStatus(403);
+        return;
     }
+
+    const data = matchedData(req);
+    const user = req.session.user!;
+
+    let hostPrefer: Color | undefined = undefined;
+    if (data.color === 'w') {
+        hostPrefer = Color.White;
+    } else if (data.color === 'b') {
+        hostPrefer = Color.Black;
+    }
+
+    
+    const timeControl: TimeControl = {
+        startingMins: 0,
+        increment: 0,
+        delay: 0,
+    }
+    const uuid = randomUUID();
+    const created = new GamePost(uuid, user, timeControl, hostPrefer);
+
+    openGames.set(uuid, created);
+    res.send(uuid);
 }
 
 export function subscribe(req: express.Request, res: express.Response) {
@@ -429,38 +409,4 @@ function notifyObservers(uuid: string, event: string, data: any) {
 
     const message = 'event: ' + event + '\ndata: ' + JSON.stringify(data) + '\n\n';
     observerList.forEach(o => o.res.write(message));
-}
-
-function validateTimeControl(timeControl: TimeControl): string | null {
-    for (const entry of Object.entries(timeControl)) {
-        if (isNaN(entry[1])) {
-            return `${entry[0]} is not a number.`;
-        }
-    }
-
-    if (timeControl.startingMins > 120) {
-        return "Starting time was longer than 2 hours";
-    }
-
-    if (timeControl.increment > 60) {
-        return "Increment was longer than 60 seconds";
-    }
-
-    if (timeControl.delay > 60) {
-        return "Delay was longer than 60 seconds";
-    }
-    
-    if (timeControl.startingMins <= 0) {
-        return "Starting time is too low";
-    }
-
-    if (timeControl.increment < 0) {
-        return "Negative increment";
-    }
-
-    if (timeControl.delay < 0) {
-        return "Negative delay";
-    }
-
-    return null;
 }
