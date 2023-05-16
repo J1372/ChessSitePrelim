@@ -13,6 +13,7 @@ import { matchedData, validationResult } from 'express-validator';
 
 // Public games posted that can be joined by any user.
 const openGames = new Map<string, GamePost>();
+const openGamesList = new Array<GamePost>();
 
 // Games being played now.
 const activeGames = new Map<string, Game>();
@@ -21,7 +22,7 @@ const activeGames = new Map<string, Game>();
 const gameObservers = new Map<string, Array<Observer>>();
 
 export function getOpenGames(req: express.Request, res: express.Response) {
-    res.send(JSON.stringify(Array.from(openGames.values())));
+    res.send(JSON.stringify(openGamesList));
 }
 
 function endGame(game: Game) {
@@ -284,6 +285,8 @@ export function join(req: express.Request, res: express.Response) {
         // still looking for player, return status ok
         // client check this in a fetch. if OK -> redirect self to game/:uuid.
         openGames.delete(uuid);
+        openGamesList.splice(openGamesList.findIndex(post => post.uuid === uuid), 1)
+
         const newGame = Game.fromPost(gamePost, userJoining);
         activeGames.set(uuid, newGame);
         gameObservers.set(uuid, []); // could merge obserevrs with activeGames.
@@ -324,6 +327,7 @@ export function create(req: express.Request, res: express.Response) {
     const created = new GamePost(uuid, user, timeControl, hostPrefer);
 
     openGames.set(uuid, created);
+    openGamesList.push(created);
     res.send(uuid);
 }
 
@@ -350,8 +354,7 @@ interface Observer {
 
 const joinObservers = new Map<string, Observer>();
 
-
-function addJoinObserver(req: express.Request, res: express.Response, uuid: string) {
+function createObserver(res: express.Response): Observer {
     const headers = {
         'Content-Type': 'text/event-stream',
         'Connection': 'keep-alive',
@@ -359,8 +362,11 @@ function addJoinObserver(req: express.Request, res: express.Response, uuid: stri
     };
 
     res.writeHead(200, headers);
+    return { id: randomUUID(), res: res };
+}
 
-    const observer = { id: randomUUID(), res: res };
+function addJoinObserver(req: express.Request, res: express.Response, uuid: string) {
+    const observer = createObserver(res);
     joinObservers.set(uuid, observer);
 
     req.on('close', () => {
@@ -374,15 +380,7 @@ function addJoinObserver(req: express.Request, res: express.Response, uuid: stri
 }
 
 function addGameObserver(req: express.Request, res: express.Response, uuid: string) {
-    const headers = {
-        'Content-Type': 'text/event-stream',
-        'Connection': 'keep-alive',
-        'Cache-Control': 'no-cache'
-    };
-
-    res.writeHead(200, headers);
-
-    const observer = { id: randomUUID(), res: res };
+    const observer = createObserver(res);
     gameObservers.get(uuid)?.push(observer);
 
     req.on('close', () => {
@@ -393,10 +391,6 @@ function addGameObserver(req: express.Request, res: express.Response, uuid: stri
         if (currObservers) {
             gameObservers.set(uuid, currObservers.filter(o => o.id !== observer.id));
         }
-
-        // todo when game is finished, remember to delete gameObservers.uuid list.
-        // in some other func, not here.
-
     })
 }
 
