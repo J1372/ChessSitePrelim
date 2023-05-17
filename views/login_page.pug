@@ -7,7 +7,7 @@ html
     body 
         include ./universal_header
 
-        form.common-form(action="http://localhost:8080/user/login", method="post")
+        form.common-form(action="/user/login", method="post")
             if error 
                 p.error-msg Could not login with the given info.
             ul.args

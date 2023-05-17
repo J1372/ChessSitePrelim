@@ -146,7 +146,7 @@ async function sendMove(move) {
     // disable canvas interaction.
     // send ajax post 
 
-    fetch("http://localhost:8080/game/" + game.uuid + "/move",
+    fetch("/game/" + game.uuid + "/move",
     {
         headers: {
             "Accept": "application/json",
@@ -162,7 +162,7 @@ async function sendMove(move) {
 }
 
 resignButton.addEventListener('click', () => {
-    fetch("http://localhost:8080/game/" + game.uuid + "/resign",
+    fetch("/game/" + game.uuid + "/resign",
     {
         method: "post",
     });

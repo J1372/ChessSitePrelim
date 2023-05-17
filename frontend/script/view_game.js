@@ -132,7 +132,7 @@ function updateClock() {
 }
 
 
-const sseURL = 'http://localhost:8080/game/' + game.uuid + '/subscribe';
+const sseURL = '/game/' + game.uuid + '/subscribe';
 const sseListener = new EventSource(sseURL);
 sseListener.addEventListener("move", onGameMove);
 sseListener.addEventListener("resign", onGameResign);

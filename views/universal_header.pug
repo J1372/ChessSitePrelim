@@ -1,10 +1,10 @@
 header 
     h1#site-title Chess Website
     nav#site-nav.section
-        a.button(href="http://localhost:8080/home") Home
+        a.button(href="/home") Home
 
         if sessionUser
-            a.button#to-user-page(href="http://localhost:8080/user/" + sessionUser) #{sessionUser}
-            a.button(href="http://localhost:8080/user/logout") Logout
+            a.button#to-user-page(href="/user/" + sessionUser) #{sessionUser}
+            a.button(href="/user/logout") Logout
         else
-            a.button(href="http://localhost:8080/login") Login / Sign-up
+            a.button(href="/login") Login / Sign-up
