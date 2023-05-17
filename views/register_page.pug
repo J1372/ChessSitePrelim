@@ -1,0 +1,26 @@
+doctype html
+
+html
+    head 
+        title Chess - register
+        link(rel="stylesheet", href="/home.css")
+    body 
+        include ./universal_header
+        
+        form.common-form(action="http://localhost:8080/user/create-account", method="post")
+            if error 
+                p.error-msg Could not create account:
+                p.error-msg #{error}
+            ul.args
+                li 
+                    label(for="usernameInputCreate") Username <span aria-label="required">*</span>:
+                    input#usernameInputCreate(type="text", name="user", maxlength="16", autocomplete="username", required)
+                li 
+                    label(for="passwordInputCreate") Password <span aria-label="required">*</span>:
+                    input#passwordInputCreate(type="password", name="pass", autocomplete="new-password", required)
+            button.button(type="submit") Create account
+        p.common-form Or
+            a.button(href="/login") Login
+            | instead
+
+        include ./universal_footer

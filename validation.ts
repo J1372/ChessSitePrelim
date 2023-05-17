@@ -12,3 +12,11 @@ export function loggedIn(req: express.Request, res: express.Response, next: expr
         res.sendStatus(403);
     }
 }
+
+export function notLoggedIn(req: express.Request, res: express.Response, next: express.NextFunction) {
+    if (req.session.user) {
+        res.sendStatus(403);
+    } else {
+        next();
+    }
+}

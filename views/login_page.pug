@@ -8,23 +8,18 @@ html
         include ./universal_header
 
         form.common-form(action="http://localhost:8080/user/login", method="post")
+            if error 
+                p.error-msg Could not login with the given info.
             ul.args
                 li 
                     label(for="usernameInput") Username:
-                    input#usernameInput(type="text", name="user", maxlength="16", required)
+                    input#usernameInput(type="text", name="user", maxlength="16", autocomplete="username", required)
                 li 
                     label(for="passwordInput") Password:
-                    input#passwordInput(type="password", name="pass", required)
+                    input#passwordInput(type="password", name="pass", autocomplete="current-password", required)
             button.button(type="submit") Login
-                    
-        form.common-form(action="http://localhost:8080/user/create-account", method="post")
-            ul.args
-                li 
-                    label(for="usernameInputCreate") Username <span aria-label="required">*</span>:
-                    input#usernameInputCreate(type="text", name="user", maxlength="16", required)
-                li 
-                    label(for="passwordInputCreate") Password <span aria-label="required">*</span>:
-                    input#passwordInputCreate(type="password", name="pass", required)
-            button.button(type="submit") Create account
-
+        p.common-form Or
+            a.button(href="/create-account") Register
+            | instead
+        
         include ./universal_footer

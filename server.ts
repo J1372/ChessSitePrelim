@@ -84,11 +84,19 @@ app.get('/login', (req: express.Request, res: express.Response) => {
     }
 });
 
+app.get('/create-account', (req: express.Request, res: express.Response) => {
+    if (req.session.user) {
+        res.redirect('/home');
+    } else {
+        res.render('register_page');
+    }
+});
+
 // users
-app.post('/user/login', urlParser, valid.loginRegBasicSchema, authentication.loginHandler);
+app.post('/user/login', valid.notLoggedIn, urlParser, valid.loginRegBasicSchema, authentication.loginHandler);
 app.get('/user/logout', valid.loggedIn, users.logoutHandler);
 app.get('/user/:user', users.userPage);
-app.post('/user/create-account', urlParser, valid.loginRegBasicSchema, authentication.createAccountHandler);
+app.post('/user/create-account', valid.notLoggedIn, urlParser, valid.loginRegBasicSchema, authentication.createAccountHandler);
 
 
 // games

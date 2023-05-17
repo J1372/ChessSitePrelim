@@ -37,20 +37,19 @@ export async function loginHandler(req: express.Request, res: express.Response) 
         const userInfo = await User.findOne({name: data.user}).select('_id').exec();
         logUserIn(req, res, data.user, userInfo!._id);
     } else {
-        res.redirect('/login');
+        res.render('login_page', { error: true });
     }
 }
 
 async function canCreateAccount(user: string, pass: string) {
-    if (user.length < 3 || user.length > 32) {
-        return "Username length must be in the range [3, 32].";
+    if (user.length < 3 || user.length > 16) {
+        return "Username length must be in the range [3, 16].";
     }
 
     const firstChar = user[0];
 
     if (!firstChar.match('[a-z]|[A-Z]')) {
         return "Username must start with a letter.";
-        
     }
 
     if (pass.length == 0) {
@@ -90,7 +89,7 @@ export async function createAccountHandler(req: express.Request, res: express.Re
     if (verifyError !== '') {
         // The user should not be able to create an account with the given user and pass.
         // The reason is given in the returned string.
-        res.send(verifyError);
+        res.render('register_page', { error: verifyError });
         return;
     }
 
