@@ -15,7 +15,7 @@ html
         
         div(id="mainBody")
             if gameExists 
-                p#gameJson #{gameJson}
+                p#gameJson(style={display: 'none'}) #{gameJson}
                 div#game-div
                     canvas#board
 
