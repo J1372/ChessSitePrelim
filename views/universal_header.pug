@@ -4,7 +4,12 @@ header
         a.button(href="/home") Home
 
         if sessionUser
-            a.button#to-user-page(href="/user/" + sessionUser) #{sessionUser}
-            a.button(href="/user/logout") Logout
+            a.button#to-user-page(href="/users/" + sessionUser) #{sessionUser}
+            button.button#logout-button Logout
+            script.
+                document.getElementById('logout-button').addEventListener('click', async _ => {
+                    await fetch('/users/logout', { method: 'post' });
+                    location.reload();
+                });
         else
             a.button(href="/login") Login / Sign-up

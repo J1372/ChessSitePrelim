@@ -5,17 +5,17 @@ const createGameButton = document.getElementById("createGame");
 const refreshButton = document.getElementById("refreshGames");
 
 async function attemptJoinGame(uuid) {
-    const joinResponse = await fetch("/game/" + uuid + "/join", { method: "post" });
+    const joinResponse = await fetch("/games/" + uuid, { method: "put" });
 
     if (joinResponse.ok) {
-        window.location.href = '/game/' + uuid;
+        window.location.href = '/games/' + uuid;
     } else {
         console.log(joinResponse);
     }
 }
 
 async function updateGameList() {
-    const createdResponse = await fetch("/game/get-open-games");
+    const createdResponse = await fetch("/games/open-games");
 
     const resp = await createdResponse.json();
     console.log(resp);
@@ -94,10 +94,9 @@ createGameButton2.addEventListener('click', async (e)=> {
         color: document.forms.createGameForm.elements.hostPrefer.value
     }
 
-    const createdResponse = await fetch("/game/create", 
+    const createdResponse = await fetch("/games", 
     {
         headers: {
-            "Accept": "application/json",
             "Content-Type": "application/json"
         },
         
@@ -111,7 +110,7 @@ createGameButton2.addEventListener('click', async (e)=> {
 
     const uuid = await createdResponse.text();
 
-    const toGameURL = '/game/' + uuid;
+    const toGameURL = '/games/' + uuid;
     const sseURL = toGameURL + '/waiting';
     waitingSecondPlayerListener = new EventSource(sseURL);
     waitingSecondPlayerListener.addEventListener('message', _ => { 
@@ -119,15 +118,10 @@ createGameButton2.addEventListener('click', async (e)=> {
         window.location.href = toGameURL;
     });
     waitingSecondPlayerListener.onerror = () => waitingSecondPlayerListener.close();
-
-    console.log('Waiting for players for game ' + uuid);
-
+    
     document.getElementById("createGameForm").style.display = 'none';
 
     updateGameList();
 });
 
-
 updateGameList();
-
-

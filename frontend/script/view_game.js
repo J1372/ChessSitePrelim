@@ -132,7 +132,7 @@ function updateClock() {
 }
 
 
-const sseURL = '/game/' + game.uuid + '/subscribe';
+const sseURL = '/games/' + game.uuid + '/subscriptions';
 const sseListener = new EventSource(sseURL);
 sseListener.addEventListener("move", onGameMove);
 sseListener.addEventListener("resign", onGameResign);

@@ -93,21 +93,21 @@ app.get('/create-account', (req: express.Request, res: express.Response) => {
 });
 
 // users
-app.post('/user/login', valid.notLoggedIn, urlParser, valid.loginRegBasicSchema, authentication.loginHandler);
-app.get('/user/logout', valid.loggedIn, users.logoutHandler);
-app.get('/user/:user', users.userPage);
-app.post('/user/create-account', valid.notLoggedIn, urlParser, valid.loginRegBasicSchema, authentication.createAccountHandler);
+app.post('/users', valid.notLoggedIn, urlParser, valid.loginRegBasicSchema, authentication.createAccountHandler);
+app.post('/users/login', valid.notLoggedIn, urlParser, valid.loginRegBasicSchema, authentication.loginHandler);
+app.post('/users/logout', valid.loggedIn, users.logoutHandler);
+app.get('/users/:user', users.userPage);
 
 
 // games
-app.post('/game/create', valid.loggedIn, jsonParser, valid.createGameSchema, games.create);
-app.get('/game/get-open-games', games.getOpenGames);
-app.post('/game/:uuid/join', valid.loggedIn, games.join);
-app.get('/game/:uuid', games.gamePage);
-app.get('/game/:uuid/subscribe', games.subscribe);
-app.get('/game/:uuid/waiting', valid.loggedIn, games.hostWaiting);
-app.post('/game/:uuid/move', valid.loggedIn, jsonParser, valid.moveSchema, games.move);
-app.post('/game/:uuid/resign', valid.loggedIn, games.resignGame);
+app.post('/games', valid.loggedIn, jsonParser, valid.createGameSchema, games.create);
+app.get('/games/open-games', games.getOpenGames);
+app.put('/games/:uuid', valid.loggedIn, games.join);
+app.get('/games/:uuid', games.gamePage);
+app.get('/games/:uuid/subscriptions', games.subscribe);
+app.get('/games/:uuid/waiting', valid.loggedIn, games.hostWaiting);
+app.post('/games/:uuid/moves', valid.loggedIn, jsonParser, valid.moveSchema, games.move);
+app.post('/games/:uuid/resign', valid.loggedIn, games.resignGame);
 
 app.listen(port, () => {
     console.log(`Listening on port ${port}`);

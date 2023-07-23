@@ -7,7 +7,7 @@ html
     body 
         include ./universal_header
         
-        form.common-form(action="/user/create-account", method="post")
+        form.common-form(action="/users", method="post")
             if error 
                 p.error-msg Could not create account:
                 p.error-msg #{error}
