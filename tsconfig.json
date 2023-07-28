@@ -102,11 +102,10 @@
   },
 
   "files": [
-    "authentication.ts",
     "server.ts",
     "./gameplay/board.ts",
     "./gameplay/game.ts",
-    "users.ts",
+    "controllers/users_controller.ts",
     "games.ts"
   ]
 }

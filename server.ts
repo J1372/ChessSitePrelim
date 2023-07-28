@@ -1,9 +1,8 @@
 import mongoose from "mongoose"
 await mongoose.connect('mongodb://127.0.0.1:27017/Chess');
 
-import * as authentication from "./authentication.js"
-import * as games from './games.js';
-import * as users from './users.js'
+import * as games from './games.js'
+import * as users from './controllers/users_controller.js'
 import * as path from 'path';
 import * as valid from './validation.js';
 
@@ -93,8 +92,8 @@ app.get('/create-account', (req: express.Request, res: express.Response) => {
 });
 
 // users
-app.post('/users', valid.notLoggedIn, urlParser, valid.loginRegBasicSchema, authentication.createAccountHandler);
-app.post('/users/login', valid.notLoggedIn, urlParser, valid.loginRegBasicSchema, authentication.loginHandler);
+app.post('/users', valid.notLoggedIn, urlParser, valid.loginRegBasicSchema, users.createAccountHandler);
+app.post('/users/login', valid.notLoggedIn, urlParser, valid.loginRegBasicSchema, users.loginHandler);
 app.post('/users/logout', valid.loggedIn, users.logoutHandler);
 app.get('/users/:user', users.userPage);
 
