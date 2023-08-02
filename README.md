@@ -1,11 +1,11 @@
 # ChessSitePrelim
-A Node.js chess web application, written in Javascript and Typescript.
+A React.js + Node.js chess web application, written in Javascript and Typescript.
 
 # Developed with
+- React.js
 - Node.js
 - Express
 - MongoDB
-- Pug
 - Sass
 
 # Features
