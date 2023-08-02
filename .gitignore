@@ -4,3 +4,4 @@
 /gameplay/**/*.js
 /mongo/*.js
 frontend/style/bin
+/build

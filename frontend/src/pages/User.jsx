@@ -1,5 +1,6 @@
 import React, { useContext } from 'react'
-import { Link, useLoaderData, useParams } from 'react-router-dom';
+import { useLoaderData, useParams } from 'react-router-dom';
+import UserLink from '../components/UserLink';
 
 import '../user_page.css'
 
@@ -12,7 +13,6 @@ import { fetchThrow } from '../util/fetch_throw';
 import { useQuery } from 'react-query';
 
 const baseUserPageStaleTime = 1000 * 60 * 5; // 5 mins.
-
 
 export const userLoader = async ({ params }) => {
     // these queries should be invalidated after game ends,
@@ -42,7 +42,6 @@ export const userLoader = async ({ params }) => {
     ]);
 }
 
-const toUrl = (user) => <Link to={'/users/' + user} className='button'>{user}</Link>;
 
 function User() {
     const params = useParams();
@@ -124,7 +123,7 @@ function User() {
                                 return (
                                 <li key={game.uuid} className='past-game'>
                                     <h3>
-                                        {toUrl(game.white)} vs {toUrl(game.black)}
+                                        <UserLink user={game.white}/> vs <UserLink user={game.black}/>
                                     </h3>
                                     <p>{localeDate}</p>
                                     <p>{duration} seconds</p>

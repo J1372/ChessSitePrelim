@@ -1,8 +1,5 @@
 import React from "react";
-import { Link } from "react-router-dom";
-
-
-const toUrl = (user) => <Link to={'/users/' + user} className='button'>{user}</Link>;
+import UserLink from "./UserLink";
 
 export default function GameMenu({ gameId, white, black, result, isPlayer, onSwitchPerspective}) {
 
@@ -13,7 +10,7 @@ export default function GameMenu({ gameId, white, black, result, isPlayer, onSwi
     return (
         <div id='game-menu'>
             <h3 className='game-menu-header'>
-                {toUrl(white)} vs {toUrl(black)}
+                <UserLink user={white}/> vs <UserLink user={black}/>
             </h3>
 
 
