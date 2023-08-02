@@ -1,0 +1,175 @@
+body {
+  margin: 0px;
+  padding: 0px;
+  background-color: rgb(226, 226, 226);
+  font-family: "Courier New", Courier, monospace;
+}
+
+#site-title {
+  margin: 0px;
+  text-align: center;
+  color: rgb(219, 219, 219);
+  background-color: #000;
+}
+
+#site-nav {
+  margin-bottom: 1em;
+  text-align: right;
+}
+
+#site-footer {
+  margin-top: 1em;
+  text-align: center;
+}
+
+#site-footer address {
+  margin-top: 1em;
+  margin-bottom: 0.5em;
+  background-color: rgb(243, 243, 243);
+}
+
+.common-form {
+  margin: 0 auto;
+  width: 400px;
+  padding: 1em;
+  border: 3px solid #ccc;
+  margin-bottom: 1em;
+}
+
+.common-form li + li {
+  margin-top: 1em;
+}
+
+.common-form input {
+  display: block;
+}
+
+.common-form .args {
+  padding-left: 0;
+  list-style: none;
+}
+
+.common-form button {
+  display: block;
+  margin-top: 0.5em;
+}
+
+.section {
+  border: 5px solid #ccc;
+  padding: 0.5em;
+  background-color: rgb(243, 243, 243);
+}
+
+.button {
+  background-color: rgb(218, 218, 218);
+  border: 0.1em solid rgb(150, 150, 150);
+  font-family: "Courier New", Courier, monospace;
+  font-size: 1em;
+  margin: 0.5em;
+  padding-left: 1em;
+  padding-right: 1em;
+  color: rgb(54, 76, 119);
+  text-decoration: none;
+  transition: box-shadow 0.15s;
+}
+
+.button:hover {
+  box-shadow: inset 0 0 100px 100px rgba(0, 0, 0, 0.2);
+}
+
+.error-msg {
+  color: red;
+}
+
+.game-table {
+  background-color: rgb(96, 96, 96);
+  border: 1px solid black;
+  min-width: 700px;
+  margin: 0 auto;
+  table-layout: fixed;
+}
+
+.game-table th {
+  background-color: black;
+  color: aliceblue;
+  border: 2px solid rgb(158, 216, 255);
+}
+
+.game-table td, .game-table th {
+  max-width: 1px;
+}
+
+.game-table td {
+  border: 1px solid black;
+  padding-top: 3px;
+  padding-bottom: 3px;
+  text-align: center;
+}
+
+.game-victory {
+  color: green;
+}
+
+.game-defeat {
+  color: red;
+}
+
+#mainBody {
+  margin: 0 auto;
+  width: 80%;
+  text-align: center;
+}
+
+#game-div {
+  position: relative;
+}
+
+#board {
+  display: inline-block;
+  margin: 0 auto;
+}
+
+#board, #game-menu {
+  margin-top: 10px;
+  margin-bottom: 10px;
+}
+
+#promotion-list {
+  position: absolute;
+  top: 0px;
+  left: 0px;
+  min-width: 50px;
+  min-height: 30px;
+  list-style: none;
+}
+
+#game-menu {
+  display: inline-block;
+  border: 2px solid black;
+  height: 100%;
+  vertical-align: top;
+  margin-left: 20px;
+  padding: 5px;
+  background-color: rgb(218, 218, 218);
+}
+
+.game-menu-header {
+  border-bottom: 2px solid black;
+  padding-bottom: 5px;
+}
+
+#game-menu button {
+  margin-bottom: 5px;
+}
+
+#game-menu button:first-of-type {
+  margin-right: 5px;
+}
+
+#promotion-list li {
+  text-align: center;
+  background-color: aliceblue;
+  border: 2px solid black;
+}
+
+/*# sourceMappingURL=game_page.css.map */
