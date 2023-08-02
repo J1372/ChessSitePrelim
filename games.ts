@@ -242,31 +242,6 @@ export function resignGame(req: express.Request, res: express.Response) {
     }
 }
 
-export function gamePage(req: express.Request, res: express.Response) {
-    // send current board page to client.
-    const user = req.session.user;
-
-    const uuid = req.params.uuid;
-    const activeGame = activeGames.get(uuid);
-
-    if (activeGame) {
-        let userPlaying = null;
-
-        res.render('game_page', {
-            sessionUser: user,
-            whitePlayer: activeGame.white.user,
-            blackPlayer: activeGame.black.user,
-            gameExists: true,
-            gameJson: JSON.stringify(activeGame),
-        });
-    } else {
-        res.render('game_page', {
-            sessionUser: user,
-            gameExists: false,
-        });
-    }
-}
-
 export function join(req: express.Request, res: express.Response) {
     const uuid = req.params.uuid;
 
@@ -292,7 +267,7 @@ export function join(req: express.Request, res: express.Response) {
         gameObservers.set(uuid, []); // could merge obserevrs with activeGames.
         const hostNotify = joinObservers.get(uuid);
         if (hostNotify) {
-            hostNotify.res.write('data:\n\n'); // on req.end, we close res.
+            hostNotify.res.write('event: message\ndata:\n\n'); // on req.end, we close res.
         }
         res.sendStatus(200); // or res.redirect here.
     } else {
@@ -404,3 +379,15 @@ function notifyObservers(uuid: string, event: string, data: any) {
     const message = 'event: ' + event + '\ndata: ' + JSON.stringify(data) + '\n\n';
     observerList.forEach(o => o.res.write(message));
 }
+
+export function getGameState(req: express.Request, res: express.Response) {
+    const uuid = req.params.uuid;
+    const activeGame = activeGames.get(uuid);
+
+    if (activeGame) {
+        res.send(JSON.stringify(activeGame));
+    } else {
+        res.sendStatus(404);
+    }
+}
+

@@ -28,15 +28,9 @@ const urlParser = express.urlencoded({extended: true});
 const secret = "HGHFFGHTUJFY";
 
 const projectDir = path.dirname(fileURLToPath(import.meta.url));
-const gameplayPath = path.join(projectDir, 'gameplay');
+const buildDir = path.join(projectDir, 'build');
 
-const front_path = path.join(projectDir, 'frontend');
-const stylePath = path.join(front_path, 'style', 'bin');
-const scriptPath = path.join(front_path, 'script');
-
-app.use(express.static(stylePath));
-app.use(express.static(scriptPath));
-app.use(express.static(gameplayPath));
+app.use(express.static(buildDir));
 app.use(sessions({
     secret: secret,
     saveUninitialized: true,
@@ -47,9 +41,6 @@ app.use(sessions({
         ttl: 60 * 10,
     })
 }));
-
-app.set('views', './views');
-app.set('view engine', 'pug');
 
 process.on('SIGINT', async (code) => {
     console.log("Stopping server.");
@@ -64,49 +55,34 @@ process.on('SIGINT', async (code) => {
 
 */
 
-
-
-
-app.get('/', (req: express.Request, res: express.Response) => {
-    res.render('home', { sessionUser: req.session.user})
-});
-
-app.get('/home', (req: express.Request, res: express.Response) => {
-    res.render('home', { sessionUser: req.session.user });
-});
-
-app.get('/login', (req: express.Request, res: express.Response) => {
-    if (req.session.user) {
-        res.redirect('/home');
-    } else {
-        res.render('login_page');
-    }
-});
-
-app.get('/create-account', (req: express.Request, res: express.Response) => {
-    if (req.session.user) {
-        res.redirect('/home');
-    } else {
-        res.render('register_page');
-    }
-});
-
 // users
 app.post('/users', valid.notLoggedIn, urlParser, valid.loginRegBasicSchema, users.createAccountHandler);
 app.post('/users/login', valid.notLoggedIn, urlParser, valid.loginRegBasicSchema, users.loginHandler);
 app.post('/users/logout', valid.loggedIn, users.logoutHandler);
-app.get('/users/:user', users.userPage);
+
+app.get('/users/:user/stats', users.getStats);
+app.get('/users/:user/recent-games', valid.recentGameQuery, users.getRecentGames);
+app.get('/users/:user1/history/:user2', users.getHistoryUsers);
+
+app.get('/username', (req, res) => {
+    res.send(req.session.user)
+});
 
 
 // games
 app.post('/games', valid.loggedIn, jsonParser, valid.createGameSchema, games.create);
 app.get('/games/open-games', games.getOpenGames);
 app.put('/games/:uuid', valid.loggedIn, games.join);
-app.get('/games/:uuid', games.gamePage);
+app.get('/games/:uuid/game-state', games.getGameState);
 app.get('/games/:uuid/subscriptions', games.subscribe);
 app.get('/games/:uuid/waiting', valid.loggedIn, games.hostWaiting);
 app.post('/games/:uuid/moves', valid.loggedIn, jsonParser, valid.moveSchema, games.move);
 app.post('/games/:uuid/resign', valid.loggedIn, games.resignGame);
+
+
+app.get('/*', (_: express.Request, res: express.Response) => {
+    res.sendFile(path.join(buildDir, 'index.html'));
+});
 
 app.listen(port, () => {
     console.log(`Listening on port ${port}`);

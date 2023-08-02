@@ -9,12 +9,12 @@ function logUserIn(req: express.Request, res: express.Response, username: string
     req.session.user = username;
     req.session.mongoId = id.toString();
 
-    res.redirect('/home');
+    res.sendStatus(200);
 }
 
 export async function createAccountHandler(req: express.Request, res: express.Response) {
     if (!validationResult(req).isEmpty()) {
-        res.sendStatus(403);
+        res.sendStatus(403).send('Malformed arguments.');
         return;
     }
 
@@ -24,7 +24,7 @@ export async function createAccountHandler(req: express.Request, res: express.Re
     if (verifyError !== '') {
         // The user should not be able to create an account with the given user and pass.
         // The reason is given in the returned string.
-        res.render('register_page', { error: verifyError });
+        res.status(403).send(verifyError);
         return;
     }
 
@@ -42,7 +42,7 @@ export async function createAccountHandler(req: express.Request, res: express.Re
 
 export async function loginHandler(req: express.Request, res: express.Response) {
     if (!validationResult(req).isEmpty()) {
-        res.sendStatus(403);
+        res.status(403).send('Malformed arguments.');
         return;
     }
 
@@ -53,49 +53,52 @@ export async function loginHandler(req: express.Request, res: express.Response) 
         const userInfo = await User.findOne({name: data.user}).select('_id').exec();
         logUserIn(req, res, data.user, userInfo!._id);
     } else {
-        res.render('login_page', { error: true });
+        res.status(403).send('Could not login with the given info.');
     }
 }
 
 export function logoutHandler(req: express.Request, res: express.Response) {
     req.session.destroy(_ => {
-        res.redirect('/home'); // todo should redirect to home / the page where user logged out instead.
+        res.sendStatus(200);
     });
 }
 
-export async function userPage(req: express.Request, res: express.Response) {
-    const getPageOf = req.params.user; // the user we are getting the profile page of.
-    const sessionUser = req.session.user; // current session's user
+export async function getStats(req: express.Request, res: express.Response) {
+    const stats = await UserService.getStats(req.params.user);
+    if (stats) {
+        res.send(stats);
+    } else {
+        res.sendStatus(404);
+    }
+}
 
-    const pageInfo = 
-    {
-        pageUser: getPageOf,
-        sessionUser: sessionUser,
-    } as any;
+export async function getRecentGames(req: express.Request, res: express.Response) {
+    if (!validationResult(req).isEmpty()) {
+        res.status(403);
+        return;
+    }
+
+    const data = matchedData(req);
     
+    let mostRecentAmount = 10;
+    if (data.max) {
+        mostRecentAmount = Number.parseInt(data.max);
+    }
 
-    const userStatsPromise = UserService.getStats(getPageOf)
-    .then(async stats => {
-        if (stats) {
-            pageInfo.profileWins = stats.wins;
-            pageInfo.profileDraws = stats.draws;
-            pageInfo.profileLosses = stats.losses
+    const latestGames = await UserService.getLatestGames(req.params.user, mostRecentAmount);
 
-            if (sessionUser && sessionUser !== getPageOf) {
-                const userHistory = await UserService.getHistoryBetween(sessionUser, getPageOf);
-                if (userHistory) {
-                    pageInfo.history = userHistory;
-                }
-            }
-        }
-    })
-
-    const gameHistoryPromise = UserService.getLatestGames(getPageOf, 10)
-    .then(games => {
-        pageInfo.games = games;
-    });
-
-    await Promise.all([userStatsPromise, gameHistoryPromise]);
-
-    res.render('user_page', pageInfo);
+    res.send(JSON.stringify(latestGames));
 }
+
+export async function getHistoryUsers(req: express.Request, res: express.Response) {
+    const user1 = req.params.user1;
+    const user2 = req.params.user2;
+    const history = await UserService.getHistoryBetween(user1, user2);
+
+    if (history) {
+        res.send(JSON.stringify(history));
+    } else {
+        res.sendStatus(404);
+    }
+}
+

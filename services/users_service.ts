@@ -87,42 +87,40 @@ export function getStats(name: string) {
 }
 
 export async function getLatestGames(name: string, amount: number) {
-    return User.findOne({ name: name})
+    const user = await User.findOne({ name: name})
         .select('_id')
-        .select({ gameHistory: { $slice: -amount }}).exec()
-        .then(gameIds => {
-            if (gameIds) {
-                return MongoGame.find({ _id : { $in: gameIds.gameHistory } })
-                    .select('_id white black result dueTo started ended')
-                    .sort({ started: -1 }).exec();
-            } else {
-                return [];
-            }
-        })
-        .then(async games => {
-            // Build user game history info for the page.
-            const gamesInfo = [];
-            for (const game of games) {
-                const gameInfo = {
-                    result: game.result,
-                    dueTo: game.dueTo,
-                    started: game.started,
-                    ended: game.ended,
-                } as any;
+        .select({ gameHistory: { $slice: -amount }}).exec();
 
-                if (game._id.equals(game.white)) {
-                    gameInfo.white = name;
-                    const dbRes = await User.findById(game.black).select('name').exec();
-                    gameInfo.black = dbRes!.name;
-                } else {
-                    gameInfo.black = name;
-                    const dbRes = await User.findById(game.white).select('name').exec();
-                    gameInfo.white = dbRes!.name;
-                }
+    if (!user) {
+        return []
+    }
 
-                gamesInfo.push(gameInfo);
-            };
-            return gamesInfo;
-        })
-        .catch(err => console.log(err));
+    const games = await MongoGame.find({ _id : { $in: user.gameHistory } })
+        .select('_id uuid white black result dueTo started ended')
+        .sort({ started: -1 }).exec();
+
+    const gamesInfo = [];
+    for (const game of games) {
+        const gameInfo = {
+            uuid: game.uuid,
+            result: game.result,
+            dueTo: game.dueTo,
+            started: game.started,
+            ended: game.ended,
+        } as any;
+
+        if (user._id.equals(game.white)) {
+            gameInfo.white = name;
+            const dbRes = await User.findById(game.black).select('name').exec();
+            gameInfo.black = dbRes!.name;
+        } else {
+            gameInfo.black = name;
+            const dbRes = await User.findById(game.white).select('name').exec();
+            gameInfo.white = dbRes!.name;
+        }
+
+        gamesInfo.push(gameInfo);
+    };
+
+    return gamesInfo;
 }
