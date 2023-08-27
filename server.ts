@@ -15,7 +15,6 @@ import MongoStore from "connect-mongo";
 declare module "express-session" {
     interface SessionData {
       user: string;
-      mongoId: string, // cannot use ObjectId due to way sessions work.
     }
   }
 

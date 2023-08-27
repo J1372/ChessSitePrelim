@@ -11,7 +11,12 @@ export async function createAccount(user: string, pass: string) {
         pass: hashedPass
     });
 
-    return newUser.save();
+    return newUser.save()
+        .then(_ => true)
+        .catch(err => { 
+            console.log(err);
+            return false;
+        });
 }
 
 export async function canCreateAccount(user: string, pass: string) {

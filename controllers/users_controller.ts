@@ -1,14 +1,10 @@
 import express from 'express';
-import {User} from '../mongo/user.js'
-import mongoose from 'mongoose';
 import { matchedData, validationResult } from 'express-validator';
 
 import * as UserService from '../services/users_service.js'
 
-function logUserIn(req: express.Request, res: express.Response, username: string, id: mongoose.Types.ObjectId) {
+function logUserIn(req: express.Request, res: express.Response, username: string) {
     req.session.user = username;
-    req.session.mongoId = id.toString();
-
     res.sendStatus(200);
 }
 
@@ -30,14 +26,11 @@ export async function createAccountHandler(req: express.Request, res: express.Re
 
     // User should be able to create an account with the given username and password.
     
-    UserService.createAccount(data.user, data.pass)
-    .then(newUser => {
-        logUserIn(req, res, data.user, newUser._id);
-    })
-    .catch(err => {
-        console.log(err);
+    if (await UserService.createAccount(data.user, data.pass)) {
+        logUserIn(req, res, data.user);
+    } else {
         res.status(500).send('Account creation failed. Try again later.');
-    });
+    }
 }
 
 export async function loginHandler(req: express.Request, res: express.Response) {
@@ -50,8 +43,7 @@ export async function loginHandler(req: express.Request, res: express.Response) 
     const correctPass = await UserService.verifyLogin(data.user, data.pass);
 
     if (correctPass) {
-        const userInfo = await User.findOne({name: data.user}).select('_id').exec();
-        logUserIn(req, res, data.user, userInfo!._id);
+        logUserIn(req, res, data.user);
     } else {
         res.status(403).send('Could not login with the given info.');
     }
