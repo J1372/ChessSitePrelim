@@ -1,16 +1,14 @@
 import React, { useContext } from 'react'
 import { useLoaderData, useParams } from 'react-router-dom';
-import UserLink from '../components/UserLink';
 
 import '../user_page.css'
 
-import { Color } from 'chessgameplay'
-
-import { clientsideDateString } from '../util/clientside_date_converter';
 import { SessionUserContext } from '../contexts/SessionUserContext';
 import { queryClient } from '../App';
 import { fetchThrow } from '../util/fetch_throw';
 import { useQuery } from 'react-query';
+
+import PastGameList from '../components/PastGameList'
 
 const baseUserPageStaleTime = 1000 * 60 * 5; // 5 mins.
 
@@ -77,9 +75,9 @@ function User() {
                             <table className='user-table'>
                                 <thead>
                                     <tr>
-                                        <td>Wins</td>
-                                        <td>Draws</td>
-                                        <td>Losses</td>
+                                        <th>Wins</th>
+                                        <th>Draws</th>
+                                        <th>Losses</th>
                                     </tr>
                                 </thead>
                                 <tbody>
@@ -104,34 +102,7 @@ function User() {
                     </div>
                     <section className='game-history'>
                         <h1>Game History</h1>
-                        <ul>
-                            {games &&
-                            games.map(game => {
-                                const duration = Math.floor((game.ended.getTime() - game.started.getTime()) / 1000);
-                                
-                                const winner = game.result === 'W' ? Color.White : Color.Black;
-                                const loser = Color.opposite(winner);
-                                const pageWon = pageOf === game.white && game.result === 'W' || pageOf === game.black && game.result === 'B';
-
-                                const resultText = game.dueTo === 'M' ?
-                                                    'Checkmate. ' + Color.toString(winner) + ' won.'
-                                                    :
-                                                    Color.toString(loser) + ' resigned.';
-                                
-                                const resultClass = pageWon ? 'game-victory' : 'game-defeat';
-                                const localeDate = clientsideDateString(game.started)
-                                return (
-                                <li key={game.uuid} className='past-game'>
-                                    <h3>
-                                        <UserLink user={game.white}/> vs <UserLink user={game.black}/>
-                                    </h3>
-                                    <p>{localeDate}</p>
-                                    <p>{duration} seconds</p>
-                                    <p className={resultClass}>{resultText}</p>
-                                </li>)
-                            })
-                            }
-                        </ul>
+                        {games && <PastGameList games={games} perspective={pageOf}/>}
                     </section>
                 </>
                 :
