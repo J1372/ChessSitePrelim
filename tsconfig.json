@@ -106,6 +106,6 @@
     "./gameplay/board.ts",
     "./gameplay/game.ts",
     "controllers/users_controller.ts",
-    "games.ts"
+    "controllers/games_controller.ts",
   ]
 }

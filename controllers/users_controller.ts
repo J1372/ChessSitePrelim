@@ -79,12 +79,7 @@ export async function getRecentGames(req: express.Request, res: express.Response
     }
 
     const data = matchedData(req);
-    
-    let mostRecentAmount = 10;
-    if (data.max) {
-        mostRecentAmount = Number.parseInt(data.max);
-    }
-
+    const mostRecentAmount = data.max ? Number.parseInt(data.max) : 10;
     const latestGames = await UserService.getLatestGames(req.params.user, mostRecentAmount);
 
     res.send(JSON.stringify(latestGames));
