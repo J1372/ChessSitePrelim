@@ -70,6 +70,16 @@ function User() {
             {stats !== null ? 
                 <>
                     <div className='profile-header'>
+                        {history.isSuccess && history.data !== null &&
+                            <div className='history-with-you'>
+                                <h2>Your history with {pageOf}</h2>
+                                <ul>
+                                    <li className='game-victory'>Wins: {history.data.wins}</li>
+                                    <li>Draws: {history.data.draws}</li>
+                                    <li className='game-defeat'>Losses: {history.data.losses}</li>
+                                </ul>
+                            </div>
+                        }
                         <div className='profile-header-main'>
                             <h1>{pageOf}</h1>
                             <table className='user-table'>
@@ -88,16 +98,6 @@ function User() {
                                     </tr>
                                 </tbody>
                             </table>
-                            {history.isSuccess && history.data !== null &&
-                                <div className='history-with-you'>
-                                    <h2>Your history with {pageOf}</h2>
-                                    <ul>
-                                        <li className='game-victory'>Wins: {history.data.wins}</li>
-                                        <li>Draws: {history.data.draws}</li>
-                                        <li className='game-defeat'>Losses: {history.data.losses}</li>
-                                    </ul>
-                                </div>
-                            }
                         </div>
                     </div>
                     <section className='game-history'>
