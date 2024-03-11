@@ -11,6 +11,7 @@ import { fileURLToPath } from 'url';
 import express from 'express';
 import sessions from 'express-session';
 import MongoStore from "connect-mongo";
+import * as fs from "fs";
 
 declare module "express-session" {
     interface SessionData {
@@ -24,7 +25,7 @@ const port = 8080;
 const jsonParser = express.json();
 const urlParser = express.urlencoded({extended: true});
 
-const secret = "HGHFFGHTUJFY";
+const secret = fs.readFileSync('secret.txt').toString();
 
 const projectDir = path.dirname(fileURLToPath(import.meta.url));
 const buildDir = path.join(projectDir, 'build');
