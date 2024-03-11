@@ -2,6 +2,7 @@
 
 /*.js
 /gameplay/**/*.js
+/gameplay/build/*
 /mongo/*.js
 frontend/style/bin
 /build

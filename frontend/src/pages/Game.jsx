@@ -126,7 +126,7 @@ function GamePage() {
         }
 
         if (move.ended === 'mate') {
-            setGameStatus('Checkmate. ' + player.user + ' (' + Color.toString(color) +') has won.');
+            setGameStatus('Checkmate. ' + player + ' (' + Color.toString(color) +') has won.');
             sse.current?.close();
         }
         
@@ -150,7 +150,7 @@ function GamePage() {
             
             renderBoard();
 
-            if (sessionUser === game.black.user) {
+            if (sessionUser === game.black) {
                 setPerspective(Color.Black);
             }
 
@@ -255,7 +255,6 @@ function GamePage() {
         }
 
         const canvasBoard = canvas.current;
-        const player = game.getPlayer(sessionUser);
     
         // translate click coords to square.
         const squareSize = canvasBoard.width / game.board.cols;
@@ -273,7 +272,7 @@ function GamePage() {
             if (clicked.row === selected.current.row && clicked.col === selected.current.col) {
                 renderBoard();
                 selected.current = null;
-            } else if (game.owns(player, clicked)) {
+            } else if (game.owns(sessionUser, clicked)) {
                 renderBoard();
                 selectSquare(clicked);
             } else if (game.canMove(sessionUser, selected.current, clicked)) {
@@ -292,7 +291,7 @@ function GamePage() {
             }
     
         } else {
-            if (game.owns(player, clicked) && game.isTurn(player)) { // is my piece
+            if (game.owns(sessionUser, clicked) && game.isTurn(sessionUser)) { // is my piece
                 // set selected. display possible moves.
                 selectSquare(clicked);
             }
@@ -326,9 +325,10 @@ function GamePage() {
                         }
                         <GameMenu
                             gameId={game.uuid}
-                            white={game.white.user}
-                            black={game.black.user}
-                            result={gameStatus} isPlayer={game.isPlayer(sessionUser)}
+                            white={game.white}
+                            black={game.black}
+                            result={gameStatus}
+                            isPlayer={game.isPlayer(sessionUser)}
                             onSwitchPerspective={switchPerspective}
                             />
 

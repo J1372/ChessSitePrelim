@@ -1,12 +1,11 @@
-import { Square } from '../gameplay/square.js';
-import { Game } from '../gameplay/game.js';
-import { GamePost } from '../gameplay/game_post.js';
-import { pieceFactory } from '../gameplay/pieces/piece_factory.js';
-import { Color } from '../gameplay/color.js';
+import { Square } from 'chessgameplay';
+import { Game } from 'chessgameplay';
+import { GamePost } from 'chessgameplay';
+import { pieceFactory } from 'chessgameplay';
+import { Color } from 'chessgameplay';
 import { User } from '../mongo/user.js';
 import { UsersGameHistory } from '../mongo/users_game_history.js';
 import { MongoGame } from '../mongo/mongo_game.js';
-import { TimeControl } from '../gameplay/time_control.js';
 import { randomUUID } from 'crypto';
 
 // Public games posted that can be joined by any user.
@@ -102,8 +101,8 @@ function endGame(game: Game) {
 async function storeGame(game: Game, winner: Color, dueTo: string, ended: Date) {
     // Get necessary info about players.
     const selectStr = '_id wins losses gameHistory';
-    const [white, black] = await Promise.all([User.findOne({name: game.white.user}).select(selectStr).exec(),
-                                              User.findOne({name: game.black.user}).select(selectStr).exec()]);
+    const [white, black] = await Promise.all([User.findOne({name: game.white}).select(selectStr).exec(),
+                                              User.findOne({name: game.black}).select(selectStr).exec()]);
     
     // If game was actually played, neither should ever be null.
     if (!white || !black) {
@@ -206,9 +205,9 @@ export function tryJoin(uuid: string, player: string): boolean {
 }
 
 /** Returns uuid or empty string if host not allowed to create game. */ 
-export function createGame(host: string, timeControl: TimeControl, hostPrefer: Color | undefined): string {
+export function createGame(host: string, hostPrefer: Color | undefined): string {
     const uuid = randomUUID();
-    const created = new GamePost(uuid, host, timeControl, hostPrefer);
+    const created = new GamePost(uuid, host, hostPrefer);
 
     openGames.set(uuid, created);
     openGamesList.push(created);

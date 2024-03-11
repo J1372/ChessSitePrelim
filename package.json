@@ -18,6 +18,8 @@
 
         "bcrypt": "^5.1.0",
 
+        "chessgameplay": "file:gameplay",
+
         "connect-mongo": "^5.0.0",
 
         "cookie-parser": "^1.4.6",

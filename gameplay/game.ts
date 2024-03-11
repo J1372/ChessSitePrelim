@@ -2,23 +2,19 @@ import { Board } from "./board.js";
 import { Color } from "./color.js";
 import { GamePost } from "./game_post.js";
 import { Move } from "./move.js";
-import { Player } from "./player.js";
-import { TimeControl } from "./time_control.js";
-import { King } from "./pieces/king.js";
 import { Piece, Ray } from "./pieces/piece.js";
 import { Square } from "./square.js";
 
 // This is a game currently being played.
 export class Game {
     uuid!: string; // length = 16
-    white!: Player;
-    black!: Player;
+    white!: string;
+    black!: string;
     board!: Board;
     moves!: Move[]; // move history.
 
     // Date the game actually started (both users could make moves).
     started!: Date;
-    timeControl!: TimeControl;
 
     drawOffer?: string; // user who offered a draw, if any. if other user offers draw, accepts draw.
     
@@ -26,20 +22,18 @@ export class Game {
         const game = new Game();
 
         game.uuid = description.uuid;
-        game.timeControl = description.timeControl;
         game.started = new Date(); // could use Date.now instead
 
         if (description.hostPlayAs === undefined) {
             description.hostPlayAs = Math.random() <= 0.5 ? Color.White : Color.Black;
         }
 
-        const startingTime = game.timeControl.startingMins * 60;
         if (description.hostPlayAs === Color.White) {
-            game.white = new Player(description.host, startingTime);
-            game.black = new Player(otherUser, startingTime);
+            game.white = description.host;
+            game.black = otherUser;
         } else {
-            game.white = new Player(otherUser, startingTime);
-            game.black = new Player(description.host, startingTime);
+            game.white = otherUser;
+            game.black = description.host;
         }
 
         game.board = Board.standardBoard();
@@ -52,12 +46,10 @@ export class Game {
         const game = new Game();
 
         game.uuid = object.uuid;
-        game.timeControl = object.timeControl;
         game.started = object.started;
-        game.timeControl = object.timeControl;
 
-        game.white = new Player(object.white.user, object.white.timeRemaining);
-        game.black = new Player(object.black.user, object.black.timeRemaining);
+        game.white = object.white;
+        game.black = object.black;
 
         game.board = Board.deserialize(object.board);
         game.moves = object.moves;
@@ -67,7 +59,7 @@ export class Game {
         return game;
     }
 
-    playerColor(player: Player) {
+    playerColor(player: string) {
         if (player === this.white) {
             return Color.White;
         } else {
@@ -76,7 +68,7 @@ export class Game {
 
     }
     
-    getCurPlayer(): Player {
+    getCurPlayer(): string {
         if (this.board.curTurn === Color.White) {
             return this.white;
         } else {
@@ -84,12 +76,11 @@ export class Game {
         }
     }
 
-
     isPlayer(user: string): boolean {
-        return this.white.user === user || this.black.user === user;
+        return this.white === user || this.black === user;
     }
 
-    isTurn(player: Player): boolean {
+    isTurn(player: string): boolean {
         return this.playerColor(player) === this.board.curTurn;
     }
 
@@ -98,11 +89,10 @@ export class Game {
     }
 
     userWon(user: string) {
-        const player = this.getPlayer(user);
-        return this.hasWon(this.playerColor(player));
+        return this.hasWon(this.playerColor(user));
     }
 
-    owns(player: Player, square: Square): boolean {
+    owns(player: string, square: Square): boolean {
         const piece = this.board.getPiece(square.row, square.col);
 
         if (!piece) {
@@ -112,18 +102,9 @@ export class Game {
         return this.playerColor(player) === piece.color;
     }
 
-    getPlayer(name: string): Player {
-        if (this.white.user === name) {
-            return this.white;
-        } else {
-            return this.black;
-        }
-    }
-
     canMove(user: string, from: Square, to: Square): boolean {
         if (this.isPlayer(user)) {
-            const player = this.getPlayer(user);
-            return this.isTurn(player) && this.owns(player, from) && this.board.canMove(from, to);
+            return this.isTurn(user) && this.owns(user, from) && this.board.canMove(from, to);
         } else {
             return false;
         }
@@ -138,7 +119,7 @@ export class Game {
     }
 
     getColor(user: string): Color {
-        return this.playerColor(this.getPlayer(user));
+        return this.playerColor(user);
     }
     
     promote(toSquare: Square, piecePromotion: Piece) {

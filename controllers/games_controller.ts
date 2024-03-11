@@ -1,7 +1,6 @@
 import express from 'express';
-import { Board } from '../gameplay/board.js';
-import { TimeControl } from '../gameplay/time_control.js';
-import { Color } from '../gameplay/color.js';
+import { Board } from 'chessgameplay';
+import { Color } from 'chessgameplay';
 import { randomUUID } from 'crypto';
 import { matchedData, validationResult } from 'express-validator';
 import * as GameService from '../services/games_service.js'
@@ -110,13 +109,7 @@ export function create(req: express.Request, res: express.Response) {
         hostPrefer = Color.Black;
     }
 
-    const timeControl: TimeControl = {
-        startingMins: 0,
-        increment: 0,
-        delay: 0,
-    }
-
-    const uuid = GameService.createGame(user, timeControl, hostPrefer);
+    const uuid = GameService.createGame(user, hostPrefer);
     if (uuid.length > 0) {
         res.send(uuid);
     } else {
