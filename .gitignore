@@ -1,4 +1,5 @@
 /node_modules
+/game_server/node_modules
 
 /*.js
 /gameplay/**/*.js
