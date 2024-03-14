@@ -14,7 +14,7 @@ export namespace Color {
         } else if (color === Color.Black) {
             return 'Black';
         } else {
-            return null;
+            return '';
         }
     }
 }
