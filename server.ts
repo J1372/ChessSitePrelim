@@ -28,17 +28,17 @@ const urlParser = express.urlencoded({extended: true});
 const secret = fs.readFileSync('secret.txt').toString();
 
 const projectDir = path.dirname(fileURLToPath(import.meta.url));
-const buildDir = path.join(projectDir, 'build');
+const buildDir = path.join(projectDir, 'frontend', 'build');
 
 app.use(express.static(buildDir));
 app.use(sessions({
     secret: secret,
-    saveUninitialized: true,
+    saveUninitialized: false,
     resave: false,
 
     store: MongoStore.create({
         client: mongoose.connection.getClient(),
-        ttl: 60 * 10,
+        ttl: 60 * 60,
     })
 }));
 
@@ -73,11 +73,8 @@ app.get('/username', (req, res) => {
 app.post('/games', valid.loggedIn, jsonParser, valid.createGameSchema, games.create);
 app.get('/games/open-games', games.getOpenGames);
 app.put('/games/:uuid', valid.loggedIn, games.join);
-app.get('/games/:uuid/game-state', games.getGameState);
-app.get('/games/:uuid/subscriptions', games.subscribe);
-app.get('/games/:uuid/waiting', valid.loggedIn, games.hostWaiting);
-app.post('/games/:uuid/moves', valid.loggedIn, jsonParser, valid.moveSchema, games.move);
-app.post('/games/:uuid/resign', valid.loggedIn, games.resignGame);
+
+//get game/uuid return game results or redirect to socket server.
 
 
 app.get('/*', (_: express.Request, res: express.Response) => {
