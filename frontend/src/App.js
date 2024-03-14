@@ -3,7 +3,7 @@ import Home, { homeLoader } from './pages/Home';
 import Login from './pages/Login';
 import CreateAccount from './pages/CreateAccount';
 import User, { userLoader } from './pages/User';
-import GamePage, { gameLoader } from './pages/Game';
+import GamePage from './pages/Game';
 import Dashboard, { dashboardLoader } from './pages/Dashboard';
 import { QueryClient, QueryClientProvider } from 'react-query';
 
@@ -41,7 +41,6 @@ function App() {
         },
         {
           path: 'games/:gameId',
-          loader: gameLoader,
           element: <GamePage/>
         },
       ]

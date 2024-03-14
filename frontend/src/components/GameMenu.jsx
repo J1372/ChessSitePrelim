@@ -1,12 +1,7 @@
 import React from "react";
 import UserLink from "./UserLink";
 
-export default function GameMenu({ gameId, white, black, result, isPlayer, onSwitchPerspective}) {
-
-    function sendResign(_) {
-        fetch('/games/' + gameId + '/resign', { method: 'post' });
-    }
-
+export default function GameMenu({ isPlayer, white, black, result, onResign, onSwitchPerspective}) {
     return (
         <div id='game-menu'>
             <h3 className='game-menu-header'>
@@ -20,7 +15,7 @@ export default function GameMenu({ gameId, white, black, result, isPlayer, onSwi
             
             <button type="button" className='button' onClick={onSwitchPerspective}>Switch perspective</button>
             {isPlayer && result.length === 0 &&
-                <button type="button" className='button' onClick={sendResign}>Resign</button>
+                <button type="button" className='button' onClick={onResign}>Resign</button>
             }
         </div>
     )

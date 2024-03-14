@@ -1,4 +1,4 @@
-import React, { useContext, useRef, useState } from 'react';
+import React, { useContext, useState } from 'react';
 import '../home.css';
 import { Color } from 'chessgameplay';
 import { clientsideDateString } from '../util/clientside_date_converter';
@@ -33,16 +33,10 @@ function Home() {
     const [creatingGame, setCreatingGame] = useState(false);
     const [playAs, setPlayAs] = useState('e');
 
-    const sse = useRef(null);
-
     const navigate = useNavigate();
 
     async function handleSubmit(e) {
         e.preventDefault();
-
-        if (sse.current) {
-            return;
-        }
 
         const res = await fetch('/games', {
             method: 'post',
@@ -56,19 +50,6 @@ function Home() {
         if (!res.ok) {
             return;
         }
-
-        const uuid = await res.text();
-
-
-        const toGameURL = '/games/' + uuid;
-        const sseURL = toGameURL + '/waiting';
-        const listener = new EventSource(sseURL);
-        sse.current = listener;
-        listener.onmessage = _ => {
-            listener.close();
-            navigate(toGameURL);
-        };
-        listener.onerror = () => listener.close();
 
         refreshGameList();
         setCreatingGame(false);
