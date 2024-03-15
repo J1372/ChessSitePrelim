@@ -20,7 +20,7 @@ export class Game {
     static fromPost(description: GamePost, otherUser: string) {
         let hostPlayAs = description.hostPlayAs;
 
-        if (!hostPlayAs) {
+        if (hostPlayAs == undefined) {
             hostPlayAs = Math.random() <= 0.5 ? Color.White : Color.Black;
         }
 
