@@ -62,86 +62,62 @@ function endGame(game: Game) {
 }
 
 
-async function storeGame(game: Game, winner: Color, dueTo: string, ended: Date) {
-    // Get necessary info about players.
-    const selectStr = '_id wins losses gameHistory';
-    const [white, black] = await Promise.all([User.findOne({name: game.white}).select(selectStr).exec(),
-                                              User.findOne({name: game.black}).select(selectStr).exec()]);
-    
-    // If game was actually played, neither should ever be null.
-    if (!white || !black) {
-        return;
-    }
+async function storeGame(game: Game, winnerColor: Color, dueTo: string, ended: Date) {
 
-    let result = '';
-    let winnerUpdate;
-    let loserUpdate;
-    if (winner === Color.White) {
-        result = 'W';
-        winnerUpdate = white;
-        loserUpdate = black;
-    } else {
-        result = 'B';
-        winnerUpdate = black;
-        loserUpdate = white;
-    }
-
-
-    // Update actual user wins
-    ++winnerUpdate.wins;
-    ++loserUpdate.losses;
-    
-
-    // Update players' history with each other.
-    const winnerId = winnerUpdate._id;
-    const key = UsersGameHistory.key(white._id, black._id);
-    UsersGameHistory.findById(key).select('user1Wins user2Wins').exec()
-    .then(history => {
-        // Create a new history if players have never played together before.
-        if (!history) {
-            history = new UsersGameHistory({
-                _id: key,
-                user1Wins: 0,
-                draws: 0,
-                user2Wins: 0,
-            });
-        }
-        
-        if (key.a.equals(winnerId)) {
-            ++history.user1Wins;
+    const updatePlayerWinStats = (game: Game, winnerColor: Color) => {
+        if (winnerColor === Color.White) {
+            return Promise.all([User.addWin(game.white), User.addLoss(game.black)]);
         } else {
-            ++history.user2Wins;
+            return Promise.all([User.addWin(game.black), User.addLoss(game.white)]);
         }
-    
-        history.save()
+    }
+
+    updatePlayerWinStats(game, winnerColor)
+    .then(([winner, loser]) => {
+        console.log("Updated users' individual stats.")
+        
+        const winnerId = winner!._id;
+        const loserId = loser!._id;
+
+        UsersGameHistory.updateHistories(winnerId, loserId)
         .then(_ => console.log('Updated player histories.'))
         .catch(console.log);
-    })
-    .catch(console.log);
 
+        let whiteId: mongoose.Types.ObjectId;
+        let blackId: mongoose.Types.ObjectId;
+        let result: string;
+        if (winnerColor === Color.White) {
+            result = 'W';
+            whiteId = winnerId;
+            blackId = loserId;
+        } else {
+            result = 'B';
+            whiteId = loserId;
+            blackId = winnerId;
+        }
 
+        // Create the actual game.
+        const newGame = new MongoGame({
+            uuid: game.uuid,
+            white: whiteId,
+            black: blackId,
+            result: result,
+            dueTo: dueTo,
+            started: game.started,
+            ended: ended
+        });
 
-    // Create the actual game.
-    const newGame = new MongoGame({
-        uuid: game.uuid,
-        white: white._id,
-        black: black._id,
-        result: result,
-        dueTo: dueTo,
-        started: game.started,
-        ended: ended
-    });
-
-    newGame.save()
-    .then(savedGame => {
-        console.log('Saved game to db.')
-        
-        // Add game to players' histories.
-        white.gameHistory.push(savedGame._id);
-        black.gameHistory.push(savedGame._id);
-
-        Promise.all([white.save(), black.save()])
-        .then(_ => console.log('Updated player info.'))
+        newGame.save()
+        .then(savedGame => {
+            console.log('Saved game to db.')
+            
+            // Add game to players' histories.
+            return Promise.all([
+                User.addGame(winnerId, savedGame._id),
+                User.addGame(loserId, savedGame._id),
+            ]);
+        })
+        .then(_ => console.log("Added game to users' histories."))
         .catch(console.log);
     })
     .catch(console.log);
