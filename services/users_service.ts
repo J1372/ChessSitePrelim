@@ -92,7 +92,7 @@ export function getStats(name: string) {
 }
 
 export async function getLatestGames(name: string, amount: number) {
-    const user = await User.findOne({ name: name})
+    const user = await User.findOne({ name: name })
         .select('_id')
         .select({ gameHistory: { $slice: -amount }}).exec();
 
@@ -102,30 +102,19 @@ export async function getLatestGames(name: string, amount: number) {
 
     const games = await MongoGame.find({ _id : { $in: user.gameHistory } })
         .select('_id uuid white black result dueTo started ended')
+        .populate('white', 'name') // $ne user._id // then re-add if statement in later loop
+        .populate('black', 'name') // $ne user._id
         .sort({ started: -1 }).exec();
 
-    const gamesInfo = [];
-    for (const game of games) {
-        const gameInfo = {
+    return games.map(game => {
+        return {
             uuid: game.uuid,
+            white: game.white.name,
+            black: game.black.name,
             result: game.result,
             dueTo: game.dueTo,
             started: game.started,
             ended: game.ended,
-        } as any;
-
-        if (user._id.equals(game.white)) {
-            gameInfo.white = name;
-            const dbRes = await User.findById(game.black).select('name').exec();
-            gameInfo.black = dbRes!.name;
-        } else {
-            gameInfo.black = name;
-            const dbRes = await User.findById(game.white).select('name').exec();
-            gameInfo.white = dbRes!.name;
-        }
-
-        gamesInfo.push(gameInfo);
-    };
-
-    return gamesInfo;
+        };
+    });
 }
