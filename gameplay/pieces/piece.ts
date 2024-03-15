@@ -3,10 +3,6 @@ import { Color } from "../color.js";
 import { Square } from "../square.js";
 
 
-// could have piece be a class so that we can implement a default getMoves.
-// pawn is currently the only unique getMoves.
-// is this a bad use case, inheriting just for code reuse?
-// dont think so, each piece has a common interface, and differences that aren't data.
 export interface Piece {
     readonly color: Color;
     readonly pieceName: string;
@@ -31,13 +27,6 @@ export interface Piece {
      * @param board The board the piece is on.
      */
     getControlArea(pos: Square, board: Board): Array<Square>;
-
-    /**
-     * Get possible piece promotions for this piece if it were to move to a square on the given board.
-     * @param onMoveTo Square to move to on the board.
-     * @param board The board the piece is on.
-     */
-    getPromotionsOnMove(onMoveTo: Square, board: Board): Array<string>;
 
     notifyMove(): void;
 }

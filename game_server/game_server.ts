@@ -1,6 +1,6 @@
 import * as http from 'http';
 import { Server, Socket } from 'socket.io';
-import { Board, Color, Game } from 'chessgameplay';
+import { Board, Color, Game, Move } from 'chessgameplay';
 import express from 'express';
 import * as GameServerService from './game_server_service.js'
 
@@ -73,34 +73,29 @@ function handleGameClose(game: Game) {
     io.in(game.uuid).disconnectSockets();
 }
 
-function handlePlayerMove(game: Game, user: string, move: any) {
-    const gameUUID = game.uuid;
+function handlePlayerMove(game: Game, user: string, moveJson: any) {
 
-    console.log(gameUUID);
+    const isValidSquare = (json: any) => json != null 
+                                        && json.row != null && json.col != null
+                                        && typeof(json.row) === 'number' && typeof(json.col) === 'number';
 
-    if (!move || typeof(move.from) != 'string' || typeof(move.to) != 'string') {
+    if (!moveJson || !isValidSquare(moveJson.from) || !isValidSquare(moveJson.to) || typeof(moveJson.promotedTo) !== 'string') {
         return;
     }
-    // todo allow game to handle notation conversion, or send/receive ints.
-    //  since board tied closely to game. allows games to have different boards.
-    const fromSquare = Board.convertFromNotation(move.from);
-    const toSquare = Board.convertFromNotation(move.to);
 
-    // Move notation invalid for board size.
-    if (!fromSquare || !toSquare) {
-        return false;
-    }
+    // may still have other properties.
+    const move = moveJson as Move;
 
-    const userSelectedPromotion = move.promotion;
-    const result = GameServerService.tryMove(gameUUID, user, fromSquare, toSquare, userSelectedPromotion);
-    
+    const gameUUID = game.uuid;
+    const result = GameServerService.tryMove(gameUUID, user, move);
+
     switch (result) {
         case GameServerService.MoveResult.ACCEPTED: {
-            io.to(gameUUID).emit('move', JSON.stringify({ from: move.from, to: move.to, promotion: userSelectedPromotion }));
+            io.to(gameUUID).emit('move', JSON.stringify({ move: { from: move.from, to: move.to, promotedTo: move.promotedTo } }));
             break;
         }
         case GameServerService.MoveResult.CHECKMATE: {
-            io.to(gameUUID).emit('move', JSON.stringify({ from: move.from, to: move.to, promotion: userSelectedPromotion, ended: 'mate' }));
+            io.to(gameUUID).emit('move', JSON.stringify({ move: { from: move.from, to: move.to, promotedTo: move.promotedTo }, ended: 'mate' }));
             handleGameClose(game);
             break;
         }
@@ -166,9 +161,9 @@ io.on('connection', async client => {
         console.log(`User: ${user} - player.`);
 
         client.on('move', (move: string) => {
-            console.log(`Received ${user}'s move: ${move}`);
+            console.log(`Received ${user}'s move: ${move} for ${game.uuid}`);
             handlePlayerMove(game, user, JSON.parse(move));
-        }); // maybe move is square interface, two ints.
+        });
 
         client.on('resign', () => {
             handlePlayerResign(game, user);

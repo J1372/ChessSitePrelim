@@ -1,6 +1,5 @@
-import { GamePost, Square } from 'chessgameplay';
+import { GamePost, Move } from 'chessgameplay';
 import { Game } from 'chessgameplay';
-import { pieceFactory } from 'chessgameplay';
 import { Color } from 'chessgameplay';
 import { User } from '../mongo/user.js';
 import { UsersGameHistory } from '../mongo/users_game_history.js';
@@ -19,45 +18,16 @@ export enum MoveResult {
 
 export const getActiveGameCount = () => activeGames.size;
 
-export function tryMove(uuid: string, player: string, from: Square, to: Square, promotion: string | undefined): MoveResult {
+export function tryMove(uuid: string, player: string, move: Move): MoveResult {
     const game = activeGames.get(uuid);
 
     // No game with uuid that is currently being played.
     if (!game) return MoveResult.REJECTED;
 
-    // Only allow making a move if logged the user is a player in the game.
-    if (!game.isPlayer(player)) return MoveResult.REJECTED;
+    // Check if user can actually move where they want to go.
+    if (!game.canMove(player, move)) return MoveResult.REJECTED;
 
-    // There is a game with uuid, and the user is a player in the game.
-
-    // Check if player can actually move where they want to go.
-    if (!game.canMove(player, from, to)) return MoveResult.REJECTED;
-
-    // Get a list of promotions that the player must choose from if making this move.
-    // If non-empty list, player must have chosen a promotion from this list.
-    const forcedPromotions = game.getPromotions(from, to);
-
-    // if game.mustPromote(move) then game.tryPromote(square, pieceString) and if fail then return.
-
-    if (forcedPromotions.length > 0) {
-        // Move requires promotion, user request does not specify a promotion.
-        if (!promotion) return MoveResult.REJECTED;
-
-        // Player tried to promote, specified promotion is not an option.
-        if (!forcedPromotions.includes(promotion)) return MoveResult.REJECTED;
-        
-
-        // Create new piece.
-        const promotedTo = pieceFactory(promotion, game.getColor(player));
-
-        // Factory failed to produce a Piece. Should only happen if piece string is invalid.
-        if (!promotedTo) return MoveResult.REJECTED;
-
-        game.move(from, to);
-        game.promote(to, promotedTo);
-    } else {
-        game.move(from, to);
-    }
+    game.move(move);
 
     // Move was accepted, check if move caused checkmate.
 

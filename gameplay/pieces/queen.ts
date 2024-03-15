@@ -16,7 +16,6 @@ export class Queen implements Piece {
 
     notifyMove(): void {}
 
-    
     getMoves(pos: Square, board: Board): Square[] {
         const controls = this.getControlArea(pos, board);
         
@@ -28,9 +27,4 @@ export class Queen implements Piece {
 
         return validMoves;
     }
-
-    getPromotionsOnMove(onMoveTo: Square, board: Board): string[] {
-        return [];
-    }
-    
 }

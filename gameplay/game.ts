@@ -1,74 +1,60 @@
 import { Board } from "./board.js";
+import BoardFactory from "./board_factory.js";
 import { Color } from "./color.js";
 import { GamePost } from "./game_post.js";
 import { Move } from "./move.js";
-import { Piece, Ray } from "./pieces/piece.js";
 import { Square } from "./square.js";
 
-// This is a game currently being played.
+// Two player game metadata and board, which handles the actual game rules.
 export class Game {
-    uuid!: string; // length = 16
-    white!: string;
-    black!: string;
-    board!: Board;
-    moves!: Move[]; // move history.
-
-    // Date the game actually started (both users could make moves).
-    started!: Date;
-
-    drawOffer?: string; // user who offered a draw, if any. if other user offers draw, accepts draw.
+    private constructor(
+        public readonly uuid: string,
+        public readonly white: string,
+        public readonly black: string,
+        private board: Board,
+        public readonly gameType: string,
+        public readonly moves: Move[],
+        public readonly started: Date)
+    {}
     
     static fromPost(description: GamePost, otherUser: string) {
-        const game = new Game();
+        let hostPlayAs = description.hostPlayAs;
 
-        game.uuid = description.uuid;
-        game.started = new Date(); // could use Date.now instead
-
-        if (description.hostPlayAs === undefined) {
-            description.hostPlayAs = Math.random() <= 0.5 ? Color.White : Color.Black;
+        if (!hostPlayAs) {
+            hostPlayAs = Math.random() <= 0.5 ? Color.White : Color.Black;
         }
 
-        if (description.hostPlayAs === Color.White) {
-            game.white = description.host;
-            game.black = otherUser;
+        const gameType = 'standard';
+        const board = BoardFactory.create(gameType);
+
+        if (!board) {
+            throw new Error('Failed to construct a board from GamePost.');
+        }
+
+        let white = ''
+        let black = ''
+        if (hostPlayAs === Color.White) {
+            white = description.host;
+            black = otherUser;
         } else {
-            game.white = otherUser;
-            game.black = description.host;
+            white = otherUser;
+            black = description.host;
         }
 
-        game.board = Board.standardBoard();
-        game.moves = new Array<Move>();
-
-        return game;
+        return new Game(description.uuid, white, black, board, gameType, [], new Date()); // could use Date.now instead
     }
 
     static deserialize(object: any) {
-        const game = new Game();
+        const board = BoardFactory.deserialize(object.gameType, object.board);
 
-        game.uuid = object.uuid;
-        game.started = object.started;
-
-        game.white = object.white;
-        game.black = object.black;
-
-        game.board = Board.deserialize(object.board);
-        game.moves = object.moves;
-
-        game.drawOffer = object.drawOffer;
-
-        return game;
-    }
-
-    playerColor(player: string) {
-        if (player === this.white) {
-            return Color.White;
-        } else {
-            return Color.Black;
+        if (!board) {
+            throw new Error('Failed to deserialize board.');
         }
 
+        return new Game(object.uuid, object.white, object.black, board, object.gameType, object.moves, object.started);
     }
     
-    getCurPlayer(): string {
+    public getCurPlayer() {
         if (this.board.curTurn === Color.White) {
             return this.white;
         } else {
@@ -76,73 +62,45 @@ export class Game {
         }
     }
 
-    isPlayer(user: string): boolean {
+    public isPlayer(user: string): boolean {
         return this.white === user || this.black === user;
     }
 
-    isTurn(player: string): boolean {
-        return this.playerColor(player) === this.board.curTurn;
+    public isTurn(player: string): boolean {
+        return this.getColor(player) === this.board.curTurn;
     }
 
-    hasWon(color: Color) {
+    public hasWon(color: Color) {
         return this.board.hasWon(color);
     }
 
-    userWon(user: string) {
-        return this.hasWon(this.playerColor(user));
+    public userWon(user: string) {
+        return this.hasWon(this.getColor(user));
     }
 
-    owns(player: string, square: Square): boolean {
+    public owns(player: string, square: Square): boolean {
         const piece = this.board.getPiece(square.row, square.col);
-
-        if (!piece) {
-            return false;
-        }
-
-        return this.playerColor(player) === piece.color;
+        return this.board.occupiedBy(square.row, square.col, this.getColor(player));
     }
 
-    canMove(user: string, from: Square, to: Square): boolean {
-        if (this.isPlayer(user)) {
-            return this.isTurn(user) && this.owns(user, from) && this.board.canMove(from, to);
-        } else {
-            return false;
-        }
-
+    public canMove(user: string, move: Move): boolean {
+        return this.isPlayer(user) && this.isTurn(user) && this.board.canMove(move);
     }
 
-    move(from: Square, to: Square): void {
-        const toMove = this.board.getPiece(from.row, from.col) as Piece;
-        this.board.move(from, to);
-        this.moves.push()
-        toMove.notifyMove();
+    public move(move: Move): void {
+        this.board.move(move);
+        this.moves.push(move);
     }
 
-    getColor(user: string): Color {
-        return this.playerColor(user);
+    public getColor(user: string): Color {
+        return user === this.white ? Color.White : Color.Black;
     }
     
-    promote(toSquare: Square, piecePromotion: Piece) {
-        //const oldPiece = this.board.getPiece(toSquare.row, toSquare.col);
-
-        this.board.setPiece(toSquare, piecePromotion);
-        if (piecePromotion.color === Color.White) {
-            // update white control arrs
-        } else {
-            // update black control arrs
-        }
+    public getForcedPromotions(move: Move): string[] {
+        return this.board.getForcedPromotions(move);
     }
 
-
-    getPromotions(from: Square, to: Square): string[] {
-        const toMove = this.board.getPiece(from.row, from.col);
-        if (!toMove) {
-            return [];
-        }
-        return toMove.getPromotionsOnMove(to, this.board);
-    }
-
-    genPgn(): string {
+    /*genPgn(): string {
         return '';
-    }
+    }*/
 }

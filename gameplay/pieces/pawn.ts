@@ -67,29 +67,9 @@ export class Pawn implements Piece {
 
         return moves.filter(square => !board.putsInCheck(pos, square, this.color));
     }
-
-    getPromotionsOnMove(onMoveTo: Square, board: Board): string[] {
-        // knight, bishop, rook, queen.
-        const available = ['n', 'b', 'r', 'q'];
-
-        if (this.color === Color.White) {
-            if (onMoveTo.row === board.topRow()) {
-                return available;
-            } else {
-                return []; // nothing
-            }
-        } else {
-            if (onMoveTo.row === 0) {
-                return available;
-            } else {
-                return []; // nothing
-            }
-        }
-    }
-
+    
     private getMoveDirection() {
         const increment = this.color == Color.White ? 1 : -1;
         return increment;
     }
-
 }

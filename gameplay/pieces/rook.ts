@@ -27,9 +27,4 @@ export class Rook implements Piece {
 
         return validMoves;
     }
-    
-    getPromotionsOnMove(onMoveTo: Square, board: Board): string[] {
-        return [];
-    }
-    
 }

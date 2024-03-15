@@ -1,5 +1,4 @@
 import { useState, useRef, useContext } from "react";
-import { Board } from "chessgameplay";
 import { SessionUserContext } from "../contexts/SessionUserContext";
 import GameBoard from './GameBoard';
 
@@ -28,7 +27,7 @@ export default function PlayableGameBoard({ game, perspective, moveUpdate, onPla
     }
 
     function handlePromotionListClick(e) {
-        onPlayerValidMoveAttempt({ from: Board.convertToNotation(selected), to: Board.convertToNotation(moveCopy.current), promotion: e.target.innerText });
+        onPlayerValidMoveAttempt({ from: selected, to: moveCopy.current, promotedTo: e.target.innerText });
         setSelected(null);
         closePromotionList();
     }
@@ -50,21 +49,25 @@ export default function PlayableGameBoard({ game, perspective, moveUpdate, onPla
             } else if (game.owns(sessionUser, clicked)) {
                 // player clicked on one of their other pieces. select that piece.
                 setSelected(clicked);
-            } else if (game.canMove(sessionUser, selected, clicked)) {
-                // player attempted to make a valid move.
-                // If a promotion is forced, open promotion list for selection.
-                // Otherwise, notify parent of player's valid move attempt and deselect.
-                const forcedPromotions = game.getPromotions(selected, clicked);
-                if (forcedPromotions.length > 0) {
-                    moveCopy.current = clicked;
-                    openPromotionList(0, 0, forcedPromotions);
+            } else {
+                const move = { from: selected, to: clicked, promotedTo: '' };
+
+                if (game.canMove(sessionUser, move)) {
+                    // player attempted to make a valid move.
+                    // If a promotion is forced, open promotion list for selection.
+                    // Otherwise, notify parent of player's valid move attempt and deselect.
+                    const forcedPromotions = game.getForcedPromotions(move);
+                    if (forcedPromotions.length > 0) {
+                        moveCopy.current = clicked;
+                        openPromotionList(0, 0, forcedPromotions);
+                    } else {
+                        onPlayerValidMoveAttempt(move, canvasBoard);
+                        setSelected(null);
+                    }
                 } else {
-                    onPlayerValidMoveAttempt({ from: Board.convertToNotation(selected), to: Board.convertToNotation(clicked) }, canvasBoard);
+                    // Player attempted invalid move, deselect.
                     setSelected(null);
                 }
-            } else {
-                // Player attempted invalid move, deselect.
-                setSelected(null);
             }
     
         } else {

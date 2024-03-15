@@ -1,7 +1,7 @@
 import { useEffect, useState, useRef } from "react";
 import PlayableGameBoard from "./PlayableGameBoard";
 import { io } from 'socket.io-client';
-import { Game, Color, Board, pieceFactory } from "chessgameplay";
+import { Game, Color } from "chessgameplay";
 
 // externalMoveNotify - move made by something other than clicking the board (text, button)
 export default function SocketGameBoard({ uuid, perspective, _gameBoardComponentType, setGameEndedResult, returnGameAfterLoad, externalMoveNotify }) {
@@ -56,23 +56,16 @@ export default function SocketGameBoard({ uuid, perspective, _gameBoardComponent
             setValidMoveHandler(() => (move, _) => { sendMove(move) });
             
             gameMoveHandler = (moveString) => {
-                const move = JSON.parse(moveString);
+                const moveMessage = JSON.parse(moveString);
+                const move = moveMessage.move;
 
-                const from = Board.convertFromNotation(move.from);
-                const to = Board.convertFromNotation(move.to);
-        
                 const color = deserialized.board.curTurn;
                 const player = deserialized.getCurPlayer();
-                deserialized.move(from, to);
-        
-                if (move.promotion) {
-                    const piece = pieceFactory(move.promotion, color);
-                    deserialized.promote(to, piece);
-                }
+                deserialized.move(move);
 
                 setMoveUpdate(move); //this will call setGameEndedResult if mated.
                 
-                if (move.ended === 'mate') {
+                if (moveMessage.ended === 'mate') {
                     const loser = deserialized.getCurPlayer()
                     setGameEndedResultRef.current({ winner: player, loser: loser, winnerColor: color, reason: 'mate' });
                 }

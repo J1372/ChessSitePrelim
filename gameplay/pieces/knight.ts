@@ -49,9 +49,4 @@ export class Knight implements Piece {
 
         return validMoves;
     }
-
-    getPromotionsOnMove(onMoveTo: Square, board: Board): string[] {
-        return [];
-    }
-    
 }
