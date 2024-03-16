@@ -53,7 +53,7 @@ function CreateAccount() {
                     </li>
                     <li>
                         <label htmlFor="passwordInput">Password: <span aria-label="required">*</span></label>
-                        <input id='passwordInput' type='text' name='pass' value={pass} onChange={e => setPass(e.target.value)} autoComplete='new-password' required></input>
+                        <input id='passwordInput' type='password' name='pass' value={pass} onChange={e => setPass(e.target.value)} autoComplete='new-password' required></input>
                     </li>
                 </ul>
                 <button className='button' type='submit' onClick={handleSubmit} disabled={user.length === 0 || pass.length === 0 || state === 'submitting'}>Create account</button>

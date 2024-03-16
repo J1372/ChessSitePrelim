@@ -52,7 +52,7 @@ function Login() {
                     </li>
                     <li>
                         <label htmlFor="passwordInput">Password:</label>
-                        <input id='passwordInput' type='text' name='pass' value={pass} onChange={e => setPass(e.target.value)} autoComplete='current-password' required></input>
+                        <input id='passwordInput' type='password' name='pass' value={pass} onChange={e => setPass(e.target.value)} autoComplete='current-password' required></input>
                     </li>
                 </ul>
                 <button className='button' type='submit' onClick={handleSubmit} disabled={user.length === 0 || pass.length === 0 || state === 'submitting'}>Login</button>
