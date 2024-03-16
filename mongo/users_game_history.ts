@@ -22,17 +22,17 @@ const usersGameHistorySchema = new mongoose.Schema({
 
     user1Wins: { // = user2's losses
         type: Number,
-        required: true
+        default: 0
     },
 
     draws: {
         type: Number,
-        required: true
+        default: 0
     },
     
     user2Wins: { // = user1's losses
         type: Number,
-        required: true
+        default: 0
     }
 
     // Games played together = user1Wins + draws + user2Wins
