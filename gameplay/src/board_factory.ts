@@ -1,5 +1,5 @@
-import { Board } from "./board";
-import { StandardBoard } from "./standard_board";
+import { Board } from "./board.js";
+import { StandardBoard } from "./standard_board.js";
 
 
 export default class BoardFactory {

@@ -1,4 +1,4 @@
-import { Square } from "./square";
+import { Square } from "./square.js";
 
 /*
     Represents a move on a chess board.

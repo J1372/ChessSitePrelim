@@ -1,6 +1,7 @@
 {
   "name": "chessgameplay",
   "version": "1.0.0",
+  "type": "module",
   "description": "JS chess gameplay module (front and back)",
   "main": "index.js",
   "scripts": {
