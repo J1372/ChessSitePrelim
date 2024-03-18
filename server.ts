@@ -1,5 +1,10 @@
 import mongoose from "mongoose"
-await mongoose.connect('mongodb://127.0.0.1:27017/Chess');
+
+if (process.env.MONGO_CONNECT_URL == undefined) {
+    throw new Error('Missing env MONGO_CONNECT_URL.');
+}
+
+await mongoose.connect(process.env.MONGO_CONNECT_URL);
 
 import * as games from './controllers/games_controller.js'
 import * as users from './controllers/users_controller.js'
@@ -11,6 +16,7 @@ import { fileURLToPath } from 'url';
 import express from 'express';
 import sessions from 'express-session';
 import MongoStore from "connect-mongo";
+
 import * as fs from "fs";
 
 declare module "express-session" {
@@ -42,12 +48,15 @@ app.use(sessions({
     })
 }));
 
-process.on('SIGINT', async (code) => {
+async function shutdown(_: NodeJS.Signals) {
     console.log("Stopping server.");
     await mongoose.disconnect();
     console.log("Closed database.");
     process.exit();
-});
+}
+
+process.on('SIGTERM', shutdown);
+process.on('SIGINT', shutdown);
 
 /*
 

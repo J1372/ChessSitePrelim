@@ -26,7 +26,7 @@ export async function join(req: express.Request, res: express.Response) {
         }
 
         console.log('Sending request to game server.');
-        fetch('http://127.0.0.1:4000/start-active-game', { 
+        fetch(`http://chess_nginx/start-active-game?gameUUID=${gameDetails.uuid}`, { 
             method: 'post',
             headers: {
                 'Accept': 'application/json',

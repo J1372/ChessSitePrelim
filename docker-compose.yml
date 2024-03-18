@@ -1,0 +1,73 @@
+version: '3'
+services:
+  chess_nginx:
+    image: chess_nginx
+    container_name: 'chess_nginx'
+    build:
+      context: ./nginx
+      dockerfile: './Dockerfile'
+    ports:
+      - '8080:80'
+    networks:
+      - chess-net
+    depends_on:
+      - web
+      - game1
+      - game2
+
+  web:
+    image: chess_web_server
+    container_name: 'web_server'
+    build:
+      context: .
+      dockerfile: './Dockerfile'
+    env_file:
+      - .env
+    networks:
+      - chess-net
+    depends_on:
+      - mongo
+
+
+  mongo:
+    image: mongo
+    container_name: 'mongo'
+    networks:
+      - chess-net
+
+    #volumes:
+
+
+  _game_build:
+    image: chess_game_server
+    command: ['echo', 'socket build']
+    build:
+      context: .
+      dockerfile: './game_server/Dockerfile'
+
+  game1:
+    image: chess_game_server
+    container_name: 'game_server1'
+    depends_on:
+      - _game_build
+      - mongo
+    env_file:
+      - .env
+    networks:
+      - chess-net
+
+  game2:
+    image: chess_game_server
+    container_name: 'game_server2'
+    depends_on:
+      - _game_build
+      - mongo
+    env_file:
+      - .env
+    networks:
+      - chess-net
+
+networks:
+  chess-net:
+    name: chess-net
+    external: true

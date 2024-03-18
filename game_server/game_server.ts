@@ -1,30 +1,31 @@
 import * as http from 'http';
 import { Server, Socket } from 'socket.io';
-import { Board, Color, Game, Move } from 'chessgameplay';
+import { Color, Game, Move } from 'chessgameplay';
 import express from 'express';
 import * as GameServerService from './game_server_service.js'
-
 import mongoose from "mongoose"
-await mongoose.connect('mongodb://127.0.0.1:27017/Chess');
 
-process.on('SIGINT', async (code) => {
+if (process.env.MONGO_CONNECT_URL == undefined) {
+    throw new Error('Missing env MONGO_CONNECT_URL.');
+}
+
+await mongoose.connect(process.env.MONGO_CONNECT_URL);
+
+async function shutdown(_: NodeJS.Signals) {
     console.log("Stopping server.");
     await mongoose.disconnect();
     console.log("Closed database.");
     process.exit();
-});
+}
+
+process.on('SIGTERM', shutdown);
+process.on('SIGINT', shutdown);
 
 const app = express();
 const server = http.createServer(app);
-const io = new Server(server, {
-    cors: {
-        origin: 'http://localhost:8080',
-        methods: ['GET', 'POST'],
-        credentials: true
-    }
-});
+const io = new Server(server);
 
-const port = 4000;
+const port = process.env.PORT || 4000;
 
 app.post('/start-active-game', express.json(), (req, res) => {
     const data = req.body;
