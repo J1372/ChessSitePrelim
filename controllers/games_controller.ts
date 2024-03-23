@@ -21,10 +21,8 @@ export async function join(req: express.Request, res: express.Response) {
 
     if (gameDetails) {
         // Game was created, tell game server.
-        const gameServerToken = 'aaa';
-        
         const data = {
-            auth: gameServerToken,
+            auth: process.env.GAME_SERVER_TOKEN,
             game: gameDetails,
             userJoining: userJoining
         }

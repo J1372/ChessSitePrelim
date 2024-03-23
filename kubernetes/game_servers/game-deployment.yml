@@ -19,6 +19,9 @@ spec:
         env:
           - name: MONGO_CONNECT_URL
             value: "mongodb://mongo:27017/Chess"
+        envFrom:
+          - secretRef:
+              name: dev-secret
         resources:
           limits:
             memory: "128Mi"

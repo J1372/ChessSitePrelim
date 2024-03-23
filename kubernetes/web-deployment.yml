@@ -21,6 +21,9 @@ spec:
             value: "mongodb://mongo:27017/Chess"
           - name: GAME_SERVER_PROXY
             value: "ingress-nginx-controller.ingress-nginx.svc.cluster.local"
+        envFrom:
+          - secretRef:
+              name: dev-secret
         resources:
           limits:
             memory: "128Mi"
