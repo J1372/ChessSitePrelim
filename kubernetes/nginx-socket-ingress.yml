@@ -1,0 +1,26 @@
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: game-controller
+  labels:
+    name: game-controller
+  annotations:
+    nginx.ingress.kubernetes.io/upstream-hash-by: "$arg_gameUUID"
+spec:
+  rules:
+    - http:
+        paths:
+          - pathType: Prefix
+            path: "/socket.io/"
+            backend:
+              service:
+                name: game-server-service
+                port:
+                  name: game-port
+          - pathType: Prefix
+            path: "/start-active-game"
+            backend:
+              service:
+                name: game-server-service
+                port:
+                  name: game-port

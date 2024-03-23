@@ -1,0 +1,30 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: web-server-deployment
+spec:
+  selector:
+    matchLabels:
+      app: web-server
+  replicas: 2
+  template:
+    metadata:
+      labels:
+        app: web-server
+    spec:
+      containers:
+      - name: web-server
+        image: chess_web_server_kub
+        imagePullPolicy: Never
+        env:
+          - name: MONGO_CONNECT_URL
+            value: "mongodb://mongo:27017/Chess"
+          - name: GAME_SERVER_PROXY
+            value: "ingress-nginx-controller.ingress-nginx.svc.cluster.local"
+        resources:
+          limits:
+            memory: "128Mi"
+            cpu: "500m"
+        ports:
+        - containerPort: 8080
+          name: api-port
