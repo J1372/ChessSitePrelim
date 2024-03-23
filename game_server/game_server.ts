@@ -31,7 +31,7 @@ app.post('/start-active-game', express.json(), (req, res) => {
     const data = req.body;
     console.log(data);
 
-    if (data.auth === 'aaa') {
+    if (data.auth === process.env.GAME_SERVER_TOKEN) {
         const game = data.game;
 
         let hostPlaysAsColor;

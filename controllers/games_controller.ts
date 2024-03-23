@@ -4,6 +4,10 @@ import { matchedData, validationResult } from 'express-validator';
 import * as GameService from '../services/games_service.js'
 import fetch from 'node-fetch';
 
+if (process.env.GAME_SERVER_PROXY == undefined) {
+    throw new Error("Missing env GAME_SERVER_PROXY")
+}
+
 export async function getOpenGames(_: express.Request, res: express.Response) {
     res.send(await GameService.getOpenGames());
 }
@@ -17,16 +21,14 @@ export async function join(req: express.Request, res: express.Response) {
 
     if (gameDetails) {
         // Game was created, tell game server.
-        const gameServerToken = 'aaa';
-        
         const data = {
-            auth: gameServerToken,
+            auth: process.env.GAME_SERVER_TOKEN,
             game: gameDetails,
             userJoining: userJoining
         }
-
+        
         console.log('Sending request to game server.');
-        fetch(`http://chess_nginx/start-active-game?gameUUID=${gameDetails.uuid}`, { 
+        fetch(`http://${process.env.GAME_SERVER_PROXY}/start-active-game?gameUUID=${gameDetails.uuid}`, { 
             method: 'post',
             headers: {
                 'Accept': 'application/json',

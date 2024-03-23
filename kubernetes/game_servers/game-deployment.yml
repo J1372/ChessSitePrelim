@@ -1,0 +1,31 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: game-deployment
+spec:
+  replicas: 3
+  selector:
+    matchLabels:
+      app: game-server
+  template:
+    metadata:
+      labels:
+        app: game-server
+    spec:
+      containers:
+      - name: game-server
+        image: chess_game_server
+        imagePullPolicy: Never
+        env:
+          - name: MONGO_CONNECT_URL
+            value: "mongodb://mongo:27017/Chess"
+        envFrom:
+          - secretRef:
+              name: dev-secret
+        resources:
+          limits:
+            memory: "128Mi"
+            cpu: "500m"
+        ports:
+        - containerPort: 4000
+          name: game-port
