@@ -1,5 +1,5 @@
 # ChessSitePrelim
-A MERN chess web application written in JavaScript on the frontend and TypeScript on the backend.
+A MERN chess web application written in JavaScript on the frontend and TypeScript on the backend. Scales using containerization and Kubernetes.
 
 # Features
 - User registration, profiles, and sessions.
