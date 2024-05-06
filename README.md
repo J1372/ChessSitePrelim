@@ -1,18 +1,10 @@
 # ChessSitePrelim
-A React.js + Node.js chess web application, written in Javascript and Typescript.
-
-# Developed with
-- React.js
-- Node.js
-- Express
-- MongoDB
-- Sass
+A MERN chess web application written in JavaScript on the frontend and TypeScript on the backend.
 
 # Features
 - User registration, profiles, and sessions.
   - Users' game histories can be viewed on their profile.
-  - Also keeps track of histories between players. Users can see their history with another player that they have played with when viewing the other player's profile page.
-
-- Playing and viewing chess games.
-  - Server-sent events are used for updating player and viewer clients.
+  - Users can see their history with another player that they have played against when viewing the other player's profile page.
+- Game posting, and joining open games from a table.
+- Real-time gamplay for players and viewers using web sockets.
   
